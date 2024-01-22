@@ -19,6 +19,9 @@ Things we want to steal great ideas from.
 ### [Goals ↗](https://github.com/KillianLucas/01/blob/main/GOALS.md)
 What we're going to do.
 
+### [Use Cases ↗](https://github.com/KillianLucas/01/blob/main/USE_CASES.md)
+What the 01 will be able to do.
+
 <br>
 
 ## Project Management
