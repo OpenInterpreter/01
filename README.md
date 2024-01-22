@@ -9,7 +9,7 @@ Official repository for [The 01 Project](https://twitter.com/hellokillian/status
 ### [Context ↗](https://github.com/KillianLucas/01/blob/main/CONTEXT.md)
 The story of devices that came before the 01.
 
-### [Inspiration ↗](https://github.com/KillianLucas/01/tree/main/inspiration)
+### [Inspiration ↗](https://github.com/KillianLucas/01/tree/main/INSPIRATION.md)
 Things we want to steal great ideas from.
 
 <br>
