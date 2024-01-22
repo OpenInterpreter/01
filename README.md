@@ -1,2 +1,3 @@
 # 01
-An open-source, locally running implementation of the Rabbit R1.
+
+Official repository for [The 01 Project](https://twitter.com/hellokillian/status/1745875973583896950).
