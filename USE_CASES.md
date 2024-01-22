@@ -4,6 +4,8 @@ Below are some use cases, some of which could make it into the video, some of wh
 
 (Note: I imagine startups being built to turn the 01 into these, but the first one is simple enough, I think we should just build it in as the default for the light body.)
 
+<br>
+
 ## Executive assistant / Bookmark for your life / Productivity tool
 
 Lets you offload a bunch of executive functions related to time and memory management— it intelligently orders your lists, batches tasks, and reminds you of scheduled items. "I just promised Ben I would do X." "Okay, I'll remind you of that later."
