@@ -1,12 +1,20 @@
-# Executive Assistant
+# Use Cases
 
-The executive assistant lets you offload a bunch of executive functions related to time management— it intelligently orders your lists, batches tasks, and reminds you of scheduled items.
+Below are some use cases, some of which could make it into the video, some of which we should build the product around.
 
-I imagine telling it everything I need to do, adding items to that list throughout the day, then having it guide me through the list. **I imagine it answering the question "what should I be doing right now?"**
+(Note: I imagine startups being built to turn the 01 into these, but the first one is simple enough, I think we should just build it in as the default for the light body.)
+
+## Executive assistant / Bookmark for your life / Productivity tool
+
+Lets you offload a bunch of executive functions related to time and memory management— it intelligently orders your lists, batches tasks, and reminds you of scheduled items. "I just promised Ben I would do X." "Okay, I'll remind you of that later."
+
+I imagine telling it everything I need to do, adding items to that list throughout the day, then having it guide me through the list one item at a time. **I imagine it answering the question "what should I be doing right now?"**
+
+(One of my motivations: _I never want to see my full list._ It's overwhelming. I want this to break it down into tiny steps, then I just do them.)
 
 Once you've started a task, it checks in with you when that item should be completed (based on its estimate, which could be informed by previous information re: how long it took to finish some task).
 
-## Example
+### Example
 
 **User:** Hey, here's what I need to do today...
 
@@ -51,7 +59,7 @@ tasks[0] # Print the new first item on the list
 
 <br>
 
-# Doctor
+## Doctor
 
 I imagine taking a photo of something, like dry skin, and asking questions about what I can do.
 
@@ -59,7 +67,7 @@ It could do RAG over [Medline Plus](https://medlineplus.gov/) to give me grounde
 
 <br>
 
-# Wikipedia in the middle of nowhere
+## Wikipedia in the middle of nowhere
 
 RAG over Wikipedia, updates every day (if it's connected to the internet, otherwise updates next time it's connected to the internet).
 
@@ -67,12 +75,12 @@ I imagine building a windmill with it— walking through the steps, it might hav
 
 <br>
 
-# Toys
+## Toys
 
 The ultimate build-a-bear— you press its paw and you can learn anything from this. Always speaks very simply.
 
 <br>
 
-# Chief of staff
+## Chief of staff
 
 Interacts with my computer(s) or interpreter(s) to retrieve information / get something done.
