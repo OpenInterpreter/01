@@ -1,4 +1,4 @@
-○ **The 01 Project** is comprised of the following goals, to be completed by _February 23rd, 2024_:
+**The 01 Project** is comprised of the following goals, to be completed by _February 23rd, 2024_:
 
 <br>
 
