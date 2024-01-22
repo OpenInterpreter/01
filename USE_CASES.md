@@ -6,7 +6,7 @@ I imagine telling it everything I need to do, adding items to that list througho
 
 Once you've started a task, it checks in with you when that item should be completed (based on its estimate, which could be informed by previous information re: how long it took to finish some task).
 
----
+## Example
 
 **User:** Hey, here's what I need to do today...
 
@@ -28,11 +28,11 @@ reminder_time = datetime.now() + timedelta(minutes=5)
 computer.clock.schedule(reminder_time, "Ask the user if they've finished making coffee.")
 ```
 
-...
+<br>
 
-(5 minutes passes)
+_... 5 minutes passes ..._
 
-...
+<br>
 
 **Computer:** "Ask the user if they've finished making coffee."
 
@@ -49,7 +49,7 @@ tasks[0] # Print the new first item on the list
 
 ...
 
----
+<br>
 
 # Doctor
 
@@ -57,15 +57,21 @@ I imagine taking a photo of something, like dry skin, and asking questions about
 
 It could do RAG over [Medline Plus](https://medlineplus.gov/) to give me grounded information. It could use [Moondream](https://github.com/vikhyat/moondream) locally.
 
+<br>
+
 # Wikipedia in the middle of nowhere
 
 RAG over Wikipedia, updates every day (if it's connected to the internet, otherwise updates next time it's connected to the internet).
 
 I imagine building a windmill with it— walking through the steps, it might have access to some schematics? And could help me calculate anything I need to calculate / work with the materials I have access to.
 
+<br>
+
 # Toys
 
 The ultimate build-a-bear— you press its paw and you can learn anything from this. Always speaks very simply.
+
+<br>
 
 # Chief of staff
 
