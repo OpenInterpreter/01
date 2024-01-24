@@ -36,4 +36,4 @@ Our (flexible) teams.
 
 <br>
 
-> **31** days remaining until launch
+> **30** days remaining until launch
