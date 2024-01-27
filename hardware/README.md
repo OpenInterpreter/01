@@ -8,18 +8,20 @@ The physical bodies of the 01.
 
 Some bodies— like the 01 Light without a screen and with a camera, and the 01 Heavy as a screenless tape-recorder with a camera and a button on the side— do not exist. So perhaps we should make CAD files and build them.
 
-But other bodies we've floated already exist as phones, smartwatches, laptops, and cyberdecks:
+Other bodies we've floated already exist as Android phones (isn't the Rabbit R1 basically an Android phone?) smartwatches, laptops, and cyberdecks (below).
 
-# Assembly-required OSS hardware
+I think we should decide by 1) estimating how long custom hardware would take, and 2) weighing it against how _memorable of an impression_ the 01 would make if it did/did't have custom hardware. Holding something unique is a big part of this. But we might accomplish that by using some of the more bizarre looking hardware below:
+
+### Assembly-required OSS hardware
 
 1. [The Raspberry Pi Recovery kit by Jay Doscher.](https://www.doscher.com/work-recovery-kit/) I bet we could reach out to him and have him send some tbh.
 
-# Ready to buy, OSS hardware
+### Ready to buy, OSS hardware
 
 1. [Clockwork's Devterm](https://www.clockworkpi.com/product-page/devterm-kit-r01)
 2. [Clockwork's uConsole](https://www.clockworkpi.com/product-page/uconsole-kit-rpi-cm4-lite)
 
-# Ready to buy, non-OSS hardware
+### Ready to buy, non-OSS hardware
 
 Can we modify the OS on these things?
 
