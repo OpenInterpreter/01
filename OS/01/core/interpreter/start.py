@@ -1,8 +1,8 @@
 """
-Responsible for configuring an interpreter, then using server.py to serve it at "/".
+Responsible for configuring an interpreter, then using main.py to serve it at "/".
 """
 
-from .server import serve
+from .main import main
 from interpreter import interpreter
 
 
@@ -58,6 +58,6 @@ interpreter.offline = True
 interpreter.id = 206 # Used to identify itself to other interpreters. This should be changed programatically so it's unique.
 
 
-### START SERVER
+### SERVE INTERPRETER AT "/"
 
-serve(interpreter)
+main(interpreter)

@@ -14,6 +14,10 @@ This folder contains everything we want to change from the base Ubuntu. A folder
 
 I imagine we'll use something like Cubic to then press this + Ubuntu into an ISO image.
 
+# Setup & Usage
+
+Clone this repo, then run `OS/01/start.sh`.
+
 # Structure
 
 ### `start.sh`

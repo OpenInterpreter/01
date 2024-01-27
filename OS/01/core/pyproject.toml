@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "01-core"
+version = "0.0.1"
+description = "The python at the heart of the 01."
+authors = ["Open Interpreter <killian@openinterpreter.com>"]
+license = "AGPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

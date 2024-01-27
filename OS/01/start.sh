@@ -1,5 +1,11 @@
+### APP
+
 # Display app/index.html on the second monitor in full-screen mode
+google-chrome --kiosk --app=file:///app/index.html
 
-# Setup the language model
 
-# Setup and serve the interpreter at "/"
+### CORE
+
+cd /core
+poetry install
+poetry run bash start.sh

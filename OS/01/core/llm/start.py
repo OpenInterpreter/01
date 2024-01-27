@@ -2,6 +2,8 @@
 Responsible for setting up the language model, downloading it if necessary.
 
 Ideally should pick the best LLM for the hardware.
+
+Should this be a shell script?
 """
 
 import os
@@ -11,7 +13,7 @@ import subprocess
 ### LLM SETUP
 
 # Define the path to the models directory
-models_dir = "01/core/models/"
+models_dir = "models/"
 
 # Check and create the models directory if it doesn't exist
 if not os.path.exists(models_dir):

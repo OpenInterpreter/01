@@ -2,13 +2,15 @@
 Responsible for taking an interpreter, then serving it at "/" as a POST SSE endpoint, accepting and streaming LMC Messages.
 
 https://docs.openinterpreter.com/protocols/lmc-messages
+
+Also needs to be saving conversations, and checking the queue.
 """
 
 from typing import Generator
 import uvicorn
 from fastapi import FastAPI, Request, Response
 
-def serve(interpreter):
+def main(interpreter):
 
     app = FastAPI()
 
