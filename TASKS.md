@@ -11,8 +11,14 @@
 
 ## Week 2 (Jan 22nd)
 
-- [ ] Determine minimum requirements for each body
-- [ ] Fill out this task list
+- [x] Research pre-made hardware
+- [x] Sketch out the 01 OS architecture
+- [x] Secure a venue for our second meetup
+
+Meetup goals:
+
+- [ ] Split into teams
+- [ ] Make a master task list, split by team
 
 ## Week 3 (Jan 29th)
 
