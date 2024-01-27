@@ -2,8 +2,6 @@
 
 This folder contains everything we would change about Ubuntu. A folder here represents a folder added to `root`.
 
----
-
 # Plan
 
 1. We modify the bootloader to show a circle.
