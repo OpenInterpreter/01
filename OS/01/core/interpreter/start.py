@@ -4,7 +4,7 @@ Responsible for configuring an interpreter, then using main.py to serve it at "/
 
 from .main import main
 from interpreter import interpreter
-
+import os
 
 ### SYSTEM MESSAGE
 
@@ -45,11 +45,15 @@ interpreter.system_message = system_message
 
 ### LLM SETTINGS
 
+# Local settings
 interpreter.llm.model = "local"
-interpreter.llm.temperature = 0
 interpreter.llm.api_base = "https://localhost:8080/v1" # Llamafile default
 interpreter.llm.max_tokens = 1000
 interpreter.llm.context_window = 3000
+
+# Hosted settings
+interpreter.llm.api_key = os.getenv('OPENAI_API_KEY')
+interpreter.llm.model = "gpt-3.5-turbo"
 
 
 ### MISC SETTINGS

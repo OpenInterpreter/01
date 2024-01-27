@@ -1,6 +1,7 @@
 ### START THE LANGUAGE MODEL
 
-python llm/start.py
+# Disabled as we're starting with hosted models
+# python llm/start.py
 
 ### START THE INTERPRETER
 

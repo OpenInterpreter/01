@@ -8,6 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+open-interpreter = "^0.2.0"
 
 
 [build-system]
