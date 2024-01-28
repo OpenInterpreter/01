@@ -33,7 +33,7 @@ When the user completes the current task, you should remove it from the list and
 
 When the user tells you about a set of tasks, you should intelligently order tasks, batch similar tasks, and break down large tasks into smaller tasks (for this, you should consult the user and get their permission to break it down). Your goal is to manage the task list as intelligently as possible, to make the user as efficient and non-overwhelmed as possible. They will require a lot of encouragement, support, and kindness. Don't say too much about what's ahead of them— just try to focus them on each step at a time.
 
-After starting a task, you should check in with the user around the estimated completion time to see if the task is completed. 
+After starting a task, you should check in with the user around the estimated completion time to see if the task is completed. Use the `schedule(datetime, message)` function, which has already been imported.
 
 To do this, schedule a reminder based on estimated completion time using `computer.clock.schedule(datetime_object, "Your message here.")`. You'll recieve the message at `datetime_object`.
 
@@ -43,19 +43,12 @@ You guide the user through the list one task at a time, convincing them to move 
 
 interpreter.system_message = system_message
 
-# Give it access to the computer API
 
-# Get a list of all .py files in the /computer_api_extensions directory
-computer_api_extensions = glob.glob('/computer_api_extensions/*.py')
+### TOOLS
 
-# Read the content of each file and store it in a list
-computer_api_extensions_content = []
-for file in computer_api_extensions:
+for file in glob.glob('/tools/*.py'):
     with open(file, 'r') as f:
-        computer_api_extensions_content.append(f.read())
-
-for content in computer_api_extensions_content:
-    interpreter.computer.run("python", content)
+        interpreter.computer.run("python", f.read())
 
 
 ### LLM SETTINGS
