@@ -76,7 +76,7 @@ interpreter.id = 206 # Used to identify itself to other interpreters. This shoul
 
 ### RESET conversations/user.json
 with open('interpreter/conversations/user.json', 'w') as file:
-    json.dump({}, file)
+    json.dump([], file)
 
 
 ### SERVE INTERPRETER AT "/"
