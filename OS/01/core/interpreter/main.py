@@ -36,26 +36,6 @@ def load_conversation():
         return []
 
 
-def check_for_new_messages(task) -> Tuple[Optional[str], Optional[str]]:
-    # Has the user sent a message?
-    if task.done():
-        return {"role": "user", "type": "message", "content": task.result()}
-
-    # Has the queue recieved a message?
-    queued_message = check_queue()
-    if queued_message:
-        return queued_message
-
-    return None
-
-
-async def get_new_messages(task) -> Tuple[Optional[str], Optional[str]]:
-    message = check_for_new_messages(task)
-    if message:
-        return message
-    else:
-        await asyncio.sleep(0.2)
-        return await get_new_messages(task)                  
 
 
 def main(interpreter: OpenInterpreter):
@@ -68,10 +48,36 @@ def main(interpreter: OpenInterpreter):
         
         while True:
             # This is the task for waiting for the user to send any message at all.
+            try:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+            except:
+                pass
             task = asyncio.create_task(websocket.receive_text())
 
             if data == None: # Data will have stuff in it if we inturrupted it.
-                data = await get_new_messages(task)
+                while data == None:
+                    # Has the user sent a message?
+                    if task.done():
+                        try:
+                            data = {"role": "user", "type": "message", "content": task.result()}
+                        except Exception as e:
+                            print(e)
+                        task.cancel()
+                        try:
+                            await task
+                        except asyncio.CancelledError:
+                            pass
+
+                    # Has the queue recieved a message?
+                    queued_message = check_queue()
+                    if queued_message:
+                        data = queued_message
+
+                    await asyncio.sleep(0.2)
             
             ### CONVERSATION / DISC MANAGEMENT
             message = data
@@ -82,16 +88,42 @@ def main(interpreter: OpenInterpreter):
             ### RESPONDING
 
             # This is the task for waiting for user inturruptions.
+            try:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+            except:
+                pass
             task = asyncio.create_task(websocket.receive_text())
+
+            recieved_chunks = []
 
             for chunk in interpreter.chat(
                 messages, stream=True, display=True
             ):
-                try:
-                    data = check_for_new_messages(task)
-                except:
-                    pass
-                if data:
+                
+                recieved_chunks.append(chunk)
+                
+                # Has the user sent a message?
+                if task.done():
+                    try:
+                        data = {"role": "user", "type": "message", "content": task.result()}
+                    except Exception as e:
+                        print(e)
+                    task.cancel() # The user didn't inturrupt
+                    try:
+                        await task
+                    except asyncio.CancelledError:
+                        pass
+                    save_conversation(interpreter.messages)
+                    break
+
+                # Has the queue recieved a message?
+                queued_message = check_queue()
+                if queued_message:
+                    data = queued_message
                     save_conversation(interpreter.messages)
                     break
                 
@@ -104,8 +136,48 @@ def main(interpreter: OpenInterpreter):
                     save_conversation(interpreter.messages)
                     data = None
 
-            if data == None:
-                task.cancel() # The user didn't inturrupt
+            if not any([message["type"] == "code" for message in recieved_chunks]):
+                for chunk in interpreter.chat(
+                    "Did you need to run code? It's okay if not, but please do if you did.", stream=True, display=True
+                ):
+                    # Has the user sent a message?
+                    if task.done():
+                        try:
+                            data = {"role": "user", "type": "message", "content": task.result()}
+                        except Exception as e:
+                            print(e)
+                        task.cancel() # The user didn't inturrupt
+                        try:
+                            await task
+                        except asyncio.CancelledError:
+                            pass
+                        save_conversation(interpreter.messages)
+                        break
+
+                    # Has the queue recieved a message?
+                    queued_message = check_queue()
+                    if queued_message:
+                        data = queued_message
+                        save_conversation(interpreter.messages)
+                        break
+                    
+                    # Send out chunks
+                    await websocket.send_json(chunk)
+                    await asyncio.sleep(0.01)  # Add a small delay
+
+                    # If the interpreter just finished sending a message, save it
+                    if "end" in chunk:
+                        save_conversation(interpreter.messages)
+                        data = None
+
+            if not task.done():
+                task.cancel() # User didn't inturrupt
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+
+            
         
 
 
