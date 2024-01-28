@@ -5,6 +5,7 @@ Responsible for configuring an interpreter, then using main.py to serve it at "/
 from .main import main
 from interpreter import interpreter
 import os
+import glob
 
 ### SYSTEM MESSAGE
 
@@ -41,6 +42,20 @@ You guide the user through the list one task at a time, convincing them to move 
 """.strip()
 
 interpreter.system_message = system_message
+
+# Give it access to the computer API
+
+# Get a list of all .py files in the /computer_api_extensions directory
+computer_api_extensions = glob.glob('/computer_api_extensions/*.py')
+
+# Read the content of each file and store it in a list
+computer_api_extensions_content = []
+for file in computer_api_extensions:
+    with open(file, 'r') as f:
+        computer_api_extensions_content.append(f.read())
+
+for content in computer_api_extensions_content:
+    interpreter.computer.run("python", content)
 
 
 ### LLM SETTINGS
