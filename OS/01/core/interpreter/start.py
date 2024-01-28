@@ -65,6 +65,7 @@ for file in glob.glob('/tools/*.py'):
 # Hosted settings
 interpreter.llm.api_key = os.getenv('OPENAI_API_KEY')
 interpreter.llm.model = "gpt-4"
+interpreter.auto_run = True
 
 
 ### MISC SETTINGS

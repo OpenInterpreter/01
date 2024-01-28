@@ -25,11 +25,7 @@
                     }
                     var data = JSON.parse(event.data);
                     if (data.hasOwnProperty('content')) {
-                        if (data.type == 'code') {
-                            lastMessageElement.innerHTML += '<pre>' + data.content + '</pre>';
-                        } else {
-                            lastMessageElement.innerHTML += data.content;
-                        }
+                        lastMessageElement.innerHTML += data.content;
                     }
                 };
             };
