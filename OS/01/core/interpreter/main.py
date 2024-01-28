@@ -90,6 +90,7 @@ def main(interpreter: OpenInterpreter):
                 try:
                     data = check_for_new_messages(task)
                 except:
+                    pass
                 if data:
                     save_conversation(interpreter.messages)
                     break
