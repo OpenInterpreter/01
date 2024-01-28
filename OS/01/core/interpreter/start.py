@@ -61,10 +61,10 @@ for content in computer_api_extensions_content:
 ### LLM SETTINGS
 
 # Local settings
-interpreter.llm.model = "local"
-interpreter.llm.api_base = "https://localhost:8080/v1" # Llamafile default
-interpreter.llm.max_tokens = 1000
-interpreter.llm.context_window = 3000
+# interpreter.llm.model = "local"
+# interpreter.llm.api_base = "https://localhost:8080/v1" # Llamafile default
+# interpreter.llm.max_tokens = 1000
+# interpreter.llm.context_window = 3000
 
 # Hosted settings
 interpreter.llm.api_key = os.getenv('OPENAI_API_KEY')
