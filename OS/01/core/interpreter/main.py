@@ -6,22 +6,22 @@ https://docs.openinterpreter.com/protocols/lmc-messages
 Also needs to be saving conversations, and checking the queue.
 """
 
+from typing import Optional, Tuple
 import uvicorn
 from fastapi import FastAPI, WebSocket
 import asyncio
 import json
 import os
 import glob
+from interpreter.core.core import OpenInterpreter
 
-def check_queue():
+def check_queue() -> dict:
     queue_files = glob.glob("interpreter/queue/*.json")
     if queue_files:
         with open(queue_files[0], 'r') as file:
             data = json.load(file)
         os.remove(queue_files[0])
         return data
-    else:
-        return None
     
 def save_conversation(messages):
     with open('interpreter/conversations/user.json', 'w') as file:
@@ -35,8 +35,30 @@ def load_conversation():
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
-def main(interpreter):
 
+def check_for_new_messages(task) -> Tuple[Optional[str], Optional[str]]:
+    # Has the user sent a message?
+    if task.done():
+        return {"role": "user", "type": "message", "content": task.result()}
+
+    # Has the queue recieved a message?
+    queued_message = check_queue()
+    if queued_message:
+        return queued_message
+
+    return None
+
+
+async def get_new_messages(task) -> Tuple[Optional[str], Optional[str]]:
+    message = check_for_new_messages(task)
+    if message:
+        return message
+    else:
+        await asyncio.sleep(0.2)
+        return await get_new_messages(task)                  
+
+
+def main(interpreter: OpenInterpreter):
     app = FastAPI()
 
     @app.websocket("/")
@@ -49,60 +71,26 @@ def main(interpreter):
             task = asyncio.create_task(websocket.receive_text())
 
             if data == None: # Data will have stuff in it if we inturrupted it.
-                while True:
-                    # Has the user sent a message?
-                    if task.done():
-                        data = task.result()
-                        break
-
-                    # Has the queue recieved a message?
-                    queued_message = check_queue()
-                    if queued_message:
-                        data = queued_message
-                        break
-                    
-                    # Wait 0.2 seconds
-                    await asyncio.sleep(0.2)
-
-            ### FOR DEV ONLY: SIMULATE LMC MESSAGES
-            # This lets users simulate any kind of LMC message by passing a JSON into the textbox in index.html.
-
-            try:
-                data_dict = json.loads(data)
-                data = data_dict
-            except json.JSONDecodeError:
-                pass
+                data = await get_new_messages(task)
             
             ### CONVERSATION / DISC MANAGEMENT
-            if type(data) == str: # This means it's from the frontend / user.
-                data = {"role": "user", "type": "message", "content": data}
+            message = data
             messages = load_conversation()
-            messages.append(data)
+            messages.append(message)
             save_conversation(messages)
 
             ### RESPONDING
 
             # This is the task for waiting for user inturruptions.
-            if task:
-                task.cancel()
             task = asyncio.create_task(websocket.receive_text())
 
             for chunk in interpreter.chat(
                 messages, stream=True, display=True
             ):
-                print(chunk)
-                # Check queue
-                queued_message = check_queue()
-                if queued_message:
-                    data = queued_message
+                data = check_for_new_messages(task)
+                if data:
                     save_conversation(interpreter.messages)
                     break
-
-                # Check for new user messages
-                if task.done():
-                    data = task.result()  # Get the new message
-                    save_conversation(interpreter.messages)
-                    break  # Break the loop and start processing the new message
                 
                 # Send out chunks
                 await websocket.send_json(chunk)
@@ -112,6 +100,9 @@ def main(interpreter):
                 if "end" in chunk:
                     save_conversation(interpreter.messages)
                     data = None
+
+            if data == None:
+                task.cancel() # The user didn't inturrupt
         
 
 

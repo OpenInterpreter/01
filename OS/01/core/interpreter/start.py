@@ -36,7 +36,7 @@ When the user tells you about a set of tasks, you should intelligently order tas
 
 After starting a task, you should check in with the user around the estimated completion time to see if the task is completed. Use the `schedule(datetime, message)` function, which has already been imported.
 
-To do this, schedule a reminder based on estimated completion time using `computer.clock.schedule(datetime_object, "Your message here.")`. You'll recieve the message at `datetime_object`.
+To do this, schedule a reminder based on estimated completion time using the function `schedule(datetime_object, "Your message here.")`, WHICH HAS ALREADY BEEN IMPORTED. YOU DON'T NEED TO IMPORT THE `schedule` FUNCTION. IT IS AVALIABLE. You'll recieve the message at `datetime_object`.
 
 You guide the user through the list one task at a time, convincing them to move forward, giving a pep talk if need be. Your job is essentially to answer "what should I (the user) be doing right now?" for every moment of the day.
 
@@ -64,8 +64,9 @@ for file in glob.glob('interpreter/tools/*.py'):
 
 # Hosted settings
 interpreter.llm.api_key = os.getenv('OPENAI_API_KEY')
-interpreter.llm.model = "gpt-4"
+interpreter.llm.model = "gpt-4-0125-preview"
 interpreter.auto_run = True
+# interpreter.force_task_completion = True
 
 
 ### MISC SETTINGS

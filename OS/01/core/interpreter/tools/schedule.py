@@ -8,13 +8,14 @@ def add_message_to_queue(message):
     # Define the message data and convert it to JSON
     message_json = json.dumps({
         "role": "computer",
-        "type": "message",
+        "type": "console",
+        "format": "output",
         "content": message
     })
 
     # Write the JSON data to the file
     timestamp = str(int(time.time()))
-    with open(f"/01/core/queue/{timestamp}.json", "w") as file:
+    with open(f"interpreter/queue/{timestamp}.json", "w") as file:
         file.write(message_json)
 
 def schedule(dt, message):
