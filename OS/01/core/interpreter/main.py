@@ -10,6 +10,30 @@ import uvicorn
 from fastapi import FastAPI, WebSocket
 import asyncio
 import json
+import os
+import glob
+
+def check_queue():
+    queue_files = glob.glob("/queue/*.json")
+    if queue_files:
+        with open(queue_files[0], 'r') as file:
+            data = json.load(file)
+        os.remove(queue_files[0])
+        return data
+    else:
+        return None
+    
+def save_conversation(messages):
+    with open('/conversations/user.json', 'w') as file:
+        json.dump(messages, file)
+
+def load_conversation():
+    try:
+        with open('/conversations/user.json', 'r') as file:
+            messages = json.load(file)
+        return messages
+    except FileNotFoundError:
+        return []
 
 def main(interpreter):
 
@@ -36,9 +60,16 @@ def main(interpreter):
                 for response in interpreter.chat(
                     message=data, stream=True, display=False
                 ):
+                    # Check queue
+                    queued_message = check_queue()
+                    if queued_message:
+                        data = queued_message
+                        break
+
                     if task.done():
                         data = task.result()  # Get the new message
                         break  # Break the loop and start processing the new message
+                    
                     # Send out assistant message chunks
                     if (
                         response.get("type") == "message"
@@ -47,6 +78,8 @@ def main(interpreter):
                     ):
                         await websocket.send_text(response["content"])
                         await asyncio.sleep(0.01)  # Add a small delay
+                    
+                    # If it just finished sending an assistant message, send a newline. Otherwise it looks weird.
                     if (
                         response.get("type") == "message"
                         and response["role"] == "assistant"
@@ -54,6 +87,7 @@ def main(interpreter):
                     ):
                         await websocket.send_text("\n")
                         await asyncio.sleep(0.01)  # Add a small delay
+
                 if not task.done():
                     data = (
                         await task

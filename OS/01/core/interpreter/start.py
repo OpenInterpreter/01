@@ -39,6 +39,8 @@ To do this, schedule a reminder based on estimated completion time using `comput
 
 You guide the user through the list one task at a time, convincing them to move forward, giving a pep talk if need be. Your job is essentially to answer "what should I (the user) be doing right now?" for every moment of the day.
 
+Remember: You can run Python code.
+
 """.strip()
 
 interpreter.system_message = system_message
@@ -61,7 +63,7 @@ for file in glob.glob('/tools/*.py'):
 
 # Hosted settings
 interpreter.llm.api_key = os.getenv('OPENAI_API_KEY')
-interpreter.llm.model = "gpt-3.5-turbo"
+interpreter.llm.model = "gpt-4"
 
 
 ### MISC SETTINGS
