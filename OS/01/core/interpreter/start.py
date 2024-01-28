@@ -50,7 +50,8 @@ interpreter.system_message = system_message
 
 for file in glob.glob('/tools/*.py'):
     with open(file, 'r') as f:
-        interpreter.computer.run("python", f.read())
+        for chunk in interpreter.computer.run("python", f.read()):
+            print(chunk)
 
 
 ### LLM SETTINGS

@@ -14,7 +14,7 @@ import os
 import glob
 
 def check_queue():
-    queue_files = glob.glob("/queue/*.json")
+    queue_files = glob.glob("interpreter/queue/*.json")
     if queue_files:
         with open(queue_files[0], 'r') as file:
             data = json.load(file)
@@ -24,15 +24,15 @@ def check_queue():
         return None
     
 def save_conversation(messages):
-    with open('/conversations/user.json', 'w') as file:
+    with open('interpreter/conversations/user.json', 'w') as file:
         json.dump(messages, file)
 
 def load_conversation():
     try:
-        with open('/conversations/user.json', 'r') as file:
+        with open('interpreter/conversations/user.json', 'r') as file:
             messages = json.load(file)
         return messages
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         return []
 
 def main(interpreter):
@@ -42,55 +42,72 @@ def main(interpreter):
     @app.websocket("/")
     async def i_test(websocket: WebSocket):
         await websocket.accept()
+        data = None
+        
         while True:
-            data = await websocket.receive_text()
-            while data.strip().lower() != "stop":  # Stop command
-                task = asyncio.create_task(websocket.receive_text())
+            # This is the task for waiting for the user to send any message at all.
+            task = asyncio.create_task(websocket.receive_text())
 
-                # This would be terrible for production. Just for testing.
-                try:
-                    data_dict = json.loads(data)
-                    if set(data_dict.keys()) == {"role", "content", "type"} or set(
-                        data_dict.keys()
-                    ) == {"role", "content", "type", "format"}:
-                        data = data_dict
-                except json.JSONDecodeError:
-                    pass
+            if data == None: # Data will have stuff in it if we inturrupted it.
+                while True:
+                    # Has the user sent a message?
+                    if task.done():
+                        data = task.result()
+                        break
 
-                for response in interpreter.chat(
-                    message=data, stream=True, display=False
-                ):
-                    # Check queue
+                    # Has the queue recieved a message?
                     queued_message = check_queue()
                     if queued_message:
                         data = queued_message
                         break
-
-                    if task.done():
-                        data = task.result()  # Get the new message
-                        break  # Break the loop and start processing the new message
                     
-                    # Send out assistant message chunks
-                    if (
-                        response.get("type") == "message"
-                        and response["role"] == "assistant"
-                        and "content" in response
-                    ):
-                        await websocket.send_text(response["content"])
-                        await asyncio.sleep(0.01)  # Add a small delay
-                    
-                    # If it just finished sending an assistant message, send a newline. Otherwise it looks weird.
-                    if (
-                        response.get("type") == "message"
-                        and response["role"] == "assistant"
-                        and response.get("end") == True
-                    ):
-                        await websocket.send_text("\n")
-                        await asyncio.sleep(0.01)  # Add a small delay
+                    # Wait 0.2 seconds
+                    await asyncio.sleep(0.2)
 
-                if not task.done():
-                    data = (
-                        await task
-                    )  # Wait for the next message if it hasn't arrived yet
+            ### FOR DEV ONLY: SIMULATE LMC MESSAGES
+            # This lets users simulate any kind of LMC message by passing a JSON into the textbox in index.html.
+
+            try:
+                data_dict = json.loads(data)
+                data = data_dict
+            except json.JSONDecodeError:
+                pass
+            
+            ### CONVERSATION / DISC MANAGEMENT
+            user_message = {"role": "user", "type": "message", "content": data}
+            messages = load_conversation()
+            messages.append(user_message)
+            save_conversation(messages)
+
+            ### RESPONDING
+
+            # This is the task for waiting for user inturruptions.
+            task = asyncio.create_task(websocket.receive_text())
+
+            for chunk in interpreter.chat(
+                messages, stream=True, display=True
+            ):
+                print(chunk)
+                # Check queue
+                queued_message = check_queue()
+                if queued_message:
+                    data = queued_message
+                    break
+
+                # Check for new user messages
+                if task.done():
+                    data = task.result()  # Get the new message
+                    break  # Break the loop and start processing the new message
+                
+                # Send out chunks
+                await websocket.send_json(chunk)
+                await asyncio.sleep(0.01)  # Add a small delay
+
+                # If the interpreter just finished sending a message, save it
+                if "end" in chunk:
+                    save_conversation(interpreter.messages)
+                    data = None
         
+
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

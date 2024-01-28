@@ -17,6 +17,21 @@
             ws = new WebSocket("ws://localhost:8000/");
             ws.onopen = function(event) {
                 console.log("Connected to WebSocket server.");
+
+                ws.onmessage = function (event) {
+                    if (lastMessageElement == null) {
+                        lastMessageElement = document.createElement('p');
+                        document.getElementById('messages').appendChild(lastMessageElement);
+                    }
+                    var data = JSON.parse(event.data);
+                    if (data.hasOwnProperty('content')) {
+                        if (data.type == 'code') {
+                            lastMessageElement.innerHTML += '<pre>' + data.content + '</pre>';
+                        } else {
+                            lastMessageElement.innerHTML += data.content;
+                        }
+                    }
+                };
             };
             ws.onerror = function(error) {
                 console.log("WebSocket error: ", error);
@@ -28,13 +43,7 @@
         }
         connectWebSocket();
         var lastMessageElement = null;
-        ws.onmessage = function (event) {
-            if (lastMessageElement == null) {
-                lastMessageElement = document.createElement('p');
-                document.getElementById('messages').appendChild(lastMessageElement);
-            }
-            lastMessageElement.innerHTML += event.data;
-        };
+        
         function sendMessage(event) {
             event.preventDefault();
             var input = document.getElementById("messageInput");
