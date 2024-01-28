@@ -1,31 +1,66 @@
 # Teams
 
 ## Hardware
-- LLM Inference Hardware
-- Raspberry Pi?
-- 3D Printing?
+- Ben @humanbee
+- Ty @tyisfly
+- Use Michael as a recruitor
+- Shiven @shivenmian
+- Jacob Weisel
+- Aniket @atneik
 - ..?
 
 ## Software
-- TTS
-- STT
+- Audio (TTS / SST)
+  - Tasks: Streaming audio both ways.
+  - Hardware limitations. What's the smallest hardware this can be on?
+  - Zach
+  - Zohaib @Zabirauf
+  - Atai
 - OI Core
-- OI Implementation
-- Linux / Firmware?
+  - Tasks: Computer API (schedule thing), skill library
+  - Hristijan @thekeyq
+  - Aakash @ashgam._
+  - Aniket @atneik
+  - Shiven @shivenmian
+  - Ty @tyisfly
+  - Killian @killianlucas
+- Backend
+  - Killian @killianlucas
+- Linux / Firmware
+  - Tasks: Virtualization? ISO? Putting sensors around the OS to put files into the queue. Bootloader. Networked input into the queue
+  - Shiven @shivenmian
+  - Michael @mjjt
+  - Zohaib @Zabirauf
 
-## Design
-- Industrial
-- Interface
-- Web
-- Brand / Video
-
-## Security
-- Subteams?
+## Experience
+- Design
+  - Arturo @arturot
+  - Ronith @ronithk
+  - Danny @dannytayara
+  - Killian @killianlucas
+  - Aniket @atneik
+  - Alim
+  - Eschwa?
+  - Industrial
+  - Interface
+  - Web
+  - Brand / Video
+    - Arturo @arturot
+    - Killian @killianlucas
+    - Matt @matt_rygh
+    - Finn
+- Research
+  - Ben @humanbee
+  - Use-cases
+    - Tasks: Send out typeform—what are motivating examples?
+  - Testing
+    - Uli @ulidabess
 
 ## Comms
+- Uli @ulidabess
 - Discord Community
 - Twitter Presence
+  - Killian @killianlucas
 - Press
-
-## Usage
-- Subteams?
+  - Michael @mjjt
+  - Zach (connection at NYT)
