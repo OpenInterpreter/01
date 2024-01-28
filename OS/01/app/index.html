@@ -12,7 +12,21 @@
     </form>
     <div id="messages"></div>
     <script>
-        var ws = new WebSocket("ws://localhost:8000/");
+        var ws;
+        function connectWebSocket() {
+            ws = new WebSocket("ws://localhost:8000/");
+            ws.onopen = function(event) {
+                console.log("Connected to WebSocket server.");
+            };
+            ws.onerror = function(error) {
+                console.log("WebSocket error: ", error);
+            };
+            ws.onclose = function(event) {
+                console.log("WebSocket connection closed. Retrying in 1 second...");
+                setTimeout(connectWebSocket, 1000);
+            };
+        }
+        connectWebSocket();
         var lastMessageElement = null;
         ws.onmessage = function (event) {
             if (lastMessageElement == null) {
