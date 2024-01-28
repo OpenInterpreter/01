@@ -22,6 +22,10 @@ Meetup goals:
 
 ## Week 3 (Jan 29th)
 
+- [ ] 01OS
+- [ ] 01OS Testing
+- [ ] What are our hardware constraints?
+
 ...
 
 ## Week 4 (Feb 5th)
