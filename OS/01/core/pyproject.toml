@@ -6,10 +6,10 @@ authors = ["Open Interpreter <killian@openinterpreter.com>"]
 license = "AGPL"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 open-interpreter = "^0.2.0"
 uvicorn = {extras = ["standard"], version = "^0.27.0"}
-fastapi = "^0.109.0"
+fastapi = "*"
 
 
 [build-system]

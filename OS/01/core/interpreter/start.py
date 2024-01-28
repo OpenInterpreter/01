@@ -43,7 +43,7 @@ Remember: You can run Python code.
 
 """.strip()
 
-interpreter.system_message = system_message
+interpreter.custom_instructions = system_message
 
 
 ### TOOLS
