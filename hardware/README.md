@@ -12,6 +12,12 @@ Other bodies we've floated already exist as Android phones (isn't the Rabbit R1 
 
 I think we should decide by 1) estimating how long custom hardware would take, and 2) weighing it against how _memorable of an impression_ the 01 would make if it did/did't have custom hardware. Holding something unique is a big part of this. But we might accomplish that by using some of the more bizarre looking hardware below.
 
+### Non-pre-made hardware
+
+1. Raspberry Pi
+2. Raspberry Pi + Coral.ai Accelerator
+3. Coral.ai Devboard
+
 ### Assembly-required OSS hardware
 
 1. [The Raspberry Pi Recovery kit by Jay Doscher.](https://www.doscher.com/work-recovery-kit/) "A MOBILE TERMINAL FOR THE END OF THE WORLD
