@@ -2,7 +2,7 @@
 Responsible for configuring an interpreter, then using main.py to serve it at "/".
 """
 
-from .main import main
+from main import main
 from interpreter import interpreter
 import os
 import glob
