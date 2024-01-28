@@ -6,6 +6,7 @@ from main import main
 from interpreter import interpreter
 import os
 import glob
+import json
 
 ### SYSTEM MESSAGE
 
@@ -48,11 +49,10 @@ interpreter.custom_instructions = system_message
 
 ### TOOLS
 
-for file in glob.glob('/tools/*.py'):
+for file in glob.glob('interpreter/tools/*.py'):
     with open(file, 'r') as f:
         for chunk in interpreter.computer.run("python", f.read()):
             print(chunk)
-
 
 ### LLM SETTINGS
 
@@ -72,6 +72,11 @@ interpreter.auto_run = True
 
 interpreter.offline = True
 interpreter.id = 206 # Used to identify itself to other interpreters. This should be changed programatically so it's unique.
+
+
+### RESET conversations/user.json
+with open('interpreter/conversations/user.json', 'w') as file:
+    json.dump({}, file)
 
 
 ### SERVE INTERPRETER AT "/"

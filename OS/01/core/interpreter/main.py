@@ -74,14 +74,17 @@ def main(interpreter):
                 pass
             
             ### CONVERSATION / DISC MANAGEMENT
-            user_message = {"role": "user", "type": "message", "content": data}
+            if type(data) == str: # This means it's from the frontend / user.
+                data = {"role": "user", "type": "message", "content": data}
             messages = load_conversation()
-            messages.append(user_message)
+            messages.append(data)
             save_conversation(messages)
 
             ### RESPONDING
 
             # This is the task for waiting for user inturruptions.
+            if task:
+                task.cancel()
             task = asyncio.create_task(websocket.receive_text())
 
             for chunk in interpreter.chat(
@@ -92,11 +95,13 @@ def main(interpreter):
                 queued_message = check_queue()
                 if queued_message:
                     data = queued_message
+                    save_conversation(interpreter.messages)
                     break
 
                 # Check for new user messages
                 if task.done():
                     data = task.result()  # Get the new message
+                    save_conversation(interpreter.messages)
                     break  # Break the loop and start processing the new message
                 
                 # Send out chunks
