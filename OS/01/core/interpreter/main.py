@@ -90,15 +90,12 @@ def main(interpreter: OpenInterpreter):
                 try:
                     data = check_for_new_messages(task)
                 except:
-                    print("lel"*1000)
                 if data:
                     save_conversation(interpreter.messages)
                     break
                 
                 # Send out chunks
-                print("!!!!!"*1000)
                 await websocket.send_json(chunk)
-                print("xxxxx!"*1000)
                 await asyncio.sleep(0.01)  # Add a small delay
 
                 # If the interpreter just finished sending a message, save it
