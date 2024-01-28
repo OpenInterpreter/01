@@ -1,5 +1,83 @@
-<!--
-    
-This is the fullscreen UI of the 01.
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Record Button</title>
+    <style>
+        @keyframes breathing {
+            25% { transform: translate(-50%, -50%) scale(0.9); }
+            75% { transform: translate(-50%, -50%) scale(1.1); }
+        }
 
--->
+        #record-button {
+            width: 200px;
+            height: 200px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            animation-fill-mode: forwards;
+        }
+
+        #record-button:active {
+            animation: breathing 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="record-button"></div>
+    <script>
+        let mediaRecorder;
+        let stream;
+        let audioChunks = [];
+
+         // Request microphone access as soon as the page loads
+        async function getMicrophoneAccess() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // You can also initialize the MediaRecorder here if you want
+            } catch (error) {
+                console.error('Microphone access was denied', error);
+            }
+        }
+
+        const recordButton = document.getElementById('record-button');
+
+        async function startRecording() {
+            //const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioChunks = [];
+            mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks);
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                const downloadLink = document.createElement('a');
+                downloadLink.href = audioUrl;
+                downloadLink.setAttribute('download', 'recording.webm'); // You can choose any filename you want
+                downloadLink.click();
+            };
+            audioChunks = [];
+            mediaRecorder.start();
+        }
+
+        function stopRecording() {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+            }
+        }
+
+        recordButton.addEventListener('mousedown', startRecording);
+        recordButton.addEventListener('mouseup', stopRecording);
+        recordButton.addEventListener('mouseleave', stopRecording); // In case the mouse leaves the button while recording
+
+        // Call the function to get microphone access on page load
+        getMicrophoneAccess();
+    </script>
+</body>
+</html>
+
