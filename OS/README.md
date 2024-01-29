@@ -34,7 +34,7 @@ The `core`'s job is to:
 
 ### `/app`
 
-The `app`'s job is to be the interface between the user and the interpreter. This could be text only, audio, video, who knows.
+The `app`'s job is to be the interface between the user and the interpreter (text in). This could be text only, audio, video, who knows, but it becomes LMC messages or plain text.
 
 For the first version, I think we should just handle audio in/out. So the `app`'s job here is to:
 
@@ -48,5 +48,5 @@ We need to make the following changes:
 
 1. Modify the bootloader to just show white circle on black
 2. Auto start the start script, `start.sh`
-3. Put detectors everywhere, which will put [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) from the computer into `/01/core/queue`
+3. Put detectors everywhere, which will put [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) from the computer into `/01/core/queue`. Michael suggested we simply watch and filter the `dmesg` stream (I think that's what it's called?), so I suppose we could have a script like `/01/core/kernel_watcher.py` that puts things into the queue? Honestly knowing we could get it all from one place like that— maybe this should be simpler. Is the queue necessary? How about we just expect the computer to send computer messages to the websocket at `/`? Then yeah, maybe we do have redis there, then instead of looking at that folder, we check the redis queue...
 4. (open question: should we do this? do we want the first 01 to be ready for GUI control?) Make the display that's shown to the user (and filled with the `app`) the _secondary_ display. The primary display will be a normal Ubuntu desktop, invisible to the user. Why? So the interpreter can control the primary display "under the hood".
