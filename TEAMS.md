@@ -1,6 +1,7 @@
 # Teams
 
 ## Hardware
+
 - Ben @humanbee
 - Ty @tyisfly
 - Use Michael as a recruitor
@@ -10,6 +11,7 @@
 - ..?
 
 ## Software
+
 - Audio (TTS / SST)
   - Tasks: Streaming audio both ways.
   - Hardware limitations. What's the smallest hardware this can be on?
@@ -19,20 +21,20 @@
 - OI Core
   - Tasks: Computer API (schedule thing), skill library
   - Hristijan @thekeyq
-  - Aakash @ashgam._
+  - Aakash @ashgam.\_
   - Aniket @atneik
   - Shiven @shivenmian
   - Ty @tyisfly
   - Killian @killianlucas
-- Backend
-  - Killian @killianlucas
-- Linux / Firmware
+- OS (formerly 'Linux / Firmware`)
   - Tasks: Virtualization? ISO? Putting sensors around the OS to put files into the queue. Bootloader. Networked input into the queue
   - Shiven @shivenmian
+  - Hristijan @thekeyq
   - Michael @mjjt
   - Zohaib @Zabirauf
 
 ## Experience
+
 - Design
   - Arturo @arturot
   - Ronith @ronithk
@@ -57,6 +59,7 @@
     - Uli @ulidabess
 
 ## Comms
+
 - Uli @ulidabess
 - Discord Community
 - Twitter Presence
