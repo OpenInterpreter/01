@@ -1,17 +1,3 @@
-# Hardware
-
-The physical bodies of the 01.
-
-### Decisions to be made
-
-**1. Should we just buy pre-made hardware?**
-
-Some bodies— like the 01 Light without a screen and with a camera, and the 01 Heavy as a screenless tape-recorder with a camera and a button on the side— do not exist. So perhaps we should make CAD files and build them.
-
-Other bodies we've floated already exist as Android phones (isn't the Rabbit R1 basically an Android phone?) smartwatches, laptops, and cyberdecks (below).
-
-I think we should decide by 1) estimating how long custom hardware would take, and 2) weighing it against how _memorable of an impression_ the 01 would make if it did/did't have custom hardware. Holding something unique is a big part of this. But we might accomplish that by using some of the more bizarre looking hardware below.
-
 ### Non-pre-made hardware
 
 1. Raspberry Pi
@@ -21,7 +7,7 @@ I think we should decide by 1) estimating how long custom hardware would take, a
 ### Assembly-required OSS hardware
 
 1. [The Raspberry Pi Recovery kit by Jay Doscher.](https://www.doscher.com/work-recovery-kit/) "A MOBILE TERMINAL FOR THE END OF THE WORLD
-". I bet we could reach out to him and have him send some tbh.
+   ". I bet we could reach out to him and have him send some tbh.
 
 ![JAY02105](https://github.com/KillianLucas/01/assets/63927363/14b7438f-fe4c-45ed-86ab-17538c1fc600)
 
