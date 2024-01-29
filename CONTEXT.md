@@ -2,7 +2,7 @@
 
 1. **Be minimal.**
 
-Both to developers and to the end user. Extreme, unrelenting minimalism.
+Both to developers (the 01 should be very programmer friendly) and to the end user.
 
 2. **Develop standards.**
 
