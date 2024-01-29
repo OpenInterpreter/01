@@ -15,9 +15,9 @@
 - Audio (TTS / SST)
   - Tasks: Streaming audio both ways.
   - Hardware limitations. What's the smallest hardware this can be on?
-  - Zach
+  - Zach @zwf
   - Zohaib @Zabirauf
-  - Atai
+  - Atai @atai_copilotkit
 - OI Core
   - Tasks: Computer API (schedule thing), skill library
   - Hristijan @thekeyq
@@ -66,4 +66,4 @@
   - Killian @killianlucas
 - Press
   - Michael @mjjt
-  - Zach (connection at NYT)
+  - Zach (connection at NYT) @zwf
