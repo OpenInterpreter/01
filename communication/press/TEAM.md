@@ -1,0 +1,3 @@
+- Michael @mjjt
+- Zach @zwf (connection at NYT)
+- Killian @killianlucas
