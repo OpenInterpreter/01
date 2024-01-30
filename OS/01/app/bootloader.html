@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotating Glowing Circle</title>
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            /* Set the background of the body to black */
+            overflow: hidden;
+            /* Hide overflow to prevent scrollbars if the circles are too big */
+        }
+
+        .center-circle {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 1px solid white;
+            border-radius: 50%;
+            background-color: transparent;
+        }
+
+        .center-circle-2 {
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            opacity: 0.2;
+            border: 1px solid white;
+            border-radius: 50%;
+            background-color: transparent;
+        }
+
+        .glow-circle {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background-color: transparent;
+            box-shadow: 0 0 60px 30px black;
+            /* Initial position of the glow circle, offset from the center */
+            top: 50%;
+            left: 50%;
+            margin-top: -150px;
+            /* Half the height of the circle */
+            margin-left: -150px;
+            /* Half the width of the circle */
+            /* Animation properties */
+            animation: rotateAround 6s linear infinite;
+        }
+
+        /* Define the keyframes for the rotation animation */
+        @keyframes rotateAround {
+            0% {
+                transform: rotate(0deg) translateX(240px) translateY(240px);
+            }
+
+            100% {
+                transform: rotate(0deg) translateX(-240px) translateY(-240px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="center-circle"></div>
+    <div class="glow-circle"></div>
+    <div class="center-circle-2"></div>
+
+</body>
+
+</html>
