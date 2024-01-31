@@ -13,10 +13,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #000;
-            /* Set the background of the body to black */
-            overflow: hidden;
-            /* Hide overflow to prevent scrollbars if the circles are too big */
+            background-color: black;
+        }
+
+        .circles {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            animation: rotator 48s linear infinite;
         }
 
         .center-circle {
@@ -48,22 +56,35 @@
             /* Initial position of the glow circle, offset from the center */
             top: 50%;
             left: 50%;
-            margin-top: -150px;
+            margin-top: -125px;
             /* Half the height of the circle */
-            margin-left: -150px;
+            margin-left: -125px;
             /* Half the width of the circle */
             /* Animation properties */
             animation: rotateAround 6s linear infinite;
         }
 
-        /* Define the keyframes for the rotation animation */
         @keyframes rotateAround {
             0% {
-                transform: rotate(0deg) translateX(240px) translateY(240px);
+                transform: translateX(240px) translateY(240px);
+            }
+
+            50% {
+                transform: translateX(0px) translateY(0px);
             }
 
             100% {
-                transform: rotate(0deg) translateX(-240px) translateY(-240px);
+                transform: translateX(-240px) translateY(-240px);
+            }
+        }
+
+        @keyframes rotator {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
             }
         }
     </style>
@@ -71,9 +92,11 @@
 
 <body>
 
-    <div class="center-circle"></div>
-    <div class="glow-circle"></div>
-    <div class="center-circle-2"></div>
+    <div class="circles">
+        <div class="center-circle"></div>
+        <div class="glow-circle"></div>
+        <div class="center-circle-2"></div>
+    </div>
 
 </body>
 
