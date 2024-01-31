@@ -17,14 +17,21 @@
 
 Meetup goals:
 
-- [ ] Split into teams
-- [ ] Make a master task list, split by team
+- [x] Split into teams
+- [x] Make a master task list, split by team
+- [x] 01OS basic functionality
 
 ## Week 3 (Jan 29th)
 
-- [ ] 01OS
-- [ ] 01OS Testing
-- [ ] What are our hardware constraints?
+- [ ] 01OS full functionality
+- [ ] Start building the skill library
+- [x] Order some hardware
+- [ ] Secure a venue for our third meetup
+
+Meetup goals:
+
+- [ ] Test the 01OS on a bunch of different hardware, document constraints
+- [ ] Sketch out the video, launch materials
 
 ...
 
