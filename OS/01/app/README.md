@@ -1,1 +1,0 @@
-The app is responsible for accepting user input, sending it to "/" as an [LMC message](https://docs.openinterpreter.com/protocols/lmc-messages), then recieving [streaming LMC messages](https://docs.openinterpreter.com/guides/streaming-response) and somehow displaying them to the user.

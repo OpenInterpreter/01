@@ -2,6 +2,10 @@ import threading
 from datetime import datetime
 import json
 import time
+import redis
+
+# Connect to Redis
+r = redis.Redis()
 
 def add_message_to_queue(message):
 
@@ -13,10 +17,8 @@ def add_message_to_queue(message):
         "content": message
     })
 
-    # Write the JSON data to the file
-    timestamp = str(int(time.time()))
-    with open(f"interpreter/queue/{timestamp}.json", "w") as file:
-        file.write(message_json)
+    # Add the message to the 'to_main' queue
+    r.rpush('to_main', message_json)
 
 def schedule(dt, message):
     # Calculate the delay in seconds

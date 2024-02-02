@@ -1,8 +1,8 @@
 """
-Responsible for configuring an interpreter, then using main.py to serve it at "/".
+Responsible for configuring an interpreter, then running core.py.
 """
 
-from main import main
+from core import main
 from interpreter import interpreter
 import os
 import glob
@@ -80,6 +80,6 @@ with open('interpreter/conversations/user.json', 'w') as file:
     json.dump([], file)
 
 
-### SERVE INTERPRETER AT "/"
+### START CORE
 
 main(interpreter)
