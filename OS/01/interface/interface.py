@@ -25,10 +25,6 @@ sample_rate = 44100  # Hz
 # Set up Redis connection
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-# Define some standard, useful messages
-user_start_message = {"role": "user", "type": "message", "start": True}
-user_start_message = {"role": "user", "type": "message", "start": True}
-
 # Set up websocket connection
 websocket = websockets.connect('ws://localhost:8765')
 
@@ -54,9 +50,9 @@ def main():
         # If the button is pushed down
         if not GPIO.input(18):
 
-            # Send start message to core and websocket
-            r.rpush('to_core', user_start_message)
-            send_to_websocket(user_start_message)
+            # Tell websocket and core that the user is speaking
+            send_to_websocket({"role": "user", "type": "message", "start": True}) # Standard start flag, required per streaming LMC protocol (https://docs.openinterpreter.com/guides/streaming-response)
+            r.rpush('to_core', {"role": "user", "type": "message", "content": "stop"}) # Custom stop message. Core is not streaming LMC (it's static LMC) so doesn't require that ^ flag
 
             # Record audio from the microphone in chunks
             audio_chunks = []
@@ -75,6 +71,9 @@ def main():
             # Send message to core and websocket
             r.rpush('to_core', message)
             send_to_websocket(message)
+
+            # Send user message end flag to websocket, required per streaming LMC protocol
+            send_to_websocket({"role": "user", "type": "message", "end": True})
         
         # Send out anything in the to_interface queue
         chunk = r.lpop('to_interface')

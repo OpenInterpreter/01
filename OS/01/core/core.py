@@ -1,28 +1,38 @@
-while True:
+import redis
+import json
+import time
 
-    message = None
-    while message is None:
-        message = get_from_queue('to_main')
+# Set up Redis connection
+r = redis.Redis(host='localhost', port=6379, db=0)
 
-    if message == user_start_message:
-        continue
+def main(interpreter):
 
-    messages = get_conversation_history()
-    messages.append(message)
-    save_conversation_history(message)
-    
-    sentence = ""
+    while True:
 
-    for chunk in interpreter.chat(messages):
+        # Check 10x a second for new messages
+        message = None
+        while message is None:
+            message = r.lpop('to_core')
+            time.sleep(0.1)
+
+        # Custom stop message will halt us
+        if message.get("content") and message.get("content").lower().strip(".,!") == "stop":
+            continue
+
+        # Load, append, and save conversation history
+        with open("conversations/user.json", "r") as file:
+            messages = json.load(file)
+        messages.append(message)
+        with open("conversations/user.json", "w") as file:
+            json.dump(messages, file)
         
-        if queue_length() > 0:
-            save_conversation_history(interpreter.messages)
-            break
+        for chunk in interpreter.chat(messages):
 
-        send_to_io(chunk)
-
-        sentence += chunk
-        if is_full_sentence(sentence):
-            audio = tts(sentence)
-            sentence = ""
-            send_to_io(audio)
+            # Send it to the interface
+            r.rpush('to_interface', chunk)
+            
+            # If we have a new message, save our progress and go back to the top
+            if r.llen('to_main') > 0:
+                with open("conversations/user.json", "w") as file:
+                    json.dump(interpreter.messages, file)
+                break
