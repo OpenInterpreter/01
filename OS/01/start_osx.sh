@@ -2,11 +2,13 @@
 
 # INSTALL REQUIREMENTS
 
-sudo apt-get update
-sudo apt-get install redis-server
+brew update
+brew install redis
 pip install -r requirements.txt
 
 # START REDIS
+
+redis-server &
 
 redis-cli -h localhost -p 6379 rpush to_interface ""
 redis-cli -h localhost -p 6379 rpush to_core ""
