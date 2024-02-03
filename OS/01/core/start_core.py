@@ -1,7 +1,3 @@
-"""
-Responsible for configuring an interpreter, then running core.py.
-"""
-
 from core import main
 from interpreter import interpreter
 import os
