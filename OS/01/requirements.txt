@@ -1,4 +1,4 @@
-pip install git+https://github.com/KillianLucas/open-interpreter.git
-pip install redis
-pip install fastapi
-pip install uvicorn
+open-interpreter==0.2.0
+redis==5.0.1
+fastapi==0.109.1
+uvicorn==0.27.0.post1
