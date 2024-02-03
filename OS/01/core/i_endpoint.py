@@ -67,6 +67,7 @@ async def a(ws: WebSocket):
                 elif 'bytes' in message:
                     # If it's not a control message, it's part of the audio file
                     audio_file.extend(message['bytes'])
+                    
     except Exception as e:
         print(f"WebSocket connection closed with exception: {e}")
     finally:

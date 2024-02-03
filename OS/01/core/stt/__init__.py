@@ -6,7 +6,7 @@ import ffmpeg
 import subprocess
 
 def convert_mime_type_to_format(mime_type: str) -> str:
-    if mime_type == "audio/x-wav":
+    if mime_type == "audio/x-wav" or mime_type == "audio/wav":
         return "wav"
     if mime_type == "audio/webm":
         return "webm"
@@ -33,7 +33,7 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
         yield output_path
     finally:
         os.remove(input_path)
-        #os.remove(output_path)
+        os.remove(output_path)
 
 def run_command(command):
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

@@ -1,0 +1,4 @@
+pynput @ git+https://github.com/moses-palmer/pynput.git@12acf84dc0f721d91a957da65311497acb664933
+pyaudio
+websockets==12.0
+asyncio==3.4.3
