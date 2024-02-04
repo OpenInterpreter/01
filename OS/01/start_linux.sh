@@ -14,7 +14,7 @@ python computer/kernel_watcher.py &
 
 # START RUN ENDPOINT
 
-python computer/run.py
+python computer/run.py &
 
 # START SST AND TTS SERVICES
 
