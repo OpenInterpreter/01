@@ -1,3 +1,7 @@
+"""
+Defines a function which takes a path to an audio file and turns it into text.
+"""
+
 from datetime import datetime
 import os
 import contextlib

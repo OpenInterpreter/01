@@ -3,7 +3,26 @@ Exposes a SSE streaming server endpoint at /run, which recieves language and cod
 and streams the output.
 """
 
+import json
 from interpreter import interpreter
+import uvicorn
 
-for chunk in interpreter.run(language, code, stream=True):
-    stream(chunk)
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+
+class Code(BaseModel):
+    language: str
+    code: str
+
+app = FastAPI()
+
+@app.post("/run")
+async def run_code(code: Code):
+    def generator():
+        for chunk in interpreter.computer.run(code.language, code.code, stream=True):
+            yield json.dumps(chunk)
+    return StreamingResponse(generator())
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=9000)
