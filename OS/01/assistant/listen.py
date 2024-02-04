@@ -1,3 +1,8 @@
+"""
+Listens to chunks of audio recorded by user.
+Run `python listen.py` to start the server, then `cd user` and run `python record.py` to record audio.
+"""
+
 from fastapi import FastAPI, WebSocket
 import uvicorn
 import json
