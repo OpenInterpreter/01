@@ -89,36 +89,30 @@ async def websocket_communication():
                     # Send data from the queue to the server
                     while not data_queue.empty():
                         data = data_queue.get_nowait()
-                        print(f"Sending data to the server: {data}")
                         await websocket.send(json.dumps(data))
 
                     # Listen for incoming messages from the server
                     try:
-                        chunk = await websocket.recv()
+                        chunk = await asyncio.wait_for(websocket.recv(), timeout=1.0)
                         print(f"Received from server: {str(chunk)[:100]}")
 
                         if chunk["type"] == "audio":
-                            print("Received audio data from server.")
                             if "start" in chunk:
-                                print("Start of audio data received.")
                                 audio_chunks = bytearray()
                             if "content" in chunk:
-                                print("Audio content received.")
                                 audio_chunks.extend(bytes(ast.literal_eval(chunk["content"])))
                             if "end" in chunk:
-                                print("End of audio data received.")
                                 with tempfile.NamedTemporaryFile(suffix=".mp3") as f:
                                     f.write(audio_chunks)
                                     f.seek(0)
                                     seg = pydub.AudioSegment.from_mp3(f.name)
-                                    print("Playing received audio.")
                                     pydub.playback.play(seg)
 
-                    except Exception as e:
-                        print(f"Error receiving data: {e}")
+                    except asyncio.TimeoutError:
+                        # No message received within timeout period
+                        pass
 
-                    print("Sleeping for 0.05 seconds.")
-                    await asyncio.sleep(0.05)
+                    await asyncio.sleep(0.1)
         except Exception as e:
             print(f"Websocket not ready, retrying... ({e})")
             await asyncio.sleep(1)
