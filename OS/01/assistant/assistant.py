@@ -53,7 +53,7 @@ async def websocket_endpoint(websocket: WebSocket):
             message = to_user.get()
             await websocket.send_json(message)
 
-audio_chunks = []
+audio_file = bytearray()
 
 def queue_listener():
     while True:
@@ -65,11 +65,11 @@ def queue_listener():
         # Hold the audio in a buffer. If it's ready (we got end flag, stt it)
         if message["type"] == "audio":
             if "content" in message:
-                audio_chunks.append(message)
+                audio_file.extend(message["content"])
             if "end" in message:
-                text = stt(audio_chunks)
-                audio_chunks = []
-                message = {"role": "user", "type": "message", "content": text}
+                content = stt(audio_file, message["format"])
+                audio_file = bytearray()
+                message = {"role": "user", "type": "message", "content": content}
             else:
                 continue
 
