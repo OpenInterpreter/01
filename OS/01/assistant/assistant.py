@@ -3,7 +3,7 @@ Exposes a POST endpoint called /computer. Things from there go into the queue.
 
 Exposes a ws endpoint called /user. Things from there go into the queue. We also send things in the queue back (that are role: assistant)
 
-In a while loop we watch the queue.
+In a while loop we watch the queue and handle it.
 """
 
 import json
