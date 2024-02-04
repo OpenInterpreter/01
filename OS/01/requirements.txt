@@ -1,4 +1,7 @@
 git+https://github.com/KillianLucas/open-interpreter.git
+asyncio
+pyaudio
+pynput
 redis
 fastapi
 uvicorn
