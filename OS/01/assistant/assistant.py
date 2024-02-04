@@ -93,21 +93,19 @@ def queue_listener():
             to_user.put(chunk)
             
             # Speak full sentences out loud
-            accumulated_text += chunk["content"]
-            sentences = split_into_sentences(accumulated_text)
-            if is_full_sentence(sentences[-1]):
-                for sentence in sentences:
-                    for audio_chunk in tts(sentence):
-                        to_user.put(audio_chunk)
-                accumulated_text = ""
-            else:
-                for sentence in sentences[:-1]:
-                    for audio_chunk in tts(sentence):
-                        to_user.put(audio_chunk)
-                accumulated_text = sentences[-1]
-
-            if chunk["type"] == "message" and "content" in sentence:
-                sentence += chunk.get("content")
+            if chunk["type"] == "assistant":
+                accumulated_text += chunk["content"]
+                sentences = split_into_sentences(accumulated_text)
+                if is_full_sentence(sentences[-1]):
+                    for sentence in sentences:
+                        for audio_chunk in tts(sentence):
+                            to_user.put(audio_chunk)
+                    accumulated_text = ""
+                else:
+                    for sentence in sentences[:-1]:
+                        for audio_chunk in tts(sentence):
+                            to_user.put(audio_chunk)
+                    accumulated_text = sentences[-1]
             
             # If we have a new message, save our progress and go back to the top
             if not to_assistant.empty():

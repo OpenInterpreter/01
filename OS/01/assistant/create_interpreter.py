@@ -87,6 +87,9 @@ Remember: You can run Python code. Be very concise. Ensure that you actually run
         # This is the name that will appear to the LLM.
         name = "python"
 
+        def __init__(self):
+            self.halt = False
+
         def run(self, code):
             """Generator that yields a dictionary in LMC Format."""
 
@@ -98,17 +101,18 @@ Remember: You can run Python code. Be very concise. Ensure that you actually run
             response = requests.post(f"http://localhost:{computer_port}/run", json=data, stream=True)
             # Stream the response
             for chunk in response.iter_content(chunk_size=100000000):
+                if self.halt:
+                    self.halt = False
+                    break
                 if chunk:  # filter out keep-alive new lines
                     yield json.loads(chunk.decode())
 
         def stop(self):
-            """Stops the code."""
-            # Not needed here, because e2b.run_code isn't stateful.
-            pass
+            self.halt = True
 
         def terminate(self):
             """Terminates the entire process."""
-            # Not needed here, because e2b.run_code isn't stateful.
+            # dramatic!!
             pass
 
     interpreter.computer.languages = [Python]
