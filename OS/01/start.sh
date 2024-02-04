@@ -2,8 +2,10 @@
 
 # INSTALL REQUIREMENTS
 
-sudo apt-get update
-sudo apt-get install redis-server
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    brew update
+    brew install portaudio ffmpeg
+fi
 pip install -r requirements.txt
 
 ### COMPUTER
