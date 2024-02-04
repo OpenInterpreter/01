@@ -106,8 +106,6 @@ def on_release(key):
         toggle_recording(False)
 
 def main():
-    import time
-    time.sleep(10)
     # Start the WebSocket communication in a separate asyncio event loop
     ws_thread = threading.Thread(target=lambda: asyncio.run(websocket_communication()), daemon=True)
     ws_thread.start()

@@ -8,8 +8,9 @@ import contextlib
 import tempfile
 import ffmpeg
 import subprocess
-
+import openai
 from openai import OpenAI
+
 client = OpenAI()
 
 def convert_mime_type_to_format(mime_type: str) -> str:
@@ -48,11 +49,15 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
 def stt(audio_bytes: bytearray, mime_type):
     with export_audio_to_wav_ffmpeg(audio_bytes, mime_type) as wav_file_path:
         audio_file = open(wav_file_path, "rb")
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1", 
-            file=audio_file,
-            response_format="text"
-        )
+        try:
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1", 
+                file=audio_file,
+                response_format="text"
+            )
+        except openai.BadRequestError as e:
+            print("openai.BadRequestError:", e)
+            return None
 
         print("Exciting transcription result:", transcript)
         return transcript

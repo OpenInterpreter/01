@@ -69,6 +69,8 @@ def queue_listener():
                 audio_file.extend(bytes(ast.literal_eval(message["content"])))
             if "end" in message:
                 content = stt(audio_file, message["format"])
+                if content == None: # If it was nothing / silence
+                    continue
                 audio_file = bytearray()
                 message = {"role": "user", "type": "message", "content": content}
             else:
