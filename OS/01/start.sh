@@ -6,17 +6,15 @@ sudo apt-get update
 sudo apt-get install redis-server
 pip install -r requirements.txt
 
-# START REDIS
-
-redis-cli -h localhost -p 6379 rpush to_interface ""
-redis-cli -h localhost -p 6379 rpush to_core ""
-
-
-### CORE
+### COMPUTER
 
 # START KERNEL WATCHER
 
-python core/kernel_watcher.py &
+python computer/kernel_watcher.py &
+
+# START RUN ENDPOINT
+
+python computer/run.py
 
 # START SST AND TTS SERVICES
 
@@ -28,18 +26,12 @@ python core/kernel_watcher.py &
 # (disabled, we'll start with hosted services)
 # python core/llm/start.py &
 
-# START CORE
+# START ASSISTANT
 
-python core/start_core.py &
+python assistant/assistant.py &
 
+### USER
 
-### INTERFACE
+# START USER
 
-# START INTERFACE
-
-python interface/interface.py &
-
-# START DISPLAY
-
-# (this should be changed to run it in fullscreen / kiosk mode)
-open interface/display.html
+python user/user.py &

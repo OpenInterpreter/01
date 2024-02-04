@@ -12,10 +12,13 @@ import queue
 import os
 from threading import Thread
 import uvicorn
+import re
 from fastapi import FastAPI
 from threading import Thread
 from starlette.websockets import WebSocket
 from create_interpreter import create_interpreter
+from stt import stt
+from tts import tts
 
 # Create interpreter
 interpreter = create_interpreter()
@@ -27,12 +30,18 @@ conversation_history_path = os.path.join(script_dir, 'conversations', 'user.json
 to_user = queue.Queue()
 to_assistant = queue.Queue()
 
+# This is so we only say() full sentences
+accumulated_text = ""
+def is_full_sentence(text):
+    return text.endswith(('.', '!', '?'))
+def split_into_sentences(text):
+    return re.split(r'(?<=[.!?])\s+', text)
+
 app = FastAPI()
 
 @app.post("/computer")
 async def read_computer(item: dict):
     to_assistant.put(item)
-    return {"message": "Item added to queue"}
 
 @app.websocket("/user")
 async def websocket_endpoint(websocket: WebSocket):
@@ -74,13 +83,30 @@ def queue_listener():
         messages.append(message)
         with open(conversation_history_path, 'w') as file:
             json.dump(messages, file)
+
+        accumulated_text = ""
         
         for chunk in interpreter.chat(messages):
 
-            # Send it to the interface
+            # Send it to the user
             to_user.put(chunk)
+            
+            # Speak full sentences out loud
+            accumulated_text += chunk["content"]
+            sentences = split_into_sentences(accumulated_text)
+            if is_full_sentence(sentences[-1]):
+                for sentence in sentences:
+                    for audio_chunk in tts(sentence):
+                        to_user.put(audio_chunk)
+                accumulated_text = ""
+            else:
+                for sentence in sentences[:-1]:
+                    for audio_chunk in tts(sentence):
+                        to_user.put(audio_chunk)
+                accumulated_text = sentences[-1]
 
-            # Stream audio chunks
+            if chunk["type"] == "message" and "content" in sentence:
+                sentence += chunk.get("content")
             
             # If we have a new message, save our progress and go back to the top
             if not to_assistant.empty():
