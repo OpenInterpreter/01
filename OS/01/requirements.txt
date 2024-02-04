@@ -8,3 +8,4 @@ websockets
 python-dotenv
 ffmpeg-python
 textual
+pydub

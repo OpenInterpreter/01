@@ -6,6 +6,8 @@ import pyaudio
 from queue import Queue
 from pynput import keyboard
 import json
+import pydub
+import ast
 
 # Configuration for Audio Recording
 CHUNK = 1024  # Record in chunks of 1024 samples
@@ -77,22 +79,50 @@ def toggle_recording(state):
 
 async def websocket_communication():
     """Handle WebSocket communication and listen for incoming messages."""
-    async with websockets.connect(WS_URL) as websocket:
-        while True:
-            # Send data from the queue to the server
-            while not data_queue.empty():
-                data = data_queue.get_nowait()
-                await websocket.send(json.dumps(data))
+    while True:
+        try:
+            async with websockets.connect(WS_URL) as websocket:
 
-            # Listen for incoming messages from the server
-            try:
-                incoming_message = await asyncio.wait_for(websocket.recv(), timeout=1.0)
-                print(f"Received from server: {incoming_message}")
-            except asyncio.TimeoutError:
-                # No message received within timeout period
-                pass
+                print("Press the spacebar to start/stop recording. Press ESC to exit.")
+                
+                while True:
+                    # Send data from the queue to the server
+                    while not data_queue.empty():
+                        data = data_queue.get_nowait()
+                        print(f"Sending data to the server: {data}")
+                        await websocket.send(json.dumps(data))
 
-            await asyncio.sleep(0.1)
+                    # Listen for incoming messages from the server
+                    try:
+                        chunk = await websocket.recv()
+                        print(f"Received from server: {str(chunk)[:100]}")
+
+                        if chunk["type"] == "audio":
+                            print("Received audio data from server.")
+                            if "start" in chunk:
+                                print("Start of audio data received.")
+                                audio_chunks = bytearray()
+                            if "content" in chunk:
+                                print("Audio content received.")
+                                audio_chunks.extend(bytes(ast.literal_eval(chunk["content"])))
+                            if "end" in chunk:
+                                print("End of audio data received.")
+                                with tempfile.NamedTemporaryFile(suffix=".mp3") as f:
+                                    f.write(audio_chunks)
+                                    f.seek(0)
+                                    seg = pydub.AudioSegment.from_mp3(f.name)
+                                    print("Playing received audio.")
+                                    pydub.playback.play(seg)
+
+                    except Exception as e:
+                        print(f"Error receiving data: {e}")
+
+                    print("Sleeping for 0.05 seconds.")
+                    await asyncio.sleep(0.05)
+        except Exception as e:
+            print(f"Websocket not ready, retrying... ({e})")
+            await asyncio.sleep(1)
+
 
 
 def on_press(key):
@@ -101,9 +131,12 @@ def on_press(key):
         toggle_recording(True)
 
 def on_release(key):
-    """Detect spacebar release."""
+    """Detect spacebar release and ESC key press."""
     if key == keyboard.Key.space:
         toggle_recording(False)
+    elif key == keyboard.Key.esc:
+        print("Exiting...")
+        os._exit(0)
 
 def main():
     # Start the WebSocket communication in a separate asyncio event loop
@@ -112,7 +145,7 @@ def main():
 
     # Keyboard listener for spacebar press/release
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        print("Press the spacebar to start/stop recording. Press ESC to exit.")
+        print("In a moment, press the spacebar to start/stop recording. Press ESC to exit.")
         listener.join()
 
     p.terminate()

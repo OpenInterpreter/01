@@ -38,8 +38,6 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
     output_path = os.path.join(temp_dir, f"output_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
     ffmpeg.input(input_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
 
-    print(f"Temporary file path: {output_path}")
-
     try:
         yield output_path
     finally:

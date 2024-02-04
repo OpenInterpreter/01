@@ -6,7 +6,7 @@ Exposes a ws endpoint called /user. Things from there go into the queue. We also
 In a while loop we watch the queue and handle it.
 """
 
-import os
+from starlette.websockets import WebSocketDisconnect
 import ast
 import json
 import time
@@ -21,12 +21,12 @@ from starlette.websockets import WebSocket
 from create_interpreter import create_interpreter
 from stt import stt
 from tts import tts
+from pathlib import Path
 
 # Create interpreter
 interpreter = create_interpreter()
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-conversation_history_path = os.path.join(script_dir, 'conversations', 'user.json')
+conversation_history_path = Path(__file__).parent / 'conversations' / 'user.json'
 
 # Create Queue objects
 to_user = queue.Queue()
@@ -49,11 +49,16 @@ async def read_computer(item: dict):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
-        data = await websocket.receive_json()
-        to_assistant.put(data)
-        while not to_user.empty():
-            message = to_user.get()
-            await websocket.send_json(message)
+        try:
+            data = await websocket.receive_json()
+            to_assistant.put(data)
+            while not to_user.empty():
+                message = to_user.get()
+                print("sending a message!")
+                await websocket.send_json(message)
+        except WebSocketDisconnect:
+            pass
+
 
 def queue_listener():
     audio_file = bytearray()
@@ -89,31 +94,44 @@ def queue_listener():
 
         accumulated_text = ""
         
-        for chunk in interpreter.chat(messages):
+        for chunk in interpreter.chat(messages, stream=True):
 
             # Send it to the user
             to_user.put(chunk)
             
             # Speak full sentences out loud
-            if chunk["type"] == "assistant":
+            if chunk["role"] == "assistant" and "content" in chunk:
+                print("Chunk role is assistant and content is present in chunk.")
                 accumulated_text += chunk["content"]
+                print("Accumulated text: ", accumulated_text)
                 sentences = split_into_sentences(accumulated_text)
+                print("Sentences after splitting: ", sentences)
                 if is_full_sentence(sentences[-1]):
+                    print("Last sentence is a full sentence.")
                     for sentence in sentences:
-                        for audio_chunk in tts(sentence):
-                            to_user.put(audio_chunk)
+                        print("Streaming sentence: ", sentence)
+                        stream_tts_to_user(sentence)
                     accumulated_text = ""
+                    print("Reset accumulated text.")
                 else:
+                    print("Last sentence is not a full sentence.")
                     for sentence in sentences[:-1]:
-                        for audio_chunk in tts(sentence):
-                            to_user.put(audio_chunk)
+                        print("Streaming sentence: ", sentence)
+                        stream_tts_to_user(sentence)
                     accumulated_text = sentences[-1]
+                    print("Accumulated text is now the last sentence: ", accumulated_text)
             
             # If we have a new message, save our progress and go back to the top
             if not to_assistant.empty():
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file)
                 break
+
+def stream_tts_to_user(sentence):
+    to_user.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "start": True})
+    audio_bytes = tts(sentence)
+    to_user.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "content": str(audio_bytes)})
+    to_user.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "end": True})
 
 # Create a thread for the queue listener
 queue_thread = Thread(target=queue_listener)
