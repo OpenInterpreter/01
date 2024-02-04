@@ -1,4 +1,5 @@
-pip install git+https://github.com/KillianLucas/open-interpreter.git
-pip install redis
-pip install fastapi
-pip install uvicorn
+git+https://github.com/KillianLucas/open-interpreter.git
+redis
+fastapi
+uvicorn
+RPi.GPIO

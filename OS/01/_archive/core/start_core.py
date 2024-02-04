@@ -72,7 +72,10 @@ interpreter.id = 206 # Used to identify itself to other interpreters. This shoul
 
 
 ### RESET conversations/user.json
-with open('interpreter/conversations/user.json', 'w') as file:
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+user_json_path = os.path.join(script_dir, 'conversations', 'user.json')
+with open(user_json_path, 'w') as file:
     json.dump([], file)
 
 
