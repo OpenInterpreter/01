@@ -2,4 +2,6 @@ git+https://github.com/KillianLucas/open-interpreter.git
 redis
 fastapi
 uvicorn
-RPi.GPIO
+websockets
+python-dotenv
+ffmpeg-python
