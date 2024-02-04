@@ -55,7 +55,7 @@ Remember: You can run Python code. Be very concise. Ensure that you actually run
     interpreter.llm.api_key = os.getenv('OPENAI_API_KEY')
     interpreter.llm.model = "gpt-4"
     interpreter.auto_run = True
-    interpreter.force_task_completion = True
+    interpreter.force_task_completion = False
 
 
     ### MISC SETTINGS
@@ -94,12 +94,12 @@ Remember: You can run Python code. Be very concise. Ensure that you actually run
             data = {"language": "python", "code": code}
 
             # Send the data to the /run endpoint
-            response = requests.post("http://localhost:8000/run", json=data, stream=True)
+            response = requests.post("http://localhost:9000/run", json=data, stream=True)
 
             # Stream the response
-            for line in response.iter_lines():
-                if line:  # filter out keep-alive new lines
-                    yield json.loads(line)
+            for chunk in response.iter_content(chunk_size=100000000):
+                if chunk:  # filter out keep-alive new lines
+                    yield json.loads(chunk.decode())
 
         def stop(self):
             """Stops the code."""
