@@ -1,11 +1,7 @@
 import threading
 from datetime import datetime
 import json
-import time
-import redis
-
-# Connect to Redis
-r = redis.Redis()
+import subprocess
 
 def add_message_to_queue(message):
 
@@ -16,9 +12,7 @@ def add_message_to_queue(message):
         "format": "output",
         "content": message
     })
-
-    # Add the message to the 'to_main' queue
-    r.rpush('to_main', message_json)
+    subprocess.run(['logger', '{TO_INTERPRETER{' + message_json + '}TO_INTERPRETER}'])
 
 def schedule(dt, message):
     # Calculate the delay in seconds

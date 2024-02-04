@@ -12,6 +12,7 @@ import json
 import time
 import queue
 import os
+from queue import Queue
 from threading import Thread
 import uvicorn
 import re
@@ -28,9 +29,7 @@ interpreter = create_interpreter()
 
 conversation_history_path = Path(__file__).parent / 'conversations' / 'user.json'
 
-# Create Queue objects
-to_user = queue.Queue()
-to_assistant = queue.Queue()
+
 
 # This is so we only say() full sentences
 def is_full_sentence(text):
@@ -41,32 +40,65 @@ def split_into_sentences(text):
 
 app = FastAPI()
 
-@app.post("/computer")
-async def read_computer(item: dict):
-    to_assistant.put(item)
+
+
+import asyncio
+
+
+# Global queues
+receive_queue = queue.Queue()
+send_queue = queue.Queue()
+
 
 @app.websocket("/user")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    receive_task = asyncio.create_task(receive_messages(websocket))
+    send_task = asyncio.create_task(send_messages(websocket))
+    await asyncio.gather(receive_task, send_task)
+
+async def receive_messages(websocket: WebSocket):
     while True:
-        try:
-            data = await websocket.receive_json()
-            to_assistant.put(data)
-            while not to_user.empty():
-                message = to_user.get()
-                print("sending a message!")
-                await websocket.send_json(message)
-        except WebSocketDisconnect:
-            pass
+        data = await websocket.receive_text()
+        receive_queue.put(data)
+
+async def send_messages(websocket: WebSocket):
+    while True:
+        message = await asyncio.get_event_loop().run_in_executor(None, send_queue.get)
+        print(message)
+        await websocket.send_json(message)
+            
+
+
+
+
+
+
+@app.post("/computer")
+async def read_computer(item: dict):
+    await asyncio.get_event_loop().run_in_executor(None, receive_queue.put, item)
+
+
+
+
+
+
+
+
+
+
+
 
 
 def queue_listener():
     audio_file = bytearray()
     while True:
         # Check 10x a second for new messages
-        while to_assistant.empty():
+        while receive_queue.empty():
             time.sleep(0.1)
-        message = to_assistant.get()
+        message = receive_queue.get()
+
+        message = json.loads(message)
 
         # Hold the audio in a buffer. If it's ready (we got end flag, stt it)
         if message["type"] == "audio":
@@ -97,7 +129,7 @@ def queue_listener():
         for chunk in interpreter.chat(messages, stream=True):
 
             # Send it to the user
-            to_user.put(chunk)
+            send_queue.put(chunk)
             
             # Speak full sentences out loud
             if chunk["role"] == "assistant" and "content" in chunk:
@@ -122,16 +154,16 @@ def queue_listener():
                     print("Accumulated text is now the last sentence: ", accumulated_text)
             
             # If we have a new message, save our progress and go back to the top
-            if not to_assistant.empty():
+            if not receive_queue.empty():
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file)
                 break
 
 def stream_tts_to_user(sentence):
-    to_user.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "start": True})
+    send_queue.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "start": True})
     audio_bytes = tts(sentence)
-    to_user.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "content": str(audio_bytes)})
-    to_user.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "end": True})
+    send_queue.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "content": str(audio_bytes)})
+    send_queue.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "end": True})
 
 # Create a thread for the queue listener
 queue_thread = Thread(target=queue_listener)

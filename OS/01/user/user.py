@@ -1,11 +1,13 @@
 import asyncio
 import threading
-import websockets
 import os
 import pyaudio
+from starlette.websockets import WebSocket
 from queue import Queue
 from pynput import keyboard
 import json
+import websockets
+import queue
 import pydub
 import ast
 
@@ -24,8 +26,6 @@ WS_URL = f"ws://localhost:{PORT}/user"
 # Initialize PyAudio
 p = pyaudio.PyAudio()
 
-# Queue for sending data
-data_queue = Queue()
 
 import wave
 import tempfile
@@ -59,10 +59,10 @@ def record_audio():
     with open(wav_path, 'rb') as audio_file:
         byte_data = audio_file.read(CHUNK)
         while byte_data:
-            data_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": str(byte_data)})
+            send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": str(byte_data)})
             byte_data = audio_file.read(CHUNK)
 
-    data_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
+    send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
 
 
 def toggle_recording(state):
@@ -77,48 +77,6 @@ def toggle_recording(state):
         SPACEBAR_PRESSED = False
         RECORDING = False
 
-async def websocket_communication():
-    """Handle WebSocket communication and listen for incoming messages."""
-    while True:
-        try:
-            async with websockets.connect(WS_URL) as websocket:
-
-                print("Press the spacebar to start/stop recording. Press ESC to exit.")
-                
-                while True:
-                    # Send data from the queue to the server
-                    while not data_queue.empty():
-                        data = data_queue.get_nowait()
-                        await websocket.send(json.dumps(data))
-
-                    # Listen for incoming messages from the server
-                    try:
-                        chunk = await asyncio.wait_for(websocket.recv(), timeout=1.0)
-                        print(f"Received from server: {str(chunk)[:100]}")
-
-                        if chunk["type"] == "audio":
-                            if "start" in chunk:
-                                audio_chunks = bytearray()
-                            if "content" in chunk:
-                                audio_chunks.extend(bytes(ast.literal_eval(chunk["content"])))
-                            if "end" in chunk:
-                                with tempfile.NamedTemporaryFile(suffix=".mp3") as f:
-                                    f.write(audio_chunks)
-                                    f.seek(0)
-                                    seg = pydub.AudioSegment.from_mp3(f.name)
-                                    pydub.playback.play(seg)
-
-                    except asyncio.TimeoutError:
-                        # No message received within timeout period
-                        pass
-
-                    await asyncio.sleep(0.1)
-        except Exception as e:
-            print(f"Websocket not ready, retrying... ({e})")
-            await asyncio.sleep(1)
-
-
-
 def on_press(key):
     """Detect spacebar press."""
     if key == keyboard.Key.space:
@@ -132,14 +90,37 @@ def on_release(key):
         print("Exiting...")
         os._exit(0)
 
+import asyncio
+
+send_queue = queue.Queue()
+
+async def message_sender(websocket):
+    while True:
+        message = await asyncio.get_event_loop().run_in_executor(None, send_queue.get)
+        await websocket.send(json.dumps(message))
+        send_queue.task_done()
+
+async def websocket_communication(WS_URL):
+    while True:
+        try:
+            async with websockets.connect(WS_URL) as websocket:
+                print("Press the spacebar to start/stop recording. Press ESC to exit.")
+                asyncio.create_task(message_sender(websocket))
+
+                async for message in websocket:
+                    print(message)
+                    await asyncio.sleep(1)
+        except:
+            print("Connecting...")
+            await asyncio.sleep(2)
+
 def main():
     # Start the WebSocket communication in a separate asyncio event loop
-    ws_thread = threading.Thread(target=lambda: asyncio.run(websocket_communication()), daemon=True)
+    ws_thread = threading.Thread(target=lambda: asyncio.run(websocket_communication(WS_URL)), daemon=True)
     ws_thread.start()
 
     # Keyboard listener for spacebar press/release
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        print("In a moment, press the spacebar to start/stop recording. Press ESC to exit.")
         listener.join()
 
     p.terminate()
