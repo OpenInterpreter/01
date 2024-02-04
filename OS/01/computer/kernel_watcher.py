@@ -7,6 +7,7 @@ import subprocess
 import time
 import requests
 import platform
+import os
 
 class Device:
     def __init__(self, device_type, device_info):
@@ -118,8 +119,8 @@ def run_kernel_watch_linux():
             if custom_filter(message):
                 messages_for_core.append(message)
         if messages_for_core:
-            requests.post('http://localhost:8000/computer', json = {'messages': messages_for_core})
-
+            port = os.getenv('ASSISTANT_PORT', 8000)
+            requests.post(f'http://localhost:{port}/computer', json = {'messages': messages_for_core})
         time.sleep(2)
 
 

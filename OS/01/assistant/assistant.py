@@ -6,6 +6,7 @@ Exposes a ws endpoint called /user. Things from there go into the queue. We also
 In a while loop we watch the queue and handle it.
 """
 
+import os
 import ast
 import json
 import time
@@ -53,7 +54,6 @@ async def websocket_endpoint(websocket: WebSocket):
         while not to_user.empty():
             message = to_user.get()
             await websocket.send_json(message)
-
 
 def queue_listener():
     audio_file = bytearray()
@@ -123,4 +123,4 @@ queue_thread.start()
 
 # Run the FastAPI app
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv('ASSISTANT_PORT', 8000)))

@@ -7,3 +7,4 @@ uvicorn
 websockets
 python-dotenv
 ffmpeg-python
+textual

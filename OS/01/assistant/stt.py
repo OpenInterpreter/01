@@ -30,6 +30,9 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
     with open(input_path, 'wb') as f:
         f.write(audio)
 
+    # Check if the input file exists
+    assert os.path.exists(input_path), f"Input file does not exist: {input_path}"
+
     # Export to wav
     output_path = os.path.join(temp_dir, f"output_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
     ffmpeg.input(input_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
@@ -41,7 +44,6 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
     finally:
         os.remove(input_path)
         os.remove(output_path)
-
 
 def stt(audio_bytes: bytearray, mime_type):
     with export_audio_to_wav_ffmpeg(audio_bytes, mime_type) as wav_file_path:

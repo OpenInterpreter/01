@@ -5,18 +5,14 @@ Connects to a websocket at /user. Sends shit to it, and displays/plays the shit 
 
 For now, just handles a spacebar being pressed— for the duration it's pressed,
 it should record audio.
-
-SIMPLEST POSSIBLE: Sends that audio to OpenAI whisper, gets the transcript,
-sends it to /user in LMC format (role: user, etc)
-
-MOST FUTUREPROOF: Streams chunks of audio to /user, which will then handle stt in stt.py.
 """
 
 import os
 import pyaudio
 import threading
 import asyncio
-import websockets
+import websocket
+import time
 import json
 from pynput import keyboard
 import wave
@@ -34,6 +30,15 @@ frames = []  # Initialize array to store frames
 recording = False  # Flag to control recording state
 
 ws_chunk_size = 4096 # Websocket stream chunk size
+
+port = os.getenv('ASSISTANT_PORT', 8000)
+ws_url = f"ws://localhost:{port}/user"
+while True:
+    try:
+        ws = websocket.create_connection(ws_url)
+        break
+    except ConnectionRefusedError:
+        time.sleep(1)
 
 async def start_recording():
     global recording

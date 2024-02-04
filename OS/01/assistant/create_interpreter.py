@@ -94,8 +94,8 @@ Remember: You can run Python code. Be very concise. Ensure that you actually run
             data = {"language": "python", "code": code}
 
             # Send the data to the /run endpoint
-            response = requests.post("http://localhost:9000/run", json=data, stream=True)
-
+            computer_port = os.getenv('COMPUTER_PORT', '9000')
+            response = requests.post(f"http://localhost:{computer_port}/run", json=data, stream=True)
             # Stream the response
             for chunk in response.iter_content(chunk_size=100000000):
                 if chunk:  # filter out keep-alive new lines
