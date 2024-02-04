@@ -6,6 +6,7 @@ Exposes a ws endpoint called /user. Things from there go into the queue. We also
 In a while loop we watch the queue and handle it.
 """
 
+import ast
 import json
 import time
 import queue
@@ -31,9 +32,9 @@ to_user = queue.Queue()
 to_assistant = queue.Queue()
 
 # This is so we only say() full sentences
-accumulated_text = ""
 def is_full_sentence(text):
     return text.endswith(('.', '!', '?'))
+
 def split_into_sentences(text):
     return re.split(r'(?<=[.!?])\s+', text)
 
@@ -49,13 +50,13 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         data = await websocket.receive_json()
         to_assistant.put(data)
-        if not to_user.empty():
+        while not to_user.empty():
             message = to_user.get()
             await websocket.send_json(message)
 
-audio_file = bytearray()
 
 def queue_listener():
+    audio_file = bytearray()
     while True:
         # Check 10x a second for new messages
         while to_assistant.empty():
@@ -65,7 +66,7 @@ def queue_listener():
         # Hold the audio in a buffer. If it's ready (we got end flag, stt it)
         if message["type"] == "audio":
             if "content" in message:
-                audio_file.extend(message["content"])
+                audio_file.extend(bytes(ast.literal_eval(message["content"])))
             if "end" in message:
                 content = stt(audio_file, message["format"])
                 audio_file = bytearray()

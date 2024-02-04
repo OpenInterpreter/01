@@ -65,7 +65,7 @@ async def start_recording():
             with open(file_path, 'rb') as audio_file:
                 byte_chunk = audio_file.read(ws_chunk_size)
                 while byte_chunk:
-                    await websocket.send({"role": "user", "type": "audio", "format": "audio/wav", "content": byte_chunk})
+                    await websocket.send(json.dumps({"role": "user", "type": "audio", "format": "audio/wav", "content": str(byte_chunk)}))
                     byte_chunk = audio_file.read(ws_chunk_size)
         finally:
             os.remove(file_path)
