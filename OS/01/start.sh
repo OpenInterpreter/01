@@ -2,8 +2,10 @@
 
 # INSTALL REQUIREMENTS
 
-sudo apt-get update
-sudo apt-get install redis-server
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    brew update
+    brew install portaudio ffmpeg
+fi
 pip install -r requirements.txt
 
 ### COMPUTER
@@ -14,7 +16,7 @@ python computer/kernel_watcher.py &
 
 # START RUN ENDPOINT
 
-python computer/run.py
+python computer/run.py &
 
 # START SST AND TTS SERVICES
 

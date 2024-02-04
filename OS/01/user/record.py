@@ -52,7 +52,7 @@ async def start_recording():
     print("Recording started...")
     async with websockets.connect("ws://localhost:8000/user") as websocket:
         # Send the start command with mime type
-        await websocket.send(json.dumps({"action": "command", "state": "start", "mimeType": "audio/wav"}))
+        await websocket.send(json.dumps({"role": "user", "type": "audio", "format": "audio/wav", "start": True}))
         while recording:
             data = stream.read(chunk)
             frames.append(data)
@@ -65,13 +65,13 @@ async def start_recording():
             with open(file_path, 'rb') as audio_file:
                 byte_chunk = audio_file.read(ws_chunk_size)
                 while byte_chunk:
-                    await websocket.send(byte_chunk)
+                    await websocket.send(json.dumps({"role": "user", "type": "audio", "format": "audio/wav", "content": str(byte_chunk)}))
                     byte_chunk = audio_file.read(ws_chunk_size)
         finally:
             os.remove(file_path)
 
         # Send the end command
-        await websocket.send(json.dumps({"action": "command", "state": "end"}))
+        await websocket.send(json.dumps({"role": "user", "type": "audio", "format": "audio/wav", "end": True}))
 
         # Receive a json message and then close the connection
         message = await websocket.recv()
