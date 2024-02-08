@@ -10,6 +10,9 @@ import websockets
 import queue
 import pydub
 import ast
+from pydub import AudioSegment
+from pydub.playback import play
+import io
 
 # Configuration for Audio Recording
 CHUNK = 1024  # Record in chunks of 1024 samples
@@ -109,7 +112,18 @@ async def websocket_communication(WS_URL):
 
                 async for message in websocket:
                     print(message)
-                    await asyncio.sleep(1)
+
+                    if message["type"] == "audio" and "content" in message:
+                        audio_bytes = bytes(ast.literal_eval(message["content"]))
+
+                        # Convert bytes to audio file
+                        audio_file = io.BytesIO(audio_bytes)
+                        audio = AudioSegment.from_mp3(audio_file)
+
+                        # Play the audio
+                        play(audio)
+
+                        await asyncio.sleep(1)
         except:
             print("Connecting...")
             await asyncio.sleep(2)

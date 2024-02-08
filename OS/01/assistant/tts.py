@@ -19,9 +19,9 @@ def tts(text):
     with tempfile.NamedTemporaryFile() as temp_file:
         response.stream_to_file(temp_file.name)
         
-        # audio = AudioSegment.from_file(temp_file.name, format="mp3")
-        # # Gradual fade in and out over 0.2 seconds
-        # audio = audio.fade_in(200).fade_out(200)
-        # play(audio)
+        audio = AudioSegment.from_file(temp_file.name, format="mp3")
+        # Gradual fade in and out over 0.2 seconds
+        audio = audio.fade_in(200).fade_out(200)
+        play(audio)
         
         return temp_file.read()
