@@ -137,11 +137,15 @@ async def websocket_communication(WS_URL):
 
                 message_so_far = {"role": None, "type": None, "format": None, "content": None}
 
-                async for message in websocket:
+                while True:
+                    message = await websocket.recv()
 
-                    print(message)
+                    print("Got this message from the server:", type(message), message)
 
-                    if "content" in message_so_far:
+                    if type(message) == str:
+                        message = json.loads(message)
+
+                    if "content" in message:
                         if any(message_so_far[key] != message[key] for key in message_so_far):
                             message_so_far = message
                         else:

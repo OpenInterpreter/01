@@ -109,13 +109,16 @@ async def receive_messages(websocket: WebSocket):
 async def send_messages(websocket: WebSocket):
     while True:
         message = await to_device.get()
-        print(message)
+        print("Sending to the device:", type(message), message)
         await websocket.send_json(message)
 
 async def user_listener():
     audio_bytes = bytearray()
     while True:
         message = await from_user.get()
+
+        if type(message) == str:
+            message = json.loads(message)
 
         # Hold the audio in a buffer. If it's ready (we got end flag, stt it)
         if message["type"] == "audio":
@@ -131,7 +134,7 @@ async def user_listener():
                 continue
 
         # Ignore flags, we only needed them for audio ^
-        if "content" not in message:
+        if "content" not in message or message["content"] == None:
             continue
 
         # Custom stop message will halt us
@@ -147,10 +150,14 @@ async def user_listener():
 
         accumulated_text = ""
         
-        for chunk in interpreter.chat(messages, stream=True):
+        for chunk in interpreter.chat(messages, stream=True, display=False):
+
+            print("Got chunk:", chunk)
 
             # Send it to the user
             await to_device.put(chunk)
+            # Yield to the event loop, so you actually send it out
+            await asyncio.sleep(0.01)
             
             # Speak full sentences out loud
             if chunk["role"] == "assistant" and "content" in chunk:
@@ -167,8 +174,21 @@ async def user_listener():
             
             # If we have a new message, save our progress and go back to the top
             if not from_user.empty():
+
+                # Check if it's just an end flag. We ignore those.
+                temp_message = await from_user.get()
+                
+                if temp_message == {'role': 'user', 'type': 'message', 'end': True}:
+                    # Yup. False alarm.
+                    continue
+                else:
+                    # Whoops! Put that back
+                    await from_user.put(temp_message)
+
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file)
+
+                print("New message recieved. Breaking.")
                 break
 
 async def stream_or_play_tts(sentence):
