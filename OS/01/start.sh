@@ -12,7 +12,7 @@ export DEVICE_START=True
 
 # Control where various operations happen— can be `device` or `server`.
 export CODE_RUNNER=server
-export TTS_RUNNER=device # If server, audio will be sent over websocket.
+export TTS_RUNNER=server # If device, audio will be sent over websocket.
 export STT_RUNNER=device # If server, audio will be sent over websocket.
 
 # Will expose the server publically and display that URL.
@@ -22,10 +22,14 @@ export SERVER_EXPOSE_PUBLICALLY=False
 
 # (for dev, reset the ports we were using)
 
-PORT=$(echo $SERVER_URL | grep -oE "[0-9]+")
-lsof -ti tcp:$PORT | xargs kill
-PORT=$(echo $DEVICE_URL | grep -oE "[0-9]+")
-lsof -ti tcp:$PORT | xargs kill
+SERVER_PORT=$(echo $SERVER_URL | grep -oE "[0-9]+")
+if [ -n "$SERVER_PORT" ]; then
+    lsof -ti tcp:$SERVER_PORT | xargs kill
+fi
+DEVICE_PORT=$(echo $DEVICE_URL | grep -oE "[0-9]+")
+if [ -n "$DEVICE_PORT" ]; then
+    lsof -ti tcp:$DEVICE_PORT | xargs kill
+fi
 
 # Check the current Python version
 PYTHON_VERSION=$(python -V 2>&1 | cut -d " " -f 2 | cut -d "." -f 1-2)

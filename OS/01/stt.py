@@ -44,18 +44,21 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
         os.remove(input_path)
         os.remove(output_path)
 
-def stt(audio_bytes: bytearray, mime_type):
+def stt_bytes(audio_bytes: bytearray, mime_type="audio/wav"):
     with export_audio_to_wav_ffmpeg(audio_bytes, mime_type) as wav_file_path:
-        audio_file = open(wav_file_path, "rb")
-        try:
-            transcript = client.audio.transcriptions.create(
-                model="whisper-1", 
-                file=audio_file,
-                response_format="text"
-            )
-        except openai.BadRequestError as e:
-            print("openai.BadRequestError:", e)
-            return None
+        return stt_wav(wav_file_path)
 
-        print("Exciting transcription result:", transcript)
-        return transcript
+def stt_wav(wav_file_path: str):
+    audio_file = open(wav_file_path, "rb")
+    try:
+        transcript = client.audio.transcriptions.create(
+            model="whisper-1", 
+            file=audio_file,
+            response_format="text"
+        )
+    except openai.BadRequestError as e:
+        print("openai.BadRequestError:", e)
+        return None
+
+    print("Exciting transcription result:", transcript)
+    return transcript

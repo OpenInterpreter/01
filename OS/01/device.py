@@ -6,6 +6,7 @@ from starlette.websockets import WebSocket
 from queue import Queue
 from pynput import keyboard
 import json
+import traceback
 import websockets
 import queue
 import pydub
@@ -13,11 +14,13 @@ import ast
 from pydub import AudioSegment
 from pydub.playback import play
 import io
+import time
 import wave
 import tempfile
 from datetime import datetime
-from utils.check_filtered_kernel import check_filtered_kernel
 from interpreter import interpreter # Just for code execution. Maybe we should let people do from interpreter.computer import run?
+from utils.put_kernel_messages_into_queue import put_kernel_messages_into_queue
+from stt import stt_wav
 
 # Configuration for Audio Recording
 CHUNK = 1024  # Record in chunks of 1024 samples
@@ -36,6 +39,16 @@ if not WS_URL:
 p = pyaudio.PyAudio()
 
 def record_audio():
+    
+    if os.getenv('STT_RUNNER') == "server":
+        # STT will happen on the server. we're sending audio.
+        send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "start": True})
+    elif os.getenv('STT_RUNNER') == "device":
+        # STT will happen here, on the device. we're sending text.
+        send_queue.put({"role": "user", "type": "message", "start": True})
+    else:
+        raise Exception("STT_RUNNER must be set to either 'device' or 'server'.")
+
     """Record audio from the microphone and add it to the queue."""
     stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
     print("Recording started...")
@@ -64,8 +77,20 @@ def record_audio():
         while byte_data:
             send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": str(byte_data)})
             byte_data = audio_file.read(CHUNK)
+    
+    if os.getenv('STT_RUNNER') == "device":
+        text = stt_wav(wav_path)
+        send_queue.put({"role": "user", "type": "message", "content": text})
 
-    send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
+    if os.getenv('STT_RUNNER') == "server":
+        # STT will happen on the server. we sent audio.
+        send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
+    elif os.getenv('STT_RUNNER') == "device":
+        # STT will happen here, on the device. we sent text.
+        send_queue.put({"role": "user", "type": "message", "end": True})
+
+    if os.path.exists(wav_path):
+        os.remove(wav_path)
 
 
 def toggle_recording(state):
@@ -114,11 +139,13 @@ async def websocket_communication(WS_URL):
 
                 async for message in websocket:
 
+                    print(message)
+
                     if "content" in message_so_far:
                         if any(message_so_far[key] != message[key] for key in message_so_far):
                             message_so_far = message
                         else:
-                            message_so_far["content"] += message
+                            message_so_far["content"] += message["content"]
 
                     if message["type"] == "audio" and "content" in message:
                         audio_bytes = bytes(ast.literal_eval(message["content"]))
@@ -139,22 +166,25 @@ async def websocket_communication(WS_URL):
                             code = message_so_far["content"]
                             result = interpreter.computer.run(language, code)
                             send_queue.put(result)
-
-                    
+  
         except:
+            traceback.print_exc()
             print(f"Connecting to `{WS_URL}`...")
             await asyncio.sleep(2)
-
-def main():
-    # Start the WebSocket communication in a separate asyncio event loop
-    ws_thread = threading.Thread(target=lambda: asyncio.run(websocket_communication(WS_URL)), daemon=True)
-    ws_thread.start()
-
-    # Keyboard listener for spacebar press/release
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        listener.join()
-
-    p.terminate()
+            
 
 if __name__ == "__main__":
-    main()
+    async def main():
+        # Start the WebSocket communication
+        asyncio.create_task(websocket_communication(WS_URL))
+
+        # Start watching the kernel if it's your job to do that
+        if os.getenv('CODE_RUNNER') == "device":
+            asyncio.create_task(put_kernel_messages_into_queue(send_queue))
+
+        # Keyboard listener for spacebar press/release
+        listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+        listener.start()
+
+    asyncio.run(main())
+    p.terminate()

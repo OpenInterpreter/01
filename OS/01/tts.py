@@ -9,7 +9,7 @@ from pydub.playback import play
 
 client = OpenAI()
 
-def tts(text):
+def tts(text, play_audio):
     response = client.audio.speech.create(
         model="tts-1",
         voice="alloy",
@@ -19,9 +19,10 @@ def tts(text):
     with tempfile.NamedTemporaryFile() as temp_file:
         response.stream_to_file(temp_file.name)
         
-        audio = AudioSegment.from_file(temp_file.name, format="mp3")
-        # Gradual fade in and out over 0.2 seconds
-        audio = audio.fade_in(200).fade_out(200)
-        play(audio)
+        if play_audio:
+            audio = AudioSegment.from_file(temp_file.name, format="mp3")
+            # Gradual fade in and out over 0.2 seconds
+            audio = audio.fade_in(200).fade_out(200)
+            play(audio)
         
         return temp_file.read()
