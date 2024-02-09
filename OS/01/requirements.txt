@@ -5,6 +5,7 @@ pynput
 fastapi
 uvicorn
 websockets
+playsound
 python-dotenv
 ffmpeg-python
 textual
