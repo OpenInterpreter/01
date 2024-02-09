@@ -13,6 +13,11 @@ import ast
 from pydub import AudioSegment
 from pydub.playback import play
 import io
+import wave
+import tempfile
+from datetime import datetime
+from utils.check_filtered_kernel import check_filtered_kernel
+from interpreter import interpreter # Just for code execution. Maybe we should let people do from interpreter.computer import run?
 
 # Configuration for Audio Recording
 CHUNK = 1024  # Record in chunks of 1024 samples
@@ -23,17 +28,12 @@ RECORDING = False  # Flag to control recording state
 SPACEBAR_PRESSED = False  # Flag to track spacebar press state
 
 # Configuration for WebSocket
-PORT = os.getenv('ASSISTANT_PORT', '8000')
-WS_URL = f"ws://localhost:{PORT}/user"
+WS_URL = os.getenv('SERVER_URL')
+if not WS_URL:
+    raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
 
 # Initialize PyAudio
 p = pyaudio.PyAudio()
-
-
-import wave
-import tempfile
-from datetime import datetime
-
 
 def record_audio():
     """Record audio from the microphone and add it to the queue."""
@@ -110,8 +110,15 @@ async def websocket_communication(WS_URL):
                 print("Press the spacebar to start/stop recording. Press ESC to exit.")
                 asyncio.create_task(message_sender(websocket))
 
+                message_so_far = {"role": None, "type": None, "format": None, "content": None}
+
                 async for message in websocket:
-                    print(message)
+
+                    if "content" in message_so_far:
+                        if any(message_so_far[key] != message[key] for key in message_so_far):
+                            message_so_far = message
+                        else:
+                            message_so_far["content"] += message
 
                     if message["type"] == "audio" and "content" in message:
                         audio_bytes = bytes(ast.literal_eval(message["content"]))
@@ -124,8 +131,18 @@ async def websocket_communication(WS_URL):
                         play(audio)
 
                         await asyncio.sleep(1)
+
+                    # Run the code if that's the device's job
+                    if os.getenv('CODE_RUNNER') == "device":
+                        if message["type"] == "code" and "end" in message:
+                            language = message_so_far["format"]
+                            code = message_so_far["content"]
+                            result = interpreter.computer.run(language, code)
+                            send_queue.put(result)
+
+                    
         except:
-            print("Connecting...")
+            print(f"Connecting to `{WS_URL}`...")
             await asyncio.sleep(2)
 
 def main():

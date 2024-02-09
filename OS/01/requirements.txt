@@ -1,6 +1,6 @@
 git+https://github.com/KillianLucas/open-interpreter.git
 asyncio
-pyaudio
+PyAudio
 pynput
 fastapi
 uvicorn

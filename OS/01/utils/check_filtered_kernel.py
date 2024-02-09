@@ -1,13 +1,5 @@
-"""
-Watches the kernel. When it sees something that passes a filter,
-it sends POST request with that to /computer.
-"""
-
 import subprocess
-import time
-import requests
 import platform
-import os
 
 def get_kernel_messages():
     """
@@ -40,22 +32,15 @@ def custom_filter(message):
     else:
         return None
 
+last_messages = ""
 
-def main():
-    last_messages = ""
-    while True:
+def check_filtered_kernel():
         messages = get_kernel_messages()
         messages.replace(last_messages, "")
         messages = messages.split("\n")
         
-        messages_for_core = []
+        filtered_messages = []
         for message in messages:
             if custom_filter(message):
-                messages_for_core.append(message)
-        if messages_for_core:
-            port = os.getenv('ASSISTANT_PORT', 8000)
-            requests.post(f'http://localhost:{port}/computer', json = {'messages': messages_for_core})
-        time.sleep(5)
-
-if __name__ == "__main__":
-    main()
+                filtered_messages.append(message)
+        return filtered_messages

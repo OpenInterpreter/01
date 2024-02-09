@@ -1,3 +1,32 @@
+# New: The 8th Architecture
+
+```
+/01
+    start.sh # entrypoint, runs server, device, llm
+    server.py # uses tts and stt if it must, exposes "/"
+    device.py # also uses tts and stt, hits "/"
+    llm.py # starts an openai-compatible server
+    model.llamafile
+    i.py # creates an interpreter which server just imports
+    tts.py
+    stt.py
+    /conversations
+        user.json
+    /skills # files in here will run in the 01's interpreter
+        schedule.py
+        ...
+```
+
+This is flatter and simpler.
+
+**Device** handles the device — i.e. everything the user interacts + watching the kernel + running code (which produces `computer` LMC messages) if `DEVICE_EXECUTE_CODE` is true. Runs TTS and STT, sends LMC messages to "/".
+
+**Server** serves "/", a websocket that accepts `user` LMC messages and sends back `assistant` LMC messages. Runs code (which produces `computer` LMC messages) if `SERVER_EXECUTE_CODE` is true.
+
+**Llm** starts an OpenAI-compatible server with `model.llamafile`. Downloads a heavily quantized Phi-2 if `model.llamafile` doesn't exist.
+
+**I** creates an `interpreter` object. This is where you configure the 01's behavior.
+
 # What is this?
 
 This is the operating system that powers the 01.

@@ -1,16 +1,45 @@
 ### SETTINGS
 
-export MODE_01=LIGHT
-export ASSISTANT_PORT=8000
-export COMPUTER_PORT=8001
+# If ALL_LOCAL is False, we'll use OpenAI's services
+export ALL_LOCAL=False
+# export OPENAI_API_KEY=sk-...
 
-# Kill whatever's on the ASSISTANT_PORT and COMPUTER_PORT
-lsof -ti tcp:$ASSISTANT_PORT | xargs kill
-lsof -ti tcp:$COMPUTER_PORT | xargs kill
+# If SERVER_START, this is where we'll serve the server.
+# If DEVICE_START, this is where the device expects the server to be.
+export SERVER_URL=ws://localhost:8000/
+export SERVER_START=True
+export DEVICE_START=True
+
+# Control where various operations happen— can be `device` or `server`.
+export CODE_RUNNER=server
+export TTS_RUNNER=device # If server, audio will be sent over websocket.
+export STT_RUNNER=device # If server, audio will be sent over websocket.
+
+# Will expose the server publically and display that URL.
+export SERVER_EXPOSE_PUBLICALLY=False
 
 ### SETUP
 
+# (for dev, reset the ports we were using)
+
+PORT=$(echo $SERVER_URL | grep -oE "[0-9]+")
+lsof -ti tcp:$PORT | xargs kill
+PORT=$(echo $DEVICE_URL | grep -oE "[0-9]+")
+lsof -ti tcp:$PORT | xargs kill
+
+# Check the current Python version
+PYTHON_VERSION=$(python -V 2>&1 | cut -d " " -f 2 | cut -d "." -f 1-2)
+
+# If the Python version is not 3.10 or 3.11, switch to it using pyenv
+if [[ "$PYTHON_VERSION" != "3.10" ]] && [[ "$PYTHON_VERSION" != "3.11" ]]; then
+    echo "Switching to Python 3.10 using pyenv..."
+    pyenv install 3.10.0
+    pyenv shell 3.10.0
+fi
+
 # INSTALL REQUIREMENTS
+
+# (for dev, this is disabled for speed)
 
 # if [[ "$OSTYPE" == "darwin"* ]]; then
 #     brew update
@@ -18,34 +47,26 @@ lsof -ti tcp:$COMPUTER_PORT | xargs kill
 # fi
 # pip install -r requirements.txt
 
-### COMPUTER
+### START
 
-# START KERNEL WATCHER
+# DEVICE
 
-python computer/kernel_watcher.py &
+if [[ "$DEVICE_START" == "True" ]]; then
+    python device.py &
+fi
 
-# START RUN ENDPOINT
+# SERVER
 
-python computer/run.py &
+if [[ "$SERVER_START" == "True" ]]; then
+    python server.py &
+fi
 
-# START SST AND TTS SERVICES
+# TTS, STT
 
 # (todo)
 # (i think we should start with hosted services)
 
-# START LLM
+# LLM
 
 # (disabled, we'll start with hosted services)
 # python core/llm/start.py &
-
-sleep 6
-
-# START ASSISTANT
-
-python assistant/assistant.py &
-
-### USER
-
-# START USER
-
-python user/user.py &
