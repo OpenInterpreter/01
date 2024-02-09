@@ -49,7 +49,7 @@ fi
 #     brew update
 #     brew install portaudio ffmpeg
 # fi
-python -m pip install -r requirements.txt
+# python -m pip install -r requirements.txt
 
 ### START
 

@@ -19,7 +19,7 @@ import wave
 import tempfile
 from datetime import datetime
 from interpreter import interpreter # Just for code execution. Maybe we should let people do from interpreter.computer import run?
-from utils.put_kernel_messages_into_queue import put_kernel_messages_into_queue
+from utils.kernel import put_kernel_messages_into_queue
 from stt import stt_wav
 
 # Configuration for Audio Recording
@@ -71,27 +71,32 @@ def record_audio():
     stream.close()
     print("Recording stopped.")
 
-    # After recording is done, read and stream the audio file in chunks
-    with open(wav_path, 'rb') as audio_file:
-        byte_data = audio_file.read(CHUNK)
-        while byte_data:
-            send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": str(byte_data)})
-            byte_data = audio_file.read(CHUNK)
-    
-    if os.getenv('STT_RUNNER') == "device":
-        text = stt_wav(wav_path)
-        send_queue.put({"role": "user", "type": "message", "content": text})
-
-    if os.getenv('STT_RUNNER') == "server":
-        # STT will happen on the server. we sent audio.
-        send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
-    elif os.getenv('STT_RUNNER') == "device":
-        # STT will happen here, on the device. we sent text.
-        send_queue.put({"role": "user", "type": "message", "end": True})
+    duration = wav_file.getnframes() / RATE
+    if duration < 0.3:
+        # Just pressed it. Send stop message
+        if os.getenv('STT_RUNNER') == "device":
+            send_queue.put({"role": "user", "type": "message", "content": "stop"})
+            send_queue.put({"role": "user", "type": "message", "end": True})
+        else:
+            send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": ""})
+            send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
+    else:
+        if os.getenv('STT_RUNNER') == "device":
+            # Run stt then send text
+            text = stt_wav(wav_path)
+            send_queue.put({"role": "user", "type": "message", "content": text})
+            send_queue.put({"role": "user", "type": "message", "end": True})
+        else:
+            # Stream audio
+            with open(wav_path, 'rb') as audio_file:
+                byte_data = audio_file.read(CHUNK)
+                while byte_data:
+                    send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": str(byte_data)})
+                    byte_data = audio_file.read(CHUNK)
+            send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
 
     if os.path.exists(wav_path):
         os.remove(wav_path)
-
 
 def toggle_recording(state):
     """Toggle the recording state."""

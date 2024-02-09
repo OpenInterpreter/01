@@ -1,7 +1,6 @@
 import os
 import glob
 import json
-import requests
 from pathlib import Path
 
 def configure_interpreter(interpreter):

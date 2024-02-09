@@ -60,5 +60,5 @@ def stt_wav(wav_file_path: str):
         print("openai.BadRequestError:", e)
         return None
 
-    print("Exciting transcription result:", transcript)
+    print("Transcription result:", transcript)
     return transcript

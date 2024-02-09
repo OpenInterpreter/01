@@ -18,7 +18,7 @@ from tts import tts
 from pathlib import Path
 import asyncio
 import urllib.parse
-from utils.put_kernel_messages_into_queue import put_kernel_messages_into_queue
+from utils.kernel import put_kernel_messages_into_queue
 from i import configure_interpreter
 from interpreter import interpreter
 
