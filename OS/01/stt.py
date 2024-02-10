@@ -4,12 +4,16 @@ Defines a function which takes a path to an audio file and turns it into text.
 
 from datetime import datetime
 import os
+import logging
 import contextlib
 import tempfile
 import ffmpeg
 import subprocess
 import openai
 from openai import OpenAI
+
+# Configure logging
+logging.basicConfig(format='%(message)s', level=logging.getLevelName(os.getenv('DEBUG_LEVEL', 'INFO').upper()))
 
 client = OpenAI()
 
@@ -59,10 +63,10 @@ def stt_wav(wav_file_path: str):
                 response_format="text"
             )
         except openai.BadRequestError as e:
-            print("openai.BadRequestError:", e)
+            logging.info(f"openai.BadRequestError: {e}")
             return None
 
-        print("Transcription result:", transcript)
+        logging.info(f"Transcription result: {transcript}")
         return transcript
     else:
         # Local whisper here, given `wav_file_path`
