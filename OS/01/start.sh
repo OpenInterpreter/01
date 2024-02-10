@@ -31,26 +31,6 @@ if [ -n "$DEVICE_PORT" ]; then
     lsof -ti tcp:$DEVICE_PORT | xargs kill
 fi
 
-# Check the current Python version
-PYTHON_VERSION=$(python -V 2>&1 | cut -d " " -f 2 | cut -d "." -f 1-2)
-
-# If the Python version is not 3.10 or 3.11, switch to it using pyenv
-if [[ "$PYTHON_VERSION" != "3.10" ]] && [[ "$PYTHON_VERSION" != "3.11" ]]; then
-    echo "Switching to Python 3.10 using pyenv..."
-    pyenv install 3.10.0
-    pyenv shell 3.10.0
-fi
-
-# INSTALL REQUIREMENTS
-
-# (for dev, this is disabled for speed)
-
-# if [[ "$OSTYPE" == "darwin"* ]]; then
-#     brew update
-#     brew install portaudio ffmpeg
-# fi
-# python -m pip install -r requirements.txt
-
 ### START
 
 # DEVICE

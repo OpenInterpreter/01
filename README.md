@@ -4,6 +4,36 @@ Official repository for [The 01 Project](https://twitter.com/hellokillian/status
 
 <br>
 
+## Installation
+
+2. **Install PortAudio and FFmpeg.**
+
+   ```bash
+   brew install portaudio ffmpeg
+   ```
+
+3. **Install Python dependencies.**
+
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
+
+## Usage
+
+1. **Navigate to the project directory.**
+
+   ```bash
+   cd OS/01
+   ```
+
+2. **Run the start script.**
+
+   ```bash
+   bash start.sh
+   ```
+
+<br>
+
 ## Background
 
 ### [Context ↗](https://github.com/KillianLucas/01/blob/main/CONTEXT.md)
