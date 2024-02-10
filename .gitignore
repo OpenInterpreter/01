@@ -9,7 +9,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Pythongit
+.Python
 build/
 develop-eggs/
 dist/
