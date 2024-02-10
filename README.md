@@ -66,7 +66,7 @@ What the 01 will be able to do.
 
 ### [Tasks ↗](https://github.com/KillianLucas/01/blob/main/TASKS.md)
 
-Our master task list, seperated by week.
+Our master task list.
 
 ### [Teams ↗](https://github.com/KillianLucas/01/blob/main/TEAMS.md)
 
