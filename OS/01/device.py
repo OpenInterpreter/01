@@ -140,7 +140,8 @@ async def websocket_communication(WS_URL):
                 print("Press the spacebar to start/stop recording. Press ESC to exit.")
                 asyncio.create_task(message_sender(websocket))
 
-                message_so_far = {"role": None, "type": None, "format": None, "content": None}
+                initial_message = {"role": None, "type": None, "format": None, "content": None} 
+                message_so_far = initial_message
 
                 while True:
                     message = await websocket.recv()
@@ -150,8 +151,12 @@ async def websocket_communication(WS_URL):
                     if type(message) == str:
                         message = json.loads(message)
 
+                    if message.get("end"):
+                        print(f"Complete message from the server: {message_so_far}")
+                        message_so_far = initial_message
+
                     if "content" in message:
-                        if any(message_so_far[key] != message[key] for key in message_so_far):
+                        if any(message_so_far[key] != message[key] for key in message_so_far if key != "content"):
                             message_so_far = message
                         else:
                             message_so_far["content"] += message["content"]
