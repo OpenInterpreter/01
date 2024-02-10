@@ -31,17 +31,52 @@ fi
 
 ### START
 
-# DEVICE
-
-if [[ "$DEVICE_START" == "True" ]]; then
+start_device() {
+    echo "Starting device..."
     python device.py &
-fi
+    DEVICE_PID=$!
+    echo "Device started as process $DEVICE_PID"
+}
+
+# Function to start server
+start_server() {
+    echo "Starting server..."
+    python server.py &
+    SERVER_PID=$!
+    echo "Server started as process $SERVER_PID"
+}
+
+# DEVICE
 
 # SERVER
 
-if [[ "$SERVER_START" == "True" ]]; then
-    python server.py &
+stop_processes() {
+    if [[ -n $DEVICE_PID ]]; then
+        echo "Stopping device..."
+        kill $DEVICE_PID
+    fi
+    if [[ -n $SERVER_PID ]]; then
+        echo "Stopping server..."
+        kill $SERVER_PID
+    fi
+}
+
+# Trap SIGINT and SIGTERM to stop processes when the script is terminated
+trap stop_processes SIGINT SIGTERM
+
+# Start device if DEVICE_START is True
+if [[ "$DEVICE_START" == "True" ]]; then
+    start_device
 fi
+
+# Start server if SERVER_START is True
+if [[ "$SERVER_START" == "True" ]]; then
+    start_server
+fi
+
+# Wait for device and server processes to exit
+wait $DEVICE_PID
+wait $SERVER_PID
 
 # TTS, STT
 
