@@ -4,37 +4,35 @@ Official repository for [The 01 Project](https://twitter.com/hellokillian/status
 
 <br>
 
+> **13** days remaining until launch
+
+### [Tasks ↗](https://github.com/KillianLucas/01/blob/main/TASKS.md)
+
+<br>
+
 ## Installation
 
-1. **Install PortAudio and FFmpeg.**
+```bash
+# MacOS
+brew install portaudio ffmpeg
 
-   ```bash
-   # For macOS
-   brew install portaudio ffmpeg
+# Ubuntu
+sudo apt-get install portaudio19-dev libav-tools
+```
 
-   # For Ubuntu
-   sudo apt-get install portaudio19-dev libav-tools
-   ```
-
-2. **Install Python dependencies.**
-
-   ```bash
-   python -m pip install -r requirements.txt
-   ```
+```bash
+python -m pip install -r requirements.txt
+```
 
 ## Usage
 
-1. **Navigate to the project directory.**
+```bash
+cd OS/01
+```
 
-   ```bash
-   cd OS/01
-   ```
-
-2. **Run the start script.**
-
-   ```bash
-   bash start.sh
-   ```
+```bash
+bash start.sh
+```
 
 <br>
 
@@ -73,7 +71,3 @@ Our master task list.
 Our (flexible) teams.
 
 <br>
-
-<br>
-
-> **14** days remaining until launch
