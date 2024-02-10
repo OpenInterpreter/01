@@ -4,13 +4,11 @@ Official repository for [The 01 Project](https://twitter.com/hellokillian/status
 
 <br>
 
-> **13** days remaining until launch
-
-### [Tasks ↗](https://github.com/KillianLucas/01/blob/main/TASKS.md)
+### [View task list ↗](https://github.com/KillianLucas/01/blob/main/TASKS.md)
 
 <br>
 
-## Installation
+## Setup
 
 ```bash
 # MacOS
@@ -23,8 +21,6 @@ sudo apt-get install portaudio19-dev libav-tools
 ```bash
 python -m pip install -r requirements.txt
 ```
-
-## Usage
 
 ```bash
 cd OS/01
@@ -66,8 +62,7 @@ What the 01 will be able to do.
 
 Our master task list.
 
-### [Teams ↗](https://github.com/KillianLucas/01/blob/main/TEAMS.md)
-
-Our (flexible) teams.
-
 <br>
+
+> **13** days remaining until launch
+
