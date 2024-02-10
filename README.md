@@ -22,6 +22,10 @@ Official repository for [The 01 Project](https://twitter.com/hellokillian/status
    python -m pip install -r requirements.txt
    ```
 
+3. **(optional) Download local audio models**
+
+If you want to run local speech-to-text from whisper, download the GGML Whisper model from [Huggingface](https://huggingface.co/ggerganov/whisper.cpp). Then in `OS/01/start.sh`, set `ALL_LOCAL=TRUE` and set `WHISPER_MODEL_PATH` to the path of the model.
+
 ## Usage
 
 1. **Navigate to the project directory.**
