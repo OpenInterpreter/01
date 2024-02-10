@@ -46,10 +46,6 @@ start_server() {
     echo "Server started as process $SERVER_PID"
 }
 
-# DEVICE
-
-# SERVER
-
 stop_processes() {
     if [[ -n $DEVICE_PID ]]; then
         echo "Stopping device..."
@@ -64,11 +60,13 @@ stop_processes() {
 # Trap SIGINT and SIGTERM to stop processes when the script is terminated
 trap stop_processes SIGINT SIGTERM
 
+# DEVICE
 # Start device if DEVICE_START is True
 if [[ "$DEVICE_START" == "True" ]]; then
     start_device
 fi
 
+# SERVER
 # Start server if SERVER_START is True
 if [[ "$SERVER_START" == "True" ]]; then
     start_server
