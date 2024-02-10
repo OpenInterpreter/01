@@ -49,16 +49,29 @@ def stt_bytes(audio_bytes: bytearray, mime_type="audio/wav"):
         return stt_wav(wav_file_path)
 
 def stt_wav(wav_file_path: str):
-    audio_file = open(wav_file_path, "rb")
-    try:
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1", 
-            file=audio_file,
-            response_format="text"
-        )
-    except openai.BadRequestError as e:
-        print("openai.BadRequestError:", e)
-        return None
 
-    print("Transcription result:", transcript)
-    return transcript
+    if os.getenv('ALL_LOCAL') == 'False':
+        audio_file = open(wav_file_path, "rb")
+        try:
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1", 
+                file=audio_file,
+                response_format="text"
+            )
+        except openai.BadRequestError as e:
+            print("openai.BadRequestError:", e)
+            return None
+
+        print("Transcription result:", transcript)
+        return transcript
+    else:
+        # Local whisper here, given `wav_file_path`
+        pass
+
+def stt(input_data, mime_type="audio/wav"):
+    if isinstance(input_data, str):
+        return stt_wav(input_data)
+    elif isinstance(input_data, bytearray):
+        return stt_bytes(input_data, mime_type)
+    else:
+        raise ValueError("Input data should be either a path to a wav file (str) or audio bytes (bytearray)")

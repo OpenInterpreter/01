@@ -26,10 +26,6 @@ SERVER_PORT=$(echo $SERVER_URL | grep -oE "[0-9]+")
 if [ -n "$SERVER_PORT" ]; then
     lsof -ti tcp:$SERVER_PORT | xargs kill
 fi
-DEVICE_PORT=$(echo $DEVICE_URL | grep -oE "[0-9]+")
-if [ -n "$DEVICE_PORT" ]; then
-    lsof -ti tcp:$DEVICE_PORT | xargs kill
-fi
 
 ### START
 
