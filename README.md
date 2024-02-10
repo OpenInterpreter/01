@@ -22,11 +22,12 @@ sudo apt-get install portaudio19-dev libav-tools
 python -m pip install -r requirements.txt
 ```
 
-```bash
-cd OS/01
-```
+If you want to run local speech-to-text from whisper, download the GGML Whisper model from [Huggingface](https://huggingface.co/ggerganov/whisper.cpp). Then in `OS/01/start.sh`, set `ALL_LOCAL=TRUE` and set `WHISPER_MODEL_PATH` to the path of the model.
+
+## Usage
 
 ```bash
+cd OS/01
 bash start.sh
 ```
 

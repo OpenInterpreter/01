@@ -1,7 +1,9 @@
 ### SETTINGS
 
 # If ALL_LOCAL is False, we'll use OpenAI's services
+# If setting ALL_LOCAL to true, set the path to the WHISPER local model
 export ALL_LOCAL=False
+# export WHISPER_MODEL_PATH=...
 # export OPENAI_API_KEY=sk-...
 
 # If SERVER_START, this is where we'll serve the server.
