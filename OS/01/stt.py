@@ -88,10 +88,13 @@ def stt_wav(wav_file_path: str):
         return transcript
     else:
         temp_dir = tempfile.gettempdir()
-        output_path = os.path.join(temp_dir, f"output_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
+        output_path = os.path.join(temp_dir, f"output_stt_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
         ffmpeg.input(wav_file_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
-        transcript = get_transcription_file(output_path)
-        print("Transcription result:", transcript)
+        try:
+            transcript = get_transcription_file(output_path)
+            print("Transcription result:", transcript)
+        finally:
+            os.remove(output_path)
         return transcript
 
 def stt(input_data, mime_type="audio/wav"):
