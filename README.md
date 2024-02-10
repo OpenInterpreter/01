@@ -6,13 +6,17 @@ Official repository for [The 01 Project](https://twitter.com/hellokillian/status
 
 ## Installation
 
-2. **Install PortAudio and FFmpeg.**
+1. **Install PortAudio and FFmpeg.**
 
    ```bash
+   # For macOS
    brew install portaudio ffmpeg
+
+   # For Ubuntu
+   sudo apt-get install portaudio19-dev libav-tools
    ```
 
-3. **Install Python dependencies.**
+2. **Install Python dependencies.**
 
    ```bash
    python -m pip install -r requirements.txt
