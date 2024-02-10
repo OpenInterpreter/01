@@ -177,7 +177,7 @@ async def websocket_communication(WS_URL):
                             send_queue.put(result)
   
         except:
-            traceback.print_exc()
+            # traceback.print_exc()
             print(f"Connecting to `{WS_URL}`...")
             await asyncio.sleep(2)
             

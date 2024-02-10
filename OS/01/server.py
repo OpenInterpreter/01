@@ -112,10 +112,17 @@ async def send_messages(websocket: WebSocket):
         print("Sending to the device:", type(message), message)
         await websocket.send_json(message)
 
-async def user_listener():
+async def listener():
     audio_bytes = bytearray()
     while True:
-        message = await from_user.get()
+        while True:
+            if not from_user.empty():
+                message = await from_user.get()
+                break
+            elif not from_computer.empty():
+                message = from_computer.get()
+                break
+            await asyncio.sleep(1)
 
         if type(message) == str:
             message = json.loads(message)
@@ -188,8 +195,18 @@ async def user_listener():
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file)
 
-                print("New message recieved. Breaking.")
+                print("New user message recieved. Breaking.")
                 break
+
+            # Also check if there's any new computer messages
+            if not from_computer.empty():
+                
+                with open(conversation_history_path, 'w') as file:
+                    json.dump(interpreter.messages, file)
+
+                print("New computer message recieved. Breaking.")
+                break
+            
 
 async def stream_or_play_tts(sentence):
 
@@ -208,8 +225,8 @@ from uvicorn import Config, Server
 if __name__ == "__main__":
 
     async def main():
-        # Start listening to the user
-        asyncio.create_task(user_listener())
+        # Start listening
+        asyncio.create_task(listener())
 
         # Start watching the kernel if it's your job to do that
         if os.getenv('CODE_RUNNER') == "server":
