@@ -134,6 +134,8 @@ async def message_sender(websocket):
 async def websocket_communication(WS_URL):
     while True:
         try:
+            logging.info(f"Connecting to `{WS_URL}` ...")
+
             headers = {"ngrok-skip-browser-warning": str(80)} if os.getenv('NGROK_AUTHTOKEN') else {}
             async with websockets.connect(WS_URL, extra_headers=headers) as websocket:
                 logging.info("Press the spacebar to start/stop recording. Press ESC to exit.")
@@ -190,16 +192,6 @@ if __name__ == "__main__":
     # Configuration for WebSocket
     async def main():
         WS_URL = os.getenv('SERVER_CONNECTION_URL')
-
-        start_time = time.time()
-        while WS_URL is None:
-            if time.time() - start_time > 60:
-                logging.error("SERVER_CONNECTION_URL environment variable is not set after 1 minute. Exiting...")
-                raise ValueError("The environment variable SERVER_CONNECTION_URL is not set. Please set it to proceed.")
-
-            logging.info("SERVER_CONNECTION_URL environment variable is not set. Waiting...")
-            await asyncio.sleep(5)  # Wait for 5 seconds before checking again
-            WS_URL = os.getenv('SERVER_CONNECTION_URL')
 
         # Start the WebSocket communication
         asyncio.create_task(websocket_communication(WS_URL))
