@@ -1,9 +1,11 @@
 ### SETTINGS
 
 # If ALL_LOCAL is False, we'll use OpenAI's services
-# If setting ALL_LOCAL to true, set the path to the WHISPER local model
+# else we use whisper.cpp and piper local models
 export ALL_LOCAL=False
-# export WHISPER_MODEL_PATH=...
+export WHISPER_MODEL_NAME="ggml-tiny.en.bin"
+
+# Set the OpenAI API key for OpenInterpreter to work
 # export OPENAI_API_KEY=sk-...
 
 # For TTS, we use the en_US-lessac-medium voice model by default
@@ -32,6 +34,11 @@ export LOG_LEVEL="INFO"
 ### SETUP
 
 # if using local models, install the models / executables
+WHISPER_MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/"
+WHISPER_RUST_PATH="`pwd`/local_stt/whisper-rust"
+
+curl -OL "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" --output-dir ${WHISPER_RUST_PATH}
+
 if [[ "$ALL_LOCAL" == "True" ]]; then
     OS=$(uname -s)
     ARCH=$(uname -m)
