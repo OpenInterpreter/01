@@ -20,6 +20,10 @@ export STT_RUNNER=device # If server, audio will be sent over websocket.
 # Will expose the server publically and display that URL.
 export SERVER_EXPOSE_PUBLICALLY=False
 
+# Debug level
+# export DEBUG_LEVEL=DEBUG
+export DEBUG_LEVEL="INFO"
+
 ### SETUP
 
 # (for dev, reset the ports we were using)
