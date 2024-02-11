@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ### SETTINGS
 
 # If ALL_LOCAL is False, we'll use OpenAI's services
@@ -33,7 +35,7 @@ export STT_RUNNER=device # If server, audio will be sent over websocket.
 export SERVER_EXPOSE_PUBLICALLY=False
 
 # Debug level
-# export LOG_LEVEL=DEBUG
+# export LOG_LEVEL="DEBUG"
 export LOG_LEVEL="INFO"
 
 
@@ -43,9 +45,9 @@ export LOG_LEVEL="INFO"
 WHISPER_MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/"
 WHISPER_RUST_PATH="`pwd`/local_stt/whisper-rust"
 
-curl -OL "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" --output-dir ${WHISPER_RUST_PATH}
 
 if [[ "$ALL_LOCAL" == "True" ]]; then
+    curl -OL "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" --output-dir ${WHISPER_RUST_PATH}
     OS=$(uname -s)
     ARCH=$(uname -m)
     if [ "$OS" = "Darwin" ]; then
@@ -88,7 +90,7 @@ fi
 
 SERVER_PORT=$(echo $SERVER_URL | grep -oE "[0-9]+")
 if [ -n "$SERVER_PORT" ]; then
-    lsof -ti tcp:$SERVER_PORT | xargs kill
+    lsof -ti tcp:$SERVER_PORT | xargs kill 2>/dev/null || true
 fi
 
 ### START
