@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables from .env.
+
 from starlette.websockets import WebSocketDisconnect
 import ast
 import json

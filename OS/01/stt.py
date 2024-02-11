@@ -2,6 +2,9 @@
 Defines a function which takes a path to an audio file and turns it into text.
 """
 
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables from .env.
+
 from datetime import datetime
 import os
 import contextlib
