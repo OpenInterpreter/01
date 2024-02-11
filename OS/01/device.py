@@ -7,10 +7,8 @@ from starlette.websockets import WebSocket
 from queue import Queue
 from pynput import keyboard
 import json
-import traceback
 import websockets
 import queue
-import pydub
 import ast
 from pydub import AudioSegment
 from pydub.playback import play
@@ -22,6 +20,7 @@ from datetime import datetime
 from interpreter import interpreter # Just for code execution. Maybe we should let people do from interpreter.computer import run?
 from utils.kernel import put_kernel_messages_into_queue
 from stt import stt_wav
+import asyncio
 
 # Configure logging
 logging.basicConfig(format='%(message)s', level=logging.getLevelName(os.getenv('DEBUG_LEVEL', 'INFO').upper()))
@@ -34,10 +33,6 @@ RATE = 44100  # Sample rate
 RECORDING = False  # Flag to control recording state
 SPACEBAR_PRESSED = False  # Flag to track spacebar press state
 
-# Configuration for WebSocket
-WS_URL = os.getenv('SERVER_URL')
-if not WS_URL:
-    raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
 
 # Initialize PyAudio
 p = pyaudio.PyAudio()
@@ -127,7 +122,6 @@ def on_release(key):
         logging.info("Exiting...")
         os._exit(0)
 
-import asyncio
 
 send_queue = queue.Queue()
 
@@ -140,7 +134,8 @@ async def message_sender(websocket):
 async def websocket_communication(WS_URL):
     while True:
         try:
-            async with websockets.connect(WS_URL) as websocket:
+            headers = {"ngrok-skip-browser-warning": str(80)} if os.getenv('NGROK_AUTHTOKEN') else {}
+            async with websockets.connect(WS_URL, extra_headers=headers) as websocket:
                 logging.info("Press the spacebar to start/stop recording. Press ESC to exit.")
                 asyncio.create_task(message_sender(websocket))
 
@@ -185,14 +180,27 @@ async def websocket_communication(WS_URL):
                             result = interpreter.computer.run(language, code)
                             send_queue.put(result)
   
-        except:
-            # traceback.print_exc()
+        except Exception as e:
+            logging.exception(f"An error occurred during websocket communication. {e}")
             logging.info(f"Connecting to `{WS_URL}`...")
             await asyncio.sleep(2)
             
 
 if __name__ == "__main__":
+    # Configuration for WebSocket
     async def main():
+        WS_URL = os.getenv('SERVER_CONNECTION_URL')
+
+        start_time = time.time()
+        while WS_URL is None:
+            if time.time() - start_time > 60:
+                logging.error("SERVER_CONNECTION_URL environment variable is not set after 1 minute. Exiting...")
+                raise ValueError("The environment variable SERVER_CONNECTION_URL is not set. Please set it to proceed.")
+
+            logging.info("SERVER_CONNECTION_URL environment variable is not set. Waiting...")
+            await asyncio.sleep(5)  # Wait for 5 seconds before checking again
+            WS_URL = os.getenv('SERVER_CONNECTION_URL')
+
         # Start the WebSocket communication
         asyncio.create_task(websocket_communication(WS_URL))
 

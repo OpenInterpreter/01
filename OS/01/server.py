@@ -1,18 +1,13 @@
 from starlette.websockets import WebSocketDisconnect
 import ast
 import json
-import time
 import queue
 import os
 import logging
 import traceback
-from queue import Queue
-from threading import Thread
-import threading
-import uvicorn
 import re
 from fastapi import FastAPI
-from threading import Thread
+from fastapi.responses import PlainTextResponse
 from starlette.websockets import WebSocket
 from stt import stt_bytes
 from tts import tts
@@ -22,6 +17,8 @@ import urllib.parse
 from utils.kernel import put_kernel_messages_into_queue
 from i import configure_interpreter
 from interpreter import interpreter
+import ngrok
+import signal
 
 # Configure logging
 logging.basicConfig(format='%(message)s', level=logging.getLevelName(os.getenv('DEBUG_LEVEL', 'INFO').upper()))
@@ -88,6 +85,10 @@ if os.getenv('CODE_RUNNER') == "device":
 
 # Configure interpreter
 interpreter = configure_interpreter(interpreter)
+
+@app.get("/ping")
+async def ping():
+    return PlainTextResponse("pong")
 
 @app.websocket("/")
 async def websocket_endpoint(websocket: WebSocket):
@@ -232,6 +233,7 @@ from uvicorn import Config, Server
 if __name__ == "__main__":
 
     async def main():
+
         # Start listening
         asyncio.create_task(listener())
 
@@ -243,6 +245,19 @@ if __name__ == "__main__":
         if not server_url:
             raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
         parsed_url = urllib.parse.urlparse(server_url)
+
+        # Set up Ngrok
+        ngrok_auth_token = os.getenv('NGROK_AUTHTOKEN')
+        if ngrok_auth_token is not None:
+            logging.info("Setting up Ngrok")
+            ngrok_listener = await ngrok.forward(f"{parsed_url.hostname}:{parsed_url.port}", authtoken=ngrok_auth_token)
+            ngrok_parsed_url = urllib.parse.urlparse(ngrok_listener.url())
+
+            # Setup SERVER_URL environment variable for device to use
+            connection_url = f"ws://{ngrok_parsed_url.hostname}"
+            logging.info(f"Ngrok established at {ngrok_parsed_url.geturl()}")
+            logging.info(f"\033[1mSERVER_CONNECTION_URL should be set to \"{connection_url}\"\033[0m")
+
         logging.info("Starting `server.py`...")
 
         config = Config(app, host=parsed_url.hostname, port=parsed_url.port, lifespan='on')
