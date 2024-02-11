@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ### Import Environment Variables from .env
 if [ ! -f ".env" ]; then
     echo "Error: .env file does not exist. To create one, see .env.example for an example."
@@ -5,11 +7,12 @@ if [ ! -f ".env" ]; then
 fi
 set -a; source .env; set +a
 
-
 ### SETUP
 
 # if using local models, install the models / executables
+
 if [[ "$ALL_LOCAL" == "True" ]]; then
+    curl -OL "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" --output-dir ${WHISPER_RUST_PATH}
     OS=$(uname -s)
     ARCH=$(uname -m)
     if [ "$OS" = "Darwin" ]; then
@@ -52,7 +55,7 @@ fi
 
 SERVER_PORT=$(echo $SERVER_URL | grep -oE "[0-9]+")
 if [ -n "$SERVER_PORT" ]; then
-    lsof -ti tcp:$SERVER_PORT | xargs kill
+    lsof -ti tcp:$SERVER_PORT | xargs kill 2>/dev/null || true
 fi
 
 ### START
