@@ -3,7 +3,6 @@ import ast
 import json
 import queue
 import os
-import logging
 import traceback
 import re
 from fastapi import FastAPI
@@ -20,8 +19,10 @@ from interpreter import interpreter
 import ngrok
 import signal
 
-# Configure logging
-logging.basicConfig(format='%(message)s', level=logging.getLevelName(os.getenv('DEBUG_LEVEL', 'INFO').upper()))
+from utils.logs import setup_logging
+from utils.logs import logger
+setup_logging()
+
 
 app = FastAPI()
 
@@ -65,10 +66,10 @@ if os.getenv('CODE_RUNNER') == "device":
                 to_device.put({"role": "assistant", "type": "code", "format": "python", "end": True})
             
             # Stream the response
-            logging.info("Waiting for the device to respond...")
+            logger.info("Waiting for the device to respond...")
             while True:
                 chunk = from_computer.get()
-                logging.info(f"Server received from device: {chunk}")
+                logger.info(f"Server received from device: {chunk}")
                 if "end" in chunk:
                     break
                 yield chunk
@@ -99,7 +100,7 @@ async def websocket_endpoint(websocket: WebSocket):
         await asyncio.gather(receive_task, send_task)
     except Exception as e:
         traceback.print_exc()
-        logging.info(f"Connection lost. Error: {e}")
+        logger.info(f"Connection lost. Error: {e}")
 
 async def receive_messages(websocket: WebSocket):
     while True:
@@ -114,7 +115,7 @@ async def receive_messages(websocket: WebSocket):
 async def send_messages(websocket: WebSocket):
     while True:
         message = await to_device.get()
-        logging.debug(f"Sending to the device: {type(message)} {message}")
+        logger.debug(f"Sending to the device: {type(message)} {message}")
         await websocket.send_json(message)
 
 async def listener():
@@ -164,7 +165,7 @@ async def listener():
         
         for chunk in interpreter.chat(messages, stream=True, display=False):
 
-            logging.debug("Got chunk:", chunk)
+            logger.debug("Got chunk:", chunk)
 
             # Send it to the user
             await to_device.put(chunk)
@@ -200,7 +201,7 @@ async def listener():
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file, indent=4)
 
-                logging.info("New user message recieved. Breaking.")
+                logger.info("New user message recieved. Breaking.")
                 break
 
             # Also check if there's any new computer messages
@@ -209,7 +210,7 @@ async def listener():
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file, indent=4)
 
-                logging.info("New computer message recieved. Breaking.")
+                logger.info("New computer message recieved. Breaking.")
                 break
         else:
             with open(conversation_history_path, 'w') as file:
@@ -249,16 +250,16 @@ if __name__ == "__main__":
         # Set up Ngrok
         ngrok_auth_token = os.getenv('NGROK_AUTHTOKEN')
         if ngrok_auth_token is not None:
-            logging.info("Setting up Ngrok")
+            logger.info("Setting up Ngrok")
             ngrok_listener = await ngrok.forward(f"{parsed_url.hostname}:{parsed_url.port}", authtoken=ngrok_auth_token)
             ngrok_parsed_url = urllib.parse.urlparse(ngrok_listener.url())
 
             # Setup SERVER_URL environment variable for device to use
             connection_url = f"wss://{ngrok_parsed_url.hostname}/"
-            logging.info(f"Ngrok established at {ngrok_parsed_url.geturl()}")
-            logging.info(f"\033[1mSERVER_CONNECTION_URL should be set to \"{connection_url}\"\033[0m")
+            logger.info(f"Ngrok established at {ngrok_parsed_url.geturl()}")
+            logger.info(f"\033[1mSERVER_CONNECTION_URL should be set to \"{connection_url}\"\033[0m")
 
-        logging.info("Starting `server.py`...")
+        logger.info("Starting `server.py`...")
 
         config = Config(app, host=parsed_url.hostname, port=parsed_url.port, lifespan='on')
         server = Server(config)
