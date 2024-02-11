@@ -1,11 +1,10 @@
 import asyncio
 import subprocess
 import platform
-import os
-import logging
 
-# Configure logging
-logging.basicConfig(format='%(message)s', level=logging.getLevelName(os.getenv('DEBUG_LEVEL', 'INFO').upper()))
+from utils.logs import setup_logging
+from utils.logs import logger
+setup_logging()
 
 def get_kernel_messages():
     """
@@ -21,7 +20,7 @@ def get_kernel_messages():
         with open('/var/log/dmesg', 'r') as file:
             return file.read()
     else:
-        logging.info("Unsupported platform.")
+        logger.info("Unsupported platform.")
 
 def custom_filter(message):
     # Check for {TO_INTERPRETER{ message here }TO_INTERPRETER} pattern
