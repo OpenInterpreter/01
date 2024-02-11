@@ -14,6 +14,7 @@ import threading
 import uvicorn
 import re
 from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
 from threading import Thread
 from starlette.websockets import WebSocket
 from stt import stt_bytes
@@ -24,6 +25,7 @@ import urllib.parse
 from utils.kernel import put_kernel_messages_into_queue
 from i import configure_interpreter
 from interpreter import interpreter
+import ngrok
 
 from utils.logs import setup_logging
 from utils.logs import logger
@@ -92,6 +94,10 @@ if os.getenv('CODE_RUNNER') == "device":
 
 # Configure interpreter
 interpreter = configure_interpreter(interpreter)
+
+app.get("/ping")
+async def ping():
+    return PlainTextResponse("pong")
 
 @app.websocket("/")
 async def websocket_endpoint(websocket: WebSocket):
@@ -229,6 +235,17 @@ async def stream_or_play_tts(sentence):
         await to_device.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "content": str(audio_bytes)})
         await to_device.put({"role": "assistant", "type": "audio", "format": "audio/mp3", "end": True})
 
+async def setup_ngrok(ngrok_auth_token, parsed_url):
+    # Set up Ngrok
+    logger.info("Setting up Ngrok")
+    ngrok_listener = await ngrok.forward(f"{parsed_url.hostname}:{parsed_url.port}", authtoken=ngrok_auth_token, domain="project01.ngrok.dev")
+    ngrok_parsed_url = urllib.parse.urlparse(ngrok_listener.url())
+
+    # Setup SERVER_URL environment variable for device to use
+    connection_url = f"wss://{ngrok_parsed_url.hostname}/"
+    logger.info(f"Ngrok established at {ngrok_parsed_url.geturl()}")
+    logger.info(f"\033[1mSERVER_CONNECTION_URL should be set to \"{connection_url}\"\033[0m")
+
 
 from uvicorn import Config, Server
 
@@ -247,6 +264,12 @@ if __name__ == "__main__":
         if not server_url:
             raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
         parsed_url = urllib.parse.urlparse(server_url)
+
+        # Set up Ngrok
+        ngrok_auth_token = os.getenv('NGROK_AUTHTOKEN')
+        if ngrok_auth_token is not None:
+            await setup_ngrok(ngrok_auth_token, parsed_url)
+            
         logger.info("Starting `server.py`...")
 
         config = Config(app, host=parsed_url.hostname, port=parsed_url.port, lifespan='on')

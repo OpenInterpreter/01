@@ -38,11 +38,6 @@ RATE = 44100  # Sample rate
 RECORDING = False  # Flag to control recording state
 SPACEBAR_PRESSED = False  # Flag to track spacebar press state
 
-# Configuration for WebSocket
-WS_URL = os.getenv('SERVER_URL')
-if not WS_URL:
-    raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
-
 # Specify OS
 current_platform = get_system_info()
 
@@ -203,6 +198,11 @@ async def websocket_communication(WS_URL):
 
 if __name__ == "__main__":
     async def main():
+        # Configuration for WebSocket
+        WS_URL = os.getenv('SERVER_CONNECTION_URL')
+        if not WS_URL:
+            raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
+
         # Start the WebSocket communication
         asyncio.create_task(websocket_communication(WS_URL))
 
