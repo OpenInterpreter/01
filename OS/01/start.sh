@@ -21,8 +21,8 @@ export STT_RUNNER=device # If server, audio will be sent over websocket.
 export SERVER_EXPOSE_PUBLICALLY=False
 
 # Debug level
-# export DEBUG_LEVEL=DEBUG
-export DEBUG_LEVEL="INFO"
+# export LOG_LEVEL=DEBUG
+export LOG_LEVEL="INFO"
 
 ### SETUP
 
