@@ -1,4 +1,4 @@
-### Import config from .env
+### Import Environment Variables from .env
 if [ ! -f ".env" ]; then
     echo "Error: .env file does not exist. To create one, see .env.example for an example."
     exit 1
