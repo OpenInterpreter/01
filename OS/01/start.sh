@@ -59,6 +59,14 @@ fi
 
 start_device() {
     echo "Starting device..."
+    if [[ -n $NGROK_AUTHTOKEN ]]; then
+        echo "Waiting for Ngrok to setup"
+        sleep 7
+        read -p "Enter the Ngrok URL: " ngrok_url
+        export SERVER_CONNECTION_URL=$ngrok_url
+        echo "SERVER_CONNECTION_URL set to $SERVER_CONNECTION_URL"
+    fi
+
     python device.py &
     DEVICE_PID=$!
     echo "Device started as process $DEVICE_PID"
@@ -86,16 +94,16 @@ stop_processes() {
 # Trap SIGINT and SIGTERM to stop processes when the script is terminated
 trap stop_processes SIGINT SIGTERM
 
-# DEVICE
-# Start device if DEVICE_START is True
-if [[ "$DEVICE_START" == "True" ]]; then
-    start_device
-fi
-
 # SERVER
 # Start server if SERVER_START is True
 if [[ "$SERVER_START" == "True" ]]; then
     start_server
+fi
+
+# DEVICE
+# Start device if DEVICE_START is True
+if [[ "$DEVICE_START" == "True" ]]; then
+    start_device
 fi
 
 # Wait for device and server processes to exit
