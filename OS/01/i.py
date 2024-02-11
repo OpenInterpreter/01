@@ -5,7 +5,10 @@ import os
 import glob
 import json
 from pathlib import Path
+from interpreter import OpenInterpreter
 
+
+def configure_interpreter(interpreter: OpenInterpreter):
 def configure_interpreter(interpreter):
     ### SYSTEM MESSAGE
 
@@ -41,6 +44,31 @@ def configure_interpreter(interpreter):
 
     Remember: You can run Python code. Be very concise. Ensure that you actually run code every time! THIS IS IMPORTANT. You NEED to write code. **Help the user by being very concise in your answers.** Do not break down tasks excessively, just into simple, few minute steps. Don't assume the user lives their life in a certain way— pick very general tasks if you're breaking a task down.
 
+    Use the following functions (assume they're imported) to complete your goals whenever possible:
+    {{
+import sys
+
+original_stdout = sys.stdout
+sys.stdout = open(os.devnull, 'w')
+original_stderr = sys.stderr
+sys.stderr = open(os.devnull, 'w')
+
+from interpreter import interpreter
+from pathlib import Path
+
+query = "all functions"
+skills_path = Path().resolve() / 'skills'
+paths_in_skills = [str(path) for path in skills_path.glob('**/*.py')]
+skills = interpreter.computer.docs.search(query, paths=paths_in_skills)
+lowercase_skills = [skill[0].lower() + skill[1:] for skill in skills]
+output = "\\n".join(lowercase_skills)
+
+sys.stdout = original_stdout
+sys.stderr = original_stderr
+
+print(output)
+    }}
+
     """.strip()
 
     interpreter.custom_instructions = system_message
@@ -65,7 +93,6 @@ def configure_interpreter(interpreter):
     interpreter.offline = True
     interpreter.id = 206 # Used to identify itself to other interpreters. This should be changed programatically so it's unique.
 
-
     ### RESET conversations/user.json
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -74,11 +101,7 @@ def configure_interpreter(interpreter):
         json.dump([], file)
 
     ### SKILLS
-
-    skills_path = Path(__file__).parent / 'skills'
-    for file in glob.glob(os.path.join(skills_path, '*.py')):
-        with open(file, 'r') as f:
-            for chunk in interpreter.computer.run("python", f.read()):
-                print(chunk)
+    interpreter.computer.skills.skills_dir = Path(__file__).parent / 'skills'
+    interpreter.computer.skills.import_skills()
 
     return interpreter
