@@ -13,7 +13,6 @@ import ast
 from pydub import AudioSegment
 from pydub.playback import play
 import io
-import time
 import wave
 import tempfile
 from datetime import datetime
@@ -136,7 +135,7 @@ async def websocket_communication(WS_URL):
         try:
             logging.info(f"Connecting to `{WS_URL}` ...")
 
-            headers = {"ngrok-skip-browser-warning": str(80)} if os.getenv('NGROK_AUTHTOKEN') else {}
+            headers = {"ngrok-skip-browser-warning": str(80), "User-Agent": "project01"} if os.getenv('NGROK_AUTHTOKEN') else {}
             async with websockets.connect(WS_URL, extra_headers=headers) as websocket:
                 logging.info("Press the spacebar to start/stop recording. Press ESC to exit.")
                 asyncio.create_task(message_sender(websocket))
@@ -192,6 +191,8 @@ if __name__ == "__main__":
     # Configuration for WebSocket
     async def main():
         WS_URL = os.getenv('SERVER_CONNECTION_URL')
+        if not WS_URL:
+            raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
 
         # Start the WebSocket communication
         asyncio.create_task(websocket_communication(WS_URL))

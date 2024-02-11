@@ -254,7 +254,7 @@ if __name__ == "__main__":
             ngrok_parsed_url = urllib.parse.urlparse(ngrok_listener.url())
 
             # Setup SERVER_URL environment variable for device to use
-            connection_url = f"ws://{ngrok_parsed_url.hostname}"
+            connection_url = f"wss://{ngrok_parsed_url.hostname}/"
             logging.info(f"Ngrok established at {ngrok_parsed_url.geturl()}")
             logging.info(f"\033[1mSERVER_CONNECTION_URL should be set to \"{connection_url}\"\033[0m")
 
