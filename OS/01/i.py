@@ -9,7 +9,6 @@ from interpreter import OpenInterpreter
 
 
 def configure_interpreter(interpreter: OpenInterpreter):
-def configure_interpreter(interpreter):
     ### SYSTEM MESSAGE
 
     # The system message is where most of the 01's behavior is configured.
