@@ -11,6 +11,10 @@ import subprocess
 import openai
 from openai import OpenAI
 
+from utils.logs import setup_logging
+from utils.logs import logger
+setup_logging()
+
 client = OpenAI()
 
 def convert_mime_type_to_format(mime_type: str) -> str:
@@ -81,10 +85,10 @@ def stt_wav(wav_file_path: str):
                 response_format="text"
             )
         except openai.BadRequestError as e:
-            print("openai.BadRequestError:", e)
+            logger.info(f"openai.BadRequestError: {e}")
             return None
 
-        print("Transcription result:", transcript)
+        logger.info(f"Transcription result: {transcript}")
         return transcript
     else:
         temp_dir = tempfile.gettempdir()

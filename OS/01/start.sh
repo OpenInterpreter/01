@@ -25,6 +25,10 @@ export STT_RUNNER=device # If server, audio will be sent over websocket.
 # Will expose the server publically and display that URL.
 export SERVER_EXPOSE_PUBLICALLY=False
 
+# Debug level
+# export LOG_LEVEL=DEBUG
+export LOG_LEVEL="INFO"
+
 ### SETUP
 
 # if using local models, install the models / executables

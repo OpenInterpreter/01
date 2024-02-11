@@ -22,6 +22,11 @@ from utils.kernel import put_kernel_messages_into_queue
 from i import configure_interpreter
 from interpreter import interpreter
 
+from utils.logs import setup_logging
+from utils.logs import logger
+setup_logging()
+
+
 app = FastAPI()
 
 conversation_history_path = Path(__file__).parent / 'conversations' / 'user.json'
@@ -64,10 +69,10 @@ if os.getenv('CODE_RUNNER') == "device":
                 to_device.put({"role": "assistant", "type": "code", "format": "python", "end": True})
             
             # Stream the response
-            print("Waiting for the device to respond...")
+            logger.info("Waiting for the device to respond...")
             while True:
                 chunk = from_computer.get()
-                print("Server recieved from device:", chunk)
+                logger.info(f"Server received from device: {chunk}")
                 if "end" in chunk:
                     break
                 yield chunk
@@ -94,7 +99,7 @@ async def websocket_endpoint(websocket: WebSocket):
         await asyncio.gather(receive_task, send_task)
     except Exception as e:
         traceback.print_exc()
-        print(f"Connection lost. Error: {e}")
+        logger.info(f"Connection lost. Error: {e}")
 
 async def receive_messages(websocket: WebSocket):
     while True:
@@ -109,7 +114,7 @@ async def receive_messages(websocket: WebSocket):
 async def send_messages(websocket: WebSocket):
     while True:
         message = await to_device.get()
-        print("Sending to the device:", type(message), message)
+        logger.debug(f"Sending to the device: {type(message)} {message}")
         await websocket.send_json(message)
 
 async def listener():
@@ -159,7 +164,7 @@ async def listener():
         
         for chunk in interpreter.chat(messages, stream=True, display=False):
 
-            print("Got chunk:", chunk)
+            logger.debug("Got chunk:", chunk)
 
             # Send it to the user
             await to_device.put(chunk)
@@ -195,7 +200,7 @@ async def listener():
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file, indent=4)
 
-                print("New user message recieved. Breaking.")
+                logger.info("New user message recieved. Breaking.")
                 break
 
             # Also check if there's any new computer messages
@@ -204,7 +209,7 @@ async def listener():
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file, indent=4)
 
-                print("New computer message recieved. Breaking.")
+                logger.info("New computer message recieved. Breaking.")
                 break
         else:
             with open(conversation_history_path, 'w') as file:
@@ -239,7 +244,7 @@ if __name__ == "__main__":
         if not server_url:
             raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
         parsed_url = urllib.parse.urlparse(server_url)
-        print("Starting `server.py`...")
+        logger.info("Starting `server.py`...")
 
         config = Config(app, host=parsed_url.hostname, port=parsed_url.port, lifespan='on')
         server = Server(config)

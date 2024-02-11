@@ -22,6 +22,10 @@ from interpreter import interpreter # Just for code execution. Maybe we should l
 from utils.kernel import put_kernel_messages_into_queue
 from stt import stt_wav
 
+from utils.logs import setup_logging
+from utils.logs import logger
+setup_logging()
+
 # Configuration for Audio Recording
 CHUNK = 1024  # Record in chunks of 1024 samples
 FORMAT = pyaudio.paInt16  # 16 bits per sample
@@ -51,7 +55,7 @@ def record_audio():
 
     """Record audio from the microphone and add it to the queue."""
     stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
-    print("Recording started...")
+    logger.info("Recording started...")
     global RECORDING
 
     # Create a temporary WAV file to store the audio data
@@ -69,7 +73,7 @@ def record_audio():
     wav_file.close()
     stream.stop_stream()
     stream.close()
-    print("Recording stopped.")
+    logger.info("Recording stopped.")
 
     duration = wav_file.getnframes() / RATE
     if duration < 0.3:
@@ -120,7 +124,7 @@ def on_release(key):
     if key == keyboard.Key.space:
         toggle_recording(False)
     elif key == keyboard.Key.esc:
-        print("Exiting...")
+        logger.info("Exiting...")
         os._exit(0)
 
 import asyncio
@@ -137,7 +141,7 @@ async def websocket_communication(WS_URL):
     while True:
         try:
             async with websockets.connect(WS_URL) as websocket:
-                print("Press the spacebar to start/stop recording. Press ESC to exit.")
+                logger.info("Press the spacebar to start/stop recording. Press ESC to exit.")
                 asyncio.create_task(message_sender(websocket))
 
                 initial_message = {"role": None, "type": None, "format": None, "content": None} 
@@ -146,16 +150,18 @@ async def websocket_communication(WS_URL):
                 while True:
                     message = await websocket.recv()
 
-                    print("Got this message from the server:", type(message), message)
+                    logger.debug(f"Got this message from the server: {type(message)} {message}")
 
                     if type(message) == str:
                         message = json.loads(message)
 
                     if message.get("end"):
-                        print(f"Complete message from the server: {message_so_far}")
+                        logger.debug(f"Complete message from the server: {message_so_far}")
+                        logger.info("\n")
                         message_so_far = initial_message
 
                     if "content" in message:
+                        print(message['content'], end="", flush=True)
                         if any(message_so_far[key] != message[key] for key in message_so_far if key != "content"):
                             message_so_far = message
                         else:
@@ -183,7 +189,7 @@ async def websocket_communication(WS_URL):
   
         except:
             # traceback.print_exc()
-            print(f"Connecting to `{WS_URL}`...")
+            logger.info(f"Connecting to `{WS_URL}`...")
             await asyncio.sleep(2)
             
 

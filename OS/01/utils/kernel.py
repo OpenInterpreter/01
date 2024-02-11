@@ -2,6 +2,10 @@ import asyncio
 import subprocess
 import platform
 
+from utils.logs import setup_logging
+from utils.logs import logger
+setup_logging()
+
 def get_kernel_messages():
     """
     Is this the way to do this?
@@ -16,7 +20,7 @@ def get_kernel_messages():
         with open('/var/log/dmesg', 'r') as file:
             return file.read()
     else:
-        print("Unsupported platform.")
+        logger.info("Unsupported platform.")
 
 def custom_filter(message):
     # Check for {TO_INTERPRETER{ message here }TO_INTERPRETER} pattern
@@ -28,7 +32,7 @@ def custom_filter(message):
     elif 'USB' in message:
         return message
     # Check for network related keywords
-    elif any(keyword in message for keyword in ['network', 'IP', 'internet', 'LAN', 'WAN', 'router', 'switch']):
+    elif any(keyword in message for keyword in ['network', 'IP', 'internet', 'LAN', 'WAN', 'router', 'switch']) and "networkStatusForFlags" not in message:
         return message
     else:
         return None
