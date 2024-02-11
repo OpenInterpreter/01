@@ -230,10 +230,10 @@ if __name__ == "__main__":
                         toggle_recording(True)
                 else:
                     break
-            else:
-                # Keyboard listener for spacebar press/release
-                listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-                listener.start()
+        else:
+            # Keyboard listener for spacebar press/release
+            listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+            listener.start()
 
     asyncio.run(main())
     p.terminate()

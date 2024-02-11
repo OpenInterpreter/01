@@ -9,9 +9,10 @@ set -a; source .env; set +a
 
 ### SETUP
 
-# if using local models, install the models / executables
-
 if [[ "$ALL_LOCAL" == "True" ]]; then
+    # if using local models, install the models / executables
+    WHISPER_MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/"
+    WHISPER_RUST_PATH="`pwd`/local_stt/whisper-rust"
     curl -OL "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" --output-dir ${WHISPER_RUST_PATH}
     OS=$(uname -s)
     ARCH=$(uname -m)
