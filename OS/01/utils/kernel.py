@@ -32,7 +32,7 @@ def custom_filter(message):
     elif 'USB' in message:
         return message
     # Check for network related keywords
-    elif any(keyword in message for keyword in ['network', 'IP', 'internet', 'LAN', 'WAN', 'router', 'switch']):
+    elif any(keyword in message for keyword in ['network', 'IP', 'internet', 'LAN', 'WAN', 'router', 'switch']) and "networkStatusForFlags" not in message:
         return message
     else:
         return None
