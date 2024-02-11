@@ -1,28 +1,9 @@
-### SETTINGS
-
-# If ALL_LOCAL is False, we'll use OpenAI's services
-# If setting ALL_LOCAL to true, set the path to the WHISPER local model
-export ALL_LOCAL=False
-# export WHISPER_MODEL_PATH=...
-# export OPENAI_API_KEY=sk-...
-
-# If SERVER_START, this is where we'll serve the server.
-# If DEVICE_START, this is where the device expects the server to be.
-export SERVER_URL=ws://localhost:8000/
-export SERVER_START=True
-export DEVICE_START=True
-
-# Control where various operations happen— can be `device` or `server`.
-export CODE_RUNNER=server
-export TTS_RUNNER=server # If device, audio will be sent over websocket.
-export STT_RUNNER=device # If server, audio will be sent over websocket.
-
-# Will expose the server publically and display that URL.
-export SERVER_EXPOSE_PUBLICALLY=False
-
-# Debug level
-# export DEBUG_LEVEL=DEBUG
-export DEBUG_LEVEL="INFO"
+### Import config from .env
+if [ ! -f ".env" ]; then
+    echo "Error: .env file does not exist. To create one, see .env.example for an example."
+    exit 1
+fi
+set -a; source .env; set +a
 
 ### SETUP
 

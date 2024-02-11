@@ -8,7 +8,11 @@ Official repository for [The 01 Project](https://twitter.com/hellokillian/status
 
 <br>
 
-## Setup
+## Configuration:
+
+Copy the OS/01/.env.example file to OS/01/.env and then configure the environment variables within the file.
+
+## Install Required Libraries:
 
 ```bash
 # MacOS
