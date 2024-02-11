@@ -2,6 +2,10 @@
 Exposes a SSE streaming server endpoint at /run, which recieves language and code,
 and streams the output.
 """
+
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables from .env.
+
 import os
 import json
 from interpreter import interpreter
