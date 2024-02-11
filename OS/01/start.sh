@@ -6,6 +6,11 @@ export ALL_LOCAL=False
 # export WHISPER_MODEL_PATH=...
 # export OPENAI_API_KEY=sk-...
 
+# For TTS, we use the en_US-lessac-medium voice model by default
+# Please change the voice URL and voice name if you wish to use another voice
+export PIPER_VOICE_URL="https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/"
+export PIPER_VOICE_NAME="en_US-lessac-medium.onnx"
+
 # If SERVER_START, this is where we'll serve the server.
 # If DEVICE_START, this is where the device expects the server to be.
 export SERVER_URL=ws://localhost:8000/
@@ -21,6 +26,46 @@ export STT_RUNNER=device # If server, audio will be sent over websocket.
 export SERVER_EXPOSE_PUBLICALLY=False
 
 ### SETUP
+
+# if using local models, install the models / executables
+if [[ "$ALL_LOCAL" == "True" ]]; then
+    OS=$(uname -s)
+    ARCH=$(uname -m)
+    if [ "$OS" = "Darwin" ]; then
+        OS="macos"
+        if [ "$ARCH" = "arm64" ]; then
+            ARCH="aarch64"
+        elif [ "$ARCH" = "x86_64" ]; then
+            ARCH="x64"
+        else
+            echo "Piper: unsupported architecture"
+        fi
+    fi
+    PIPER_ASSETNAME="piper_${OS}_${ARCH}.tar.gz"
+    PIPER_URL="https://github.com/rhasspy/piper/releases/latest/download/"
+    mkdir local_tts
+    cd local_tts
+    curl -OL "${PIPER_URL}${PIPER_ASSETNAME}"
+    tar -xvzf $PIPER_ASSETNAME
+    cd piper
+    if [ "$OS" = "macos" ]; then
+        if [ "$ARCH" = "x64" ]; then
+            softwareupdate --install-rosetta --agree-to-license
+        fi
+        PIPER_PHONEMIZE_ASSETNAME="piper-phonemize_${OS}_${ARCH}.tar.gz"
+        PIPER_PHONEMIZE_URL="https://github.com/rhasspy/piper-phonemize/releases/latest/download/"
+
+        curl -OL "${PIPER_PHONEMIZE_URL}${PIPER_PHONEMIZE_ASSETNAME}"
+        tar -xvzf $PIPER_PHONEMIZE_ASSETNAME
+        curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}"
+        curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}.json"
+        PIPER_DIR=`pwd`
+        install_name_tool -change @rpath/libespeak-ng.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libespeak-ng.1.dylib" "${PIPER_DIR}/piper"
+        install_name_tool -change @rpath/libonnxruntime.1.14.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libonnxruntime.1.14.1.dylib" "${PIPER_DIR}/piper"
+        install_name_tool -change @rpath/libpiper_phonemize.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libpiper_phonemize.1.dylib" "${PIPER_DIR}/piper"
+    fi
+    cd ../..
+fi
 
 # (for dev, reset the ports we were using)
 
