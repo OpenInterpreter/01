@@ -13,11 +13,6 @@ import tempfile
 
 client = OpenAI()
 
-def run_command(command):
-    print(command)
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    return result
-
 def tts(text, play_audio):
     if os.getenv('ALL_LOCAL') == 'False':
         response = client.audio.speech.create(
