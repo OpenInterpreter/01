@@ -2,6 +2,9 @@
 Defines a function which takes text and returns a path to an audio file.
 """
 
+from dotenv import load_dotenv
+load_dotenv()  # take environment variables from .env.
+
 import tempfile
 from openai import OpenAI
 from pydub import AudioSegment
