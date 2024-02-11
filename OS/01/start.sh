@@ -3,12 +3,16 @@ if [ ! -f ".env" ]; then
     echo "Error: .env file does not exist. To create one, see .env.example for an example."
     exit 1
 fi
-set -a; source .env; set +a
-
+set -a; source .env; set +az
 
 ### SETUP
 
 # if using local models, install the models / executables
+WHISPER_MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/"
+WHISPER_RUST_PATH="`pwd`/local_stt/whisper-rust"
+
+curl -OL "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" --output-dir ${WHISPER_RUST_PATH}
+
 if [[ "$ALL_LOCAL" == "True" ]]; then
     OS=$(uname -s)
     ARCH=$(uname -m)

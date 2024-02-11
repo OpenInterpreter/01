@@ -189,8 +189,8 @@ async def websocket_communication(WS_URL):
   
 
         except Exception as e:
-            logging.exception(f"An error occurred during websocket communication. {e}")
-            logging.info(f"Connecting to `{WS_URL}`...")
+            logger.warn(f"An error occurred during websocket communication. {e}")
+            logger.info(f"Connecting to `{WS_URL}`...")
             await asyncio.sleep(2)
             
 
