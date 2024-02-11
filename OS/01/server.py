@@ -95,7 +95,7 @@ if os.getenv('CODE_RUNNER') == "device":
 # Configure interpreter
 interpreter = configure_interpreter(interpreter)
 
-app.get("/ping")
+@app.get("/ping")
 async def ping():
     return PlainTextResponse("pong")
 
