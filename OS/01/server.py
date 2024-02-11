@@ -238,7 +238,7 @@ async def stream_or_play_tts(sentence):
 async def setup_ngrok(ngrok_auth_token, parsed_url):
     # Set up Ngrok
     logger.info("Setting up Ngrok")
-    ngrok_listener = await ngrok.forward(f"{parsed_url.hostname}:{parsed_url.port}", authtoken=ngrok_auth_token, domain="project01.ngrok.dev")
+    ngrok_listener = await ngrok.forward(f"{parsed_url.hostname}:{parsed_url.port}", authtoken=ngrok_auth_token)
     ngrok_parsed_url = urllib.parse.urlparse(ngrok_listener.url())
 
     # Setup SERVER_URL environment variable for device to use
