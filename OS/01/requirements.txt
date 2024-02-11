@@ -10,3 +10,4 @@ python-dotenv
 ffmpeg-python
 textual
 pydub
+python-dotenv
