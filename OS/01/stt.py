@@ -48,6 +48,28 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
         os.remove(input_path)
         os.remove(output_path)
 
+def run_command(command):
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    return result.stdout, result.stderr
+
+def get_transcription_file(wav_file_path: str):
+    model_path = os.getenv("WHISPER_MODEL_PATH")
+    if not model_path:
+        raise EnvironmentError("WHISPER_MODEL_PATH environment variable is not set.")
+
+    output, error = run_command([
+        os.path.join(os.path.dirname(__file__), 'local_stt', 'whisper-rust', 'whisper-rust'),
+        '--model-path', model_path,
+        '--file-path', wav_file_path
+    ])
+
+    print("Exciting transcription result:", output)
+    return output
+
+def get_transcription_bytes(audio_bytes: bytearray, mime_type):
+    with export_audio_to_wav_ffmpeg(audio_bytes, mime_type) as wav_file_path:
+        return get_transcription_file(wav_file_path)
+
 def stt_bytes(audio_bytes: bytearray, mime_type="audio/wav"):
     with export_audio_to_wav_ffmpeg(audio_bytes, mime_type) as wav_file_path:
         return stt_wav(wav_file_path)
@@ -69,8 +91,15 @@ def stt_wav(wav_file_path: str):
         logging.info(f"Transcription result: {transcript}")
         return transcript
     else:
-        # Local whisper here, given `wav_file_path`
-        pass
+        temp_dir = tempfile.gettempdir()
+        output_path = os.path.join(temp_dir, f"output_stt_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
+        ffmpeg.input(wav_file_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
+        try:
+            transcript = get_transcription_file(output_path)
+            print("Transcription result:", transcript)
+        finally:
+            os.remove(output_path)
+        return transcript
 
 def stt(input_data, mime_type="audio/wav"):
     if isinstance(input_data, str):

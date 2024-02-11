@@ -157,7 +157,7 @@ async def listener():
             messages = json.load(file)
         messages.append(message)
         with open(conversation_history_path, 'w') as file:
-            json.dump(messages, file)
+            json.dump(messages, file, indent=4)
 
         accumulated_text = ""
         
@@ -197,7 +197,7 @@ async def listener():
                     await from_user.put(temp_message)
 
                 with open(conversation_history_path, 'w') as file:
-                    json.dump(interpreter.messages, file)
+                    json.dump(interpreter.messages, file, indent=4)
 
                 logging.info("New user message recieved. Breaking.")
                 break
@@ -206,11 +206,14 @@ async def listener():
             if not from_computer.empty():
                 
                 with open(conversation_history_path, 'w') as file:
-                    json.dump(interpreter.messages, file)
+                    json.dump(interpreter.messages, file, indent=4)
 
                 logging.info("New computer message recieved. Breaking.")
                 break
-            
+        else:
+            with open(conversation_history_path, 'w') as file:
+                json.dump(interpreter.messages, file, indent=4)
+        
 
 async def stream_or_play_tts(sentence):
 
