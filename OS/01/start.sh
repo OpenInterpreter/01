@@ -5,7 +5,48 @@ if [ ! -f ".env" ]; then
 fi
 set -a; source .env; set +a
 
+
 ### SETUP
+
+# if using local models, install the models / executables
+if [[ "$ALL_LOCAL" == "True" ]]; then
+    OS=$(uname -s)
+    ARCH=$(uname -m)
+    if [ "$OS" = "Darwin" ]; then
+        OS="macos"
+        if [ "$ARCH" = "arm64" ]; then
+            ARCH="aarch64"
+        elif [ "$ARCH" = "x86_64" ]; then
+            ARCH="x64"
+        else
+            echo "Piper: unsupported architecture"
+        fi
+    fi
+    PIPER_ASSETNAME="piper_${OS}_${ARCH}.tar.gz"
+    PIPER_URL="https://github.com/rhasspy/piper/releases/latest/download/"
+    mkdir local_tts
+    cd local_tts
+    curl -OL "${PIPER_URL}${PIPER_ASSETNAME}"
+    tar -xvzf $PIPER_ASSETNAME
+    cd piper
+    if [ "$OS" = "macos" ]; then
+        if [ "$ARCH" = "x64" ]; then
+            softwareupdate --install-rosetta --agree-to-license
+        fi
+        PIPER_PHONEMIZE_ASSETNAME="piper-phonemize_${OS}_${ARCH}.tar.gz"
+        PIPER_PHONEMIZE_URL="https://github.com/rhasspy/piper-phonemize/releases/latest/download/"
+
+        curl -OL "${PIPER_PHONEMIZE_URL}${PIPER_PHONEMIZE_ASSETNAME}"
+        tar -xvzf $PIPER_PHONEMIZE_ASSETNAME
+        curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}"
+        curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}.json"
+        PIPER_DIR=`pwd`
+        install_name_tool -change @rpath/libespeak-ng.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libespeak-ng.1.dylib" "${PIPER_DIR}/piper"
+        install_name_tool -change @rpath/libonnxruntime.1.14.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libonnxruntime.1.14.1.dylib" "${PIPER_DIR}/piper"
+        install_name_tool -change @rpath/libpiper_phonemize.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libpiper_phonemize.1.dylib" "${PIPER_DIR}/piper"
+    fi
+    cd ../..
+fi
 
 # (for dev, reset the ports we were using)
 
