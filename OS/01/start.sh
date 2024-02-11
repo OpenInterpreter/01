@@ -22,7 +22,7 @@ export SERVER_EXPOSE_PUBLICALLY=False
 
 # Debug level
 # export DEBUG_LEVEL=DEBUG
-export DEBUG_LEVEL="DEBUG"
+export DEBUG_LEVEL="INFO"
 
 ### SETUP
 
