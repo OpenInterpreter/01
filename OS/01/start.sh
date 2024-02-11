@@ -3,16 +3,15 @@ if [ ! -f ".env" ]; then
     echo "Error: .env file does not exist. To create one, see .env.example for an example."
     exit 1
 fi
-set -a; source .env; set +az
+set -a; source .env; set +a
 
 ### SETUP
 
 # if using local models, install the models / executables
 WHISPER_RUST_PATH="`pwd`/local_stt/whisper-rust"
 
-curl -OL "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" --output-dir ${WHISPER_RUST_PATH}
-
 if [[ "$ALL_LOCAL" == "True" ]]; then
+    curl -OL "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" --output-dir ${WHISPER_RUST_PATH}
     OS=$(uname -s)
     ARCH=$(uname -m)
     if [ "$OS" = "Darwin" ]; then
