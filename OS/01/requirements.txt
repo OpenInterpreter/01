@@ -11,3 +11,4 @@ ffmpeg-python
 textual
 pydub
 python-dotenv
+ngrok
