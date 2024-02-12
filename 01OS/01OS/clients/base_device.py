@@ -133,7 +133,7 @@ class Device:
         """Detect spacebar release and ESC key press."""
         if key == keyboard.Key.space:
             self.toggle_recording(False)
-        elif key == keyboard.Key.esc or key == keyboard.Key.ctrl_c:
+        elif key == keyboard.Key.esc or (key == keyboard.Key.ctrl and keyboard.Key.c):
             logger.info("Exiting...")
             os._exit(0)
 
