@@ -5,6 +5,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+01OS/01OS/server/conversations/user.json
+
 # C extensions
 *.so
 

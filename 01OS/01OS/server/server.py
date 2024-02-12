@@ -1,34 +1,27 @@
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
-from starlette.websockets import WebSocketDisconnect
 import ast
 import json
-import time
 import queue
 import os
 import traceback
-from queue import Queue
-from threading import Thread
-import threading
-import uvicorn
 import re
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
-from threading import Thread
 from starlette.websockets import WebSocket
-from stt import stt_bytes
-from tts import tts
+from .stt.stt import stt_bytes
+from .tts.tts import tts
 from pathlib import Path
 import asyncio
 import urllib.parse
-from utils.kernel import put_kernel_messages_into_queue
-from i import configure_interpreter
+from .utils.kernel import put_kernel_messages_into_queue
+from .i import configure_interpreter
 from interpreter import interpreter
 import ngrok
 
-from utils.logs import setup_logging
-from utils.logs import logger
+from .utils.logs import setup_logging
+from .utils.logs import logger
 setup_logging()
 
 

@@ -14,8 +14,8 @@ import subprocess
 import openai
 from openai import OpenAI
 
-from utils.logs import setup_logging
-from utils.logs import logger
+from ..utils.logs import setup_logging
+from ..utils.logs import logger
 setup_logging()
 
 client = OpenAI()
@@ -56,18 +56,19 @@ def run_command(command):
     return result.stdout, result.stderr
 
 def get_transcription_file(wav_file_path: str):
-    whisper_rust_path = os.path.join(os.path.dirname(__file__), 'local_stt', 'whisper-rust')
+    local_path = os.path.join(os.path.dirname(__file__), 'local_service')
+    whisper_rust_path = os.path.join(local_path, 'whisper-rust')
     model_name = os.getenv('WHISPER_MODEL_NAME')
     if not model_name:
         raise EnvironmentError("WHISPER_MODEL_NAME environment variable is not set.")
 
     output, error = run_command([
         os.path.join(whisper_rust_path, 'whisper-rust'),
-        '--model-path', os.path.join(whisper_rust_path, model_name),
+        '--model-path', os.path.join(local_path, model_name),
         '--file-path', wav_file_path
     ])
 
-    print("Exciting transcription result:", output)
+    print("Transcription result:", output)
     return output
 
 def get_transcription_bytes(audio_bytes: bytearray, mime_type):

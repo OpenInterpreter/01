@@ -5,8 +5,8 @@ import asyncio
 import subprocess
 import platform
 
-from utils.logs import setup_logging
-from utils.logs import logger
+from .logs import setup_logging
+from .logs import logger
 setup_logging()
 
 def get_kernel_messages():

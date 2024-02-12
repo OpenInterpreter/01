@@ -1,6 +1,8 @@
 # ○
 
-Official repository for [The 01 Project](https://twitter.com/hellokillian/status/1745875973583896950).
+Official pre-release repository for [The 01 Project](https://twitter.com/hellokillian/status/1745875973583896950).
+
+> **11** days remaining until launch
 
 <br>
 
@@ -8,33 +10,70 @@ Official repository for [The 01 Project](https://twitter.com/hellokillian/status
 
 <br>
 
-## Configuration:
-
-Copy the OS/01/.env.example file to OS/01/.env and then configure the environment variables within the file.
-
-## Install Required Libraries:
+## Install dependencies:
 
 ```bash
 # MacOS
 brew install portaudio ffmpeg
 
 # Ubuntu
-sudo apt-get install portaudio19-dev libav-tools
+sudo apt-get install portaudio19-dev ffmpeg
 ```
+
+## Setup for usage (experimental):
 
 ```bash
-python -m pip install -r requirements.txt
+pip install 01OS
 ```
-NB: Depending on your local Python version, you may run into [this issue↗](https://github.com/TaylorSMarks/playsound/issues/150) installing playsound. Workarounds are provided in the issue.
 
-## Usage
+**Run the 01 end-to-end:**
 
 ```bash
-cd OS/01
-bash start.sh
+01 # This will run a server + attempt to determine and run a client.
+# (Behavior can be modified by changing the contents of `.env`)
 ```
 
-If you want to run local text-to-speech and speech-to-text, set `ALL_LOCAL` in the `start.sh` script to True. This will use the [whisper.cpp](https://github.com/ggerganov/whisper.cpp) and [Piper](https://github.com/rhasspy/piper) models.
+**Expose an 01 server publically:**
+
+```bash
+01 --server --expose # This will print a URL that a client can point to.
+```
+
+**Run a specific client:**
+
+```bash
+01 --client macos # Options: macos, rpi
+```
+
+**Run locally:**
+
+The current default uses OpenAI's services.
+
+The `--local` flag will install and run the [whisper.cpp](https://github.com/ggerganov/whisper.cpp) STT and [Piper](https://github.com/rhasspy/piper) TTS models.
+
+```bash
+01 --local # Local client and server
+01 --local --server --expose # Expose a local server
+```
+
+<br>
+
+## Setup for development:
+
+```bash
+# Clone the repo, cd into the 01OS directory
+git clone https://github.com/KillianLucas/01.git
+cd 01OS
+
+# Install dependencies, run the commands above
+poetry install
+poetry run 01
+```
+
+**Configuration:**
+
+Copy the `01OS/.env.example` file to `01OS/.env` then configure the environment variables within the file.
+
 <br>
 
 ## Background
@@ -60,14 +99,3 @@ What we're going to do.
 What the 01 will be able to do.
 
 <br>
-
-## Project Management
-
-### [Tasks ↗](https://github.com/KillianLucas/01/blob/main/TASKS.md)
-
-Our master task list.
-
-<br>
-
-> **13** days remaining until launch
-
