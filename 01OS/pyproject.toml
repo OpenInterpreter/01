@@ -25,7 +25,6 @@ pydub = "^0.25.1"
 ngrok = "^1.0.0"
 open-interpreter = "^0.2.0"
 simpleaudio = "^1.0.4"
-mss = "^9.0.1"
 opencv-python = "^4.9.0.80"
 
 [build-system]
