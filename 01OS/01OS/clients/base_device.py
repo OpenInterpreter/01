@@ -180,7 +180,7 @@ class Device:
 
         if key == keyboard.Key.space:
             self.toggle_recording(False)
-        elif CAMERA_ENABLED and hasattr(key, 'char') and key == keyboard.KeyCode.from_char('c'):
+        elif CAMERA_ENABLED and key == keyboard.KeyCode.from_char('c'):
             self.fetch_image_from_camera()
 
     
