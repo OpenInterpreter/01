@@ -23,6 +23,7 @@ import wave
 import tempfile
 from datetime import datetime
 import cv2
+import base64
 from interpreter import interpreter # Just for code execution. Maybe we should let people do from interpreter.computer import run?
 from ..server.utils.kernel import put_kernel_messages_into_queue
 from ..server.utils.get_system_info import get_system_info
@@ -76,7 +77,7 @@ class Device:
 
         if ret:
             temp_dir = tempfile.gettempdir()
-            image_path = os.path.join(temp_dir, f"01_photo_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.jpg")
+            image_path = os.path.join(temp_dir, f"01_photo_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.png")
             self.captured_images.append(image_path)
             cv2.imwrite(image_path, frame)
             logger.info(f"Camera image captured to {image_path}")
@@ -87,6 +88,31 @@ class Device:
         cap.release()
 
         return image_path
+    
+
+    def encode_image_to_base64(self, image_path):
+        """Encodes an image file to a base64 string."""
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+
+    def add_image_to_send_queue(self, image_path):
+        """Encodes an image and adds an LMC message to the send queue with the image data."""
+        base64_image = self.encode_image_to_base64(image_path)
+        image_message = {
+            "role": "user",
+            "type": "image",
+            "format": "base64.png",
+            "content": base64_image
+        }
+        send_queue.put(image_message)
+        # Delete the image file from the file system after sending it
+        os.remove(image_path)
+
+    def queue_all_captured_images(self):
+        """Queues all captured images to be sent."""
+        for image_path in self.captured_images:
+            self.add_image_to_send_queue(image_path)
+        self.captured_images.clear()  # Clear the list after sending
 
 
     def record_audio(self):
@@ -132,6 +158,8 @@ class Device:
                 send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": ""})
                 send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
         else:
+            self.queue_all_captured_images()
+
             if os.getenv('STT_RUNNER') == "client":
                 # Run stt then send text
                 text = stt_wav(wav_path)
