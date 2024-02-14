@@ -99,17 +99,16 @@ if [[ "$ALL_LOCAL" == "True" ]]; then
         curl -L "${PIPER_URL}${PIPER_ASSETNAME}" -o "${PIPER_ASSETNAME}"
         tar -xvzf $PIPER_ASSETNAME
         cd piper
+        curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}"
+        curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}.json"
         if [ "$OS" = "macos" ]; then
             if [ "$ARCH" = "x64" ]; then
                 softwareupdate --install-rosetta --agree-to-license
             fi
             PIPER_PHONEMIZE_ASSETNAME="piper-phonemize_${OS}_${ARCH}.tar.gz"
             PIPER_PHONEMIZE_URL="https://github.com/rhasspy/piper-phonemize/releases/latest/download/"
-
             curl -OL "${PIPER_PHONEMIZE_URL}${PIPER_PHONEMIZE_ASSETNAME}"
             tar -xvzf $PIPER_PHONEMIZE_ASSETNAME
-            curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}"
-            curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}.json"
             PIPER_DIR=`pwd`
             install_name_tool -change @rpath/libespeak-ng.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libespeak-ng.1.dylib" "${PIPER_DIR}/piper"
             install_name_tool -change @rpath/libonnxruntime.1.14.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libonnxruntime.1.14.1.dylib" "${PIPER_DIR}/piper"
