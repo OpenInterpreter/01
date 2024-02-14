@@ -9,7 +9,7 @@ import traceback
 import re
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
-from starlette.websockets import WebSocket
+from starlette.websockets import WebSocket, WebSocketDisconnect
 from .stt.stt import stt_bytes
 from .tts.tts import tts
 from pathlib import Path
@@ -99,6 +99,8 @@ async def websocket_endpoint(websocket: WebSocket):
     send_task = asyncio.create_task(send_messages(websocket))
     try:
         await asyncio.gather(receive_task, send_task)
+    except WebSocketDisconnect:
+        pass
     except Exception as e:
         traceback.print_exc()
         logger.info(f"Connection lost. Error: {e}")
