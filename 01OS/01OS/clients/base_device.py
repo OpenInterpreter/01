@@ -22,6 +22,7 @@ import wave
 import tempfile
 from datetime import datetime
 from interpreter import interpreter # Just for code execution. Maybe we should let people do from interpreter.computer import run?
+# In the future, I guess kernel watching code should be elsewhere? Somewhere server / client agnostic?
 from ..server.utils.kernel import put_kernel_messages_into_queue
 from ..server.utils.get_system_info import get_system_info
 from ..server.stt.stt import stt_wav
@@ -29,6 +30,11 @@ from ..server.stt.stt import stt_wav
 from ..server.utils.logs import setup_logging
 from ..server.utils.logs import logger
 setup_logging()
+
+
+from ..utils.accumulator import Accumulator
+
+accumulator = Accumulator()
 
 # Configuration for Audio Recording
 CHUNK = 1024  # Record in chunks of 1024 samples
@@ -44,19 +50,30 @@ current_platform = get_system_info()
 # Initialize PyAudio
 p = pyaudio.PyAudio()
 
-import asyncio
-
 send_queue = queue.Queue()
 
 class Device:
     def __init__(self):
+        self.audiosegments = []
         pass
+
+    async def play_audiosegments(self):
+        """Plays them sequentially."""
+        while True:
+            try:
+                for audio in self.audiosegments:
+                    play(audio)
+                    self.audiosegments.remove(audio)
+                await asyncio.sleep(0.1)
+            except:
+                traceback.print_exc()
+
 
     def record_audio(self):
         
         if os.getenv('STT_RUNNER') == "server":
             # STT will happen on the server. we're sending audio.
-            send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "start": True})
+            send_queue.put({"role": "user", "type": "audio", "format": "bytes.wav", "start": True})
         elif os.getenv('STT_RUNNER') == "client":
             # STT will happen here, on the client. we're sending text.
             send_queue.put({"role": "user", "type": "message", "start": True})
@@ -92,8 +109,8 @@ class Device:
                 send_queue.put({"role": "user", "type": "message", "content": "stop"})
                 send_queue.put({"role": "user", "type": "message", "end": True})
             else:
-                send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": ""})
-                send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
+                send_queue.put({"role": "user", "type": "audio", "format": "bytes.wav", "content": ""})
+                send_queue.put({"role": "user", "type": "audio", "format": "bytes.wav", "end": True})
         else:
             if os.getenv('STT_RUNNER') == "client":
                 # Run stt then send text
@@ -105,9 +122,9 @@ class Device:
                 with open(wav_path, 'rb') as audio_file:
                     byte_data = audio_file.read(CHUNK)
                     while byte_data:
-                        send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "content": str(byte_data)})
+                        send_queue.put(byte_data)
                         byte_data = audio_file.read(CHUNK)
-                send_queue.put({"role": "user", "type": "audio", "format": "audio/wav", "end": True})
+                send_queue.put({"role": "user", "type": "audio", "format": "bytes.wav", "end": True})
 
         if os.path.exists(wav_path):
             os.remove(wav_path)
@@ -140,8 +157,12 @@ class Device:
     async def message_sender(self, websocket):
         while True:
             message = await asyncio.get_event_loop().run_in_executor(None, send_queue.get)
-            await websocket.send(json.dumps(message))
+            if isinstance(message, bytes):
+                await websocket.send(message)
+            else:
+                await websocket.send(json.dumps(message))
             send_queue.task_done()
+            await asyncio.sleep(0.01)
 
     async def websocket_communication(self, WS_URL):
         while True:
@@ -150,52 +171,42 @@ class Device:
                     logger.info("Press the spacebar to start/stop recording. Press ESC to exit.")
                     asyncio.create_task(self.message_sender(websocket))
 
-                    initial_message = {"role": None, "type": None, "format": None, "content": None} 
-                    message_so_far = initial_message
-
                     while True:
-                        message = await websocket.recv()
+                        await asyncio.sleep(0.01)
+                        chunk = await websocket.recv()
 
-                        logger.debug(f"Got this message from the server: {type(message)} {message}")
+                        logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
 
-                        if type(message) == str:
-                            message = json.loads(message)
+                        if type(chunk) == str:
+                            chunk = json.loads(chunk)
 
-                        if message.get("end"):
-                            logger.debug(f"Complete message from the server: {message_so_far}")
-                            logger.info("\n")
-                            message_so_far = initial_message
+                        message = accumulator.accumulate(chunk)
+                        if message == None:
+                            # Will be None until we have a full message ready
+                            continue
 
-                        if "content" in message:
-                            print(message['content'], end="", flush=True)
-                            if any(message_so_far[key] != message[key] for key in message_so_far if key != "content"):
-                                message_so_far = message
-                            else:
-                                message_so_far["content"] += message["content"]
+                        # At this point, we have our message
 
-                        if message["type"] == "audio" and "content" in message:
-                            audio_bytes = bytes(ast.literal_eval(message["content"]))
+                        if message["type"] == "audio" and message["format"].startswith("bytes"):
 
                             # Convert bytes to audio file
-                            audio_file = io.BytesIO(audio_bytes)
-                            audio = AudioSegment.from_mp3(audio_file)
+                            # Format will be bytes.wav or bytes.opus
+                            audio_bytes = io.BytesIO(message["content"])
+                            audio = AudioSegment.from_file(audio_bytes, codec=message["format"].split(".")[1])
 
-                            # Play the audio
-                            play(audio)
-
-                            await asyncio.sleep(1)
+                            self.audiosegments.append(audio)
 
                         # Run the code if that's the client's job
                         if os.getenv('CODE_RUNNER') == "client":
                             if message["type"] == "code" and "end" in message:
-                                language = message_so_far["format"]
-                                code = message_so_far["content"]
+                                language = message["format"]
+                                code = message["content"]
                                 result = interpreter.computer.run(language, code)
                                 send_queue.put(result)
     
 
             except:
-                # traceback.print_exc()
+                traceback.print_exc()
                 logger.info(f"Connecting to `{WS_URL}`...")
                 await asyncio.sleep(2)
 
@@ -212,6 +223,7 @@ class Device:
             if os.getenv('CODE_RUNNER') == "client":
                 asyncio.create_task(put_kernel_messages_into_queue(send_queue))
 
+            asyncio.create_task(self.play_audiosegments())
             
             # If Raspberry Pi, add the button listener, otherwise use the spacebar
             if current_platform.startswith("raspberry-pi"):

@@ -12,27 +12,28 @@ import os
 import subprocess
 import tempfile
 from pydub import AudioSegment
-from pydub.playback import play
-import simpleaudio as sa
 
 client = OpenAI()
 
-def tts(text, play_audio):
+chunk_size = 1024
+
+def stream_tts(text):
+    """
+    A generator that streams tts as LMC messages.
+    """
     if os.getenv('ALL_LOCAL') == 'False':
         response = client.audio.speech.create(
             model="tts-1",
             voice="alloy",
             input=text,
-            response_format="mp3"
+            response_format="opus"
         )
-        with tempfile.NamedTemporaryFile(suffix=".mp3") as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".opus") as temp_file:
             response.stream_to_file(temp_file.name)
-            
-            if play_audio:
-                audio = AudioSegment.from_mp3(temp_file.name)
-                play_audiosegment(audio)
 
-            return temp_file.read()
+            audio_bytes = temp_file.read()
+            file_type = "bytes.opus"
+
     else:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
             output_file = temp_file.name
@@ -43,13 +44,19 @@ def tts(text, play_audio):
                 '--output_file', output_file
             ], input=text, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-            if play_audio:
-                audio = AudioSegment.from_wav(temp_file.name)
-                play_audiosegment(audio)
-            return temp_file.read()
+            audio_bytes = temp_file.read()
+            file_type = "bytes.wav"
+
+    # Stream the audio
+    yield {"role": "assistant", "type": "audio", "format": file_type, "start": True}
+    for i in range(0, len(audio_bytes), chunk_size):
+        chunk = audio_bytes[i:i+chunk_size]
+        yield chunk
+    yield {"role": "assistant", "type": "audio", "format": file_type, "end": True}
 
 def play_audiosegment(audio):
     """
+    UNUSED
     the default makes some pops. this fixes that
     """
 
@@ -72,4 +79,7 @@ def play_audiosegment(audio):
 
     # Wait for the playback to finish
     play_obj.wait_done()
+
+    # Delete the wav file
+    os.remove("output_audio.wav")
 
