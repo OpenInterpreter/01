@@ -17,10 +17,9 @@
     - [ ] Computer: "Great! What's the next step?" ....
     - [ ] Repeat until all steps of skill are completed
     - [ ] Save skill as a function next() steps through user's steps
-  - [ ] Expose ^ via `interpreter --teach`.
+  - [ ] Expose ^ via `01 --teach`.
 - [ ] pip install 01
-  - [ ] Add `interpreter --server --expose`.
-  - [ ] Include the 01's --server in the next OI update.
+  - [ ] Add `01 --server --expose`.
   - [ ] Add --server --expose which will expose the server via something like Ngrok, display the public URL and a password, so the 01 Light can connect to it. This will let people use OI on their computer via their Light — i.e. "Check my emails" will run Applescript on their home computer.
 - [ ] Sync Interpreter/Computer between code blocks
 - [ ] New default dynamic system message with computer API + skills.
