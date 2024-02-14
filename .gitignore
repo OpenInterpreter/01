@@ -167,3 +167,4 @@ cython_debug/
 
 # ignore the aifs index files
 _.aifs
+01OS/output_audio.wav

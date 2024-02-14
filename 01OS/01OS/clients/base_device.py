@@ -50,7 +50,7 @@ send_queue = queue.Queue()
 
 class Device:
     def __init__(self):
-        pass
+        self.pressed_keys = set()
 
     def record_audio(self):
         
@@ -125,12 +125,21 @@ class Device:
             RECORDING = False
 
     def on_press(self, key):
-        """Detect spacebar press."""
-        if key == keyboard.Key.space:
+        """Detect spacebar press, ESC key press, and Ctrl+C combination."""
+        self.pressed_keys.add(key)  # Add the pressed key to the set
+
+        if keyboard.Key.esc in self.pressed_keys:
+            logger.info("Exiting...")
+            os._exit(0)
+        elif keyboard.Key.space in self.pressed_keys:
             self.toggle_recording(True)
+        elif {keyboard.Key.ctrl, keyboard.KeyCode.from_char('c')} <= self.pressed_keys:
+            logger.info("Ctrl+C pressed. Exiting...")
+            os._exit(0)
 
     def on_release(self, key):
         """Detect spacebar release and ESC key press."""
+        self.pressed_keys.discard(key)  # Remove the released key from the key press tracking set
         if key == keyboard.Key.space:
             self.toggle_recording(False)
         elif key == keyboard.Key.esc or (key == keyboard.Key.ctrl and keyboard.Key.c):
