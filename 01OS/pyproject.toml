@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "01OS"
+packages = [
+    {include = "01OS"},
+]
+include = [".env.example", "start.py", "start.sh"]
+version = "0.0.2"
+description = "The open-source language model computer"
+authors = ["Killian <killian@openinterpreter.com>"]
+license = "AGPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+asyncio = "^3.4.3"
+pyaudio = "^0.2.14"
+pynput = "^1.7.6"
+fastapi = "^0.109.2"
+uvicorn = "^0.27.1"
+websockets = "^12.0"
+python-dotenv = "^1.0.1"
+ffmpeg-python = "^0.2.0"
+textual = "^0.50.1"
+pydub = "^0.25.1"
+ngrok = "^1.0.0"
+open-interpreter = "^0.2.0"
+simpleaudio = "^1.0.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+01 = "start:main"

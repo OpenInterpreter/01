@@ -100,7 +100,11 @@ print(output)
         json.dump([], file)
 
     ### SKILLS
-    interpreter.computer.skills.skills_dir = Path(__file__).parent / 'skills'
-    interpreter.computer.skills.import_skills()
+    try:
+        interpreter.computer.skills.skills_dir = Path(__file__).parent / 'skills'
+        interpreter.computer.skills.import_skills()
+    except:
+        print("Temporarily skipping skills (OI 0.2.1, which is unreleased) so we can push to `pip`.")
+        pass
 
     return interpreter

@@ -1,9 +1,12 @@
 ggml-*.bin
-OS/01/local_tts/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+01OS/01OS/server/conversations/user.json
+01OS/01OS/server/tts/local_service/*
+01OS/01OS/server/stt/local_service/*
 
 # C extensions
 *.so
