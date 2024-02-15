@@ -128,8 +128,11 @@ class Device:
                     play(audio)
                     self.audiosegments.remove(audio)
                 await asyncio.sleep(0.1)
+            except asyncio.exceptions.CancelledError:
+                # This happens once at the start?
+                pass
             except:
-                logger.debug(f"Non fatal error, retrying: ", traceback.format_exc())
+                logger.info(traceback.format_exc())
 
 
     def record_audio(self):
@@ -282,7 +285,7 @@ class Device:
     
 
             except:
-                logger.debug(f"Non fatal error, retrying: ", traceback.format_exc())
+                logger.debug(traceback.format_exc())
                 logger.info(f"Connecting to `{WS_URL}`...")
                 await asyncio.sleep(2)
 

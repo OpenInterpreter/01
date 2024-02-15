@@ -102,7 +102,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         await asyncio.gather(receive_task, send_task)
     except Exception as e:
-        logger.debug(f"Non fatal error, retrying: ", traceback.format_exc())
+        logger.debug(traceback.format_exc())
         logger.info(f"Connection lost. Error: {e}")
 
 async def receive_messages(websocket: WebSocket):
