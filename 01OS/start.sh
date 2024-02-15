@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Set python to prioritize the module files from the current directory
+# If we don't do this, then the python interpreter will not be able to find the modules,
+# and will throw an error like "ModuleNotFoundError: No module named '01OS'".
+# If we solve the problem by pip installing the official 01OS package, then those
+# modules will run instead of the local ones that we are trying to develop with.
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+
 ### Import Environment Variables from .env
 SCRIPT_DIR="$(dirname "$0")"
 if [ ! -f "$SCRIPT_DIR/.env" ]; then
