@@ -4,7 +4,7 @@ class Accumulator:
         self.message = self.template
 
     def accumulate(self, chunk):
-        print(str(chunk)[:100])
+        #print(str(chunk)[:100])
         if type(chunk) == dict:
 
             if "format" in chunk and chunk["format"] == "active_line":

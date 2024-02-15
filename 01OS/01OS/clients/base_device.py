@@ -129,7 +129,7 @@ class Device:
                     self.audiosegments.remove(audio)
                 await asyncio.sleep(0.1)
             except:
-                traceback.print_exc()
+                logger.debug(f"Non fatal error, retrying: ", traceback.format_exc())
 
 
     def record_audio(self):
@@ -207,13 +207,10 @@ class Device:
             RECORDING = False
 
     def on_press(self, key):
-        """Detect spacebar press, ESC key press, and Ctrl+C combination."""
+        """Detect spacebar press and Ctrl+C combination."""
         self.pressed_keys.add(key)  # Add the pressed key to the set
 
-        if keyboard.Key.esc in self.pressed_keys:
-            logger.info("Exiting...")
-            os._exit(0)
-        elif keyboard.Key.space in self.pressed_keys:
+        if keyboard.Key.space in self.pressed_keys:
             self.toggle_recording(True)
         elif {keyboard.Key.ctrl, keyboard.KeyCode.from_char('c')} <= self.pressed_keys:
             logger.info("Ctrl+C pressed. Exiting...")
@@ -244,9 +241,9 @@ class Device:
             try:
                 async with websockets.connect(WS_URL) as websocket:
                     if CAMERA_ENABLED:
-                        logger.info("Press the spacebar to start/stop recording. Press 'c' to capture an image from the camera. Press ESC to exit.")
+                        logger.info("Press the spacebar to start/stop recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
                     else:
-                        logger.info("Press the spacebar to start/stop recording. Press ESC to exit.")
+                        logger.info("Press the spacebar to start/stop recording. Press CTRL-C to exit.")
                         
                     asyncio.create_task(self.message_sender(websocket))
 
@@ -285,7 +282,7 @@ class Device:
     
 
             except:
-                traceback.print_exc()
+                logger.debug(f"Non fatal error, retrying: ", traceback.format_exc())
                 logger.info(f"Connecting to `{WS_URL}`...")
                 await asyncio.sleep(2)
 

@@ -124,7 +124,7 @@ fi
 
 start_client() {
     echo "Starting client..."
-    bash 01OS/clients/start.sh &
+    bash $SCRIPT_DIR/01OS/clients/start.sh &
     CLIENT_PID=$!
     echo "client started as process $CLIENT_PID"
 }
