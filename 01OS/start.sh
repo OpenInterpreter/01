@@ -71,11 +71,32 @@ if [[ "$ALL_LOCAL" == "True" ]]; then
 
     ## WHISPER
     
-    WHISPER_PATH="$SCRIPT_DIR/01OS/server/stt/local_service"
-    if [[ ! -f "${WHISPER_PATH}/${WHISPER_MODEL_NAME}" ]]; then
-        mkdir -p "${WHISPER_PATH}"
-        curl -L "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" -o "${WHISPER_PATH}/${WHISPER_MODEL_NAME}"
+    CWD=$(pwd)
+
+    STT_PATH="$SCRIPT_DIR/01OS/server/stt"
+    WHISPER_RUST_PATH="${STT_PATH}/whisper-rust"
+    cd ${WHISPER_RUST_PATH}
+
+    # Check if whisper-rust executable exists
+    if [[ ! -f "${WHISPER_RUST_PATH}/target/release/whisper-rust" ]]; then
+
+        # Check if Rust is installed. Needed to build whisper executable
+        if ! command -v rustc &> /dev/null; then
+            echo "Rust is not installed or is not in system PATH. Please install Rust before proceeding."
+            exit 1
+        fi
+
+        # Build the Whisper Rust executable
+        cargo build --release
     fi
+
+    WHISPER_MODEL_PATH="${STT_PATH}/local_service"
+    if [[ ! -f "${WHISPER_MODEL_PATH}/${WHISPER_MODEL_NAME}" ]]; then
+        mkdir -p "${WHISPER_MODEL_PATH}"
+        curl -L "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" -o "${WHISPER_MODEL_PATH}/${WHISPER_MODEL_NAME}"
+    fi
+
+    cd $CWD
 
     ## PIPER
 

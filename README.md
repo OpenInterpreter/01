@@ -20,6 +20,8 @@ brew install portaudio ffmpeg
 sudo apt-get install portaudio19-dev ffmpeg
 ```
 
+If you want to run local speech-to-text using Whisper, install Rust. Follow the instructions given [here](https://www.rust-lang.org/tools/install).
+
 ## Setup for usage (experimental):
 
 ```bash
