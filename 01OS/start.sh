@@ -54,6 +54,16 @@ if [[ "$@" == *"--expose"* ]]; then
     export SERVER_EXPOSE_PUBLICALLY="True"
 fi
 
+# Check if "--clear-local" is passed as an argument
+if [[ "$@" == *"--clear-local"* ]]; then
+    # If "--clear-local" is passed, clear the contents of the folders in script_dir/01OS/server/{tts and stt}/local_service
+    echo "Clearing local services..."
+    rm -rf "$SCRIPT_DIR/01OS/server/tts/local_service"/*
+    rm -rf "$SCRIPT_DIR/01OS/server/stt/local_service"/*
+    echo "Exiting after clearing local services..."
+    exit 0
+fi
+
 ### SETUP
 
 if [[ "$ALL_LOCAL" == "True" ]]; then
@@ -124,7 +134,7 @@ fi
 
 start_client() {
     echo "Starting client..."
-    bash 01OS/clients/start.sh &
+    bash $SCRIPT_DIR/01OS/clients/start.sh &
     CLIENT_PID=$!
     echo "client started as process $CLIENT_PID"
 }

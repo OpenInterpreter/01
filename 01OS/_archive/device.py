@@ -122,7 +122,7 @@ def on_press(key):
         toggle_recording(True)
 
 def on_release(key):
-    """Detect spacebar release and ESC key press."""
+    """Detect spacebar release and CTRL-C key press."""
     if key == keyboard.Key.space:
         toggle_recording(False)
     elif key == keyboard.Key.esc:

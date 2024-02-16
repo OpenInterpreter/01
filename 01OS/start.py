@@ -19,5 +19,8 @@ def main():
     command = [os.path.join(dir_path, 'start.sh')] + args
 
     # Start start.sh with the command line arguments
-    subprocess.run(command, check=True)
+    try:
+        subprocess.run(command, check=True)
+    except KeyboardInterrupt:
+        print("Exiting...")
     
