@@ -36,6 +36,12 @@ if [[ "$@" == *"--server"* ]]; then
     export SERVER_START="True"
 fi
 
+# Check if "--teach" is passed as an argument
+if [[ "$@" == *"--teach"* ]]; then
+    # If "--teach" is passed, set TEACH_MODE to True
+    export TEACH_MODE="True"
+fi
+
 # Check if "--client" is passed as an argument
 if [[ "$@" == *"--client"* ]]; then
     # If "--client" is passed, set CLIENT_START to True

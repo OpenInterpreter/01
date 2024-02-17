@@ -26,7 +26,11 @@ class Accumulator:
                 if "content" not in self.message:
                     self.message["content"] = chunk["content"]
                 else:
-                    self.message["content"] += chunk["content"]
+                    if type(chunk["content"]) == dict:
+                        # dict concatenation cannot happen, so we see if chunk is a dict
+                        self.message["content"]["content"] += chunk["content"]["content"]
+                    else:
+                        self.message["content"] += chunk["content"]
                 return None
 
             if "end" in chunk:

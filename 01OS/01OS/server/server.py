@@ -20,7 +20,7 @@ from .i import configure_interpreter
 from interpreter import interpreter
 import ngrok
 from ..utils.accumulator import Accumulator
-
+from .teach import teach
 from .utils.logs import setup_logging
 from .utils.logs import logger
 setup_logging()
@@ -288,27 +288,30 @@ from uvicorn import Config, Server
 if __name__ == "__main__":
 
     async def main():
-        # Start listening
-        asyncio.create_task(listener())
+        if os.getenv('TEACH_MODE') == "True":
+            teach()
+        else:
+            # Start listening
+            asyncio.create_task(listener())
 
-        # Start watching the kernel if it's your job to do that
-        if os.getenv('CODE_RUNNER') == "server":
-            asyncio.create_task(put_kernel_messages_into_queue(from_computer))
+            # Start watching the kernel if it's your job to do that
+            if os.getenv('CODE_RUNNER') == "server":
+                asyncio.create_task(put_kernel_messages_into_queue(from_computer))
 
-        server_url = os.getenv('SERVER_URL')
-        if not server_url:
-            raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
-        parsed_url = urllib.parse.urlparse(server_url)
+            server_url = os.getenv('SERVER_URL')
+            if not server_url:
+                raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
+            parsed_url = urllib.parse.urlparse(server_url)
 
-        # Set up Ngrok
-        ngrok_auth_token = os.getenv('NGROK_AUTHTOKEN')
-        if ngrok_auth_token is not None:
-            await setup_ngrok(ngrok_auth_token, parsed_url)
-            
-        logger.info("Starting `server.py`...")
+            # Set up Ngrok
+            ngrok_auth_token = os.getenv('NGROK_AUTHTOKEN')
+            if ngrok_auth_token is not None:
+                await setup_ngrok(ngrok_auth_token, parsed_url)
+                
+            logger.info("Starting `server.py`...")
 
-        config = Config(app, host=parsed_url.hostname, port=parsed_url.port, lifespan='on')
-        server = Server(config)
-        await server.serve()
+            config = Config(app, host=parsed_url.hostname, port=parsed_url.port, lifespan='on')
+            server = Server(config)
+            await server.serve()
 
     asyncio.run(main())

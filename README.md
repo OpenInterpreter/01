@@ -58,6 +58,10 @@ The `--local` flag will install and run the [whisper.cpp](https://github.com/gge
 01 --local --server --expose # Expose a local server
 ```
 
+**Teach Mode (experimental)**
+
+Running `01 --teach` runs 01 in teach mode, where you can add your own skills for Open Interpreter to use, through an easy-to-follow GUI.
+
 <br>
 
 ## Setup for development:
