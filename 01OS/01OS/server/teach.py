@@ -22,11 +22,17 @@ def to_camel_case(text):
     camel_case_string = words[0].lower() + ''.join(word.title() for word in words[1:])
     return camel_case_string
 
-def generate_python_code(function_name, steps, code):
+def generate_python_code(function_name, code):
     code_string = f'def {to_camel_case(function_name)}():\n'
     code_string += f'    """{function_name}"""\n'
     indented_code = textwrap.indent(code, '    ')
     code_string += indented_code + '\n'
+    return code_string
+
+def generate_python_steps(function_name, steps):
+    code_string = f'def {to_camel_case(function_name)}():\n'
+    code_string += f'    """{function_name}"""\n'
+    code_string += f'    print({steps})\n'
     return code_string
 
 def teach():
@@ -42,6 +48,8 @@ def teach():
             break
 
         chunk_code = ""
+        interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
+        interpreter.force_task_completion = True
         for chunk in interpreter.chat(step, stream=True, display=False):
             if "format" in chunk and chunk["format"] == "execution":
                 content = chunk["content"]
@@ -57,7 +65,10 @@ def teach():
             skill.steps.append(step)
             skill.code += chunk_code
 
-    python_code = generate_python_code(skill.skill_name, skill.steps, skill.code)
+    # Uncomment this incase you want steps instead of code
+    #python_code = generate_python_steps(skill.skill_name, skill.steps)
+    
+    python_code = generate_python_code(skill.skill_name, skill.code)
     SKILLS_DIR = os.path.dirname(__file__) + "/skills"
     filename = os.path.join(SKILLS_DIR, f"{skill.skill_name.replace(' ', '_')}.py")
     with open(filename, "w") as file:
