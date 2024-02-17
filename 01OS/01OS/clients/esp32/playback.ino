@@ -15,6 +15,9 @@
 #define MODE_SPK 1
 #define DATA_SIZE 1024
 
+const char* ssid = "Soundview_Guest";
+const char* password = "";
+
 uint8_t microphonedata0[1024 * 70];
 int data_offset = 0;
 
