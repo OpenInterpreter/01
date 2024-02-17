@@ -57,7 +57,7 @@ def run_command(command):
 
 def get_transcription_file(wav_file_path: str):
     local_path = os.path.join(os.path.dirname(__file__), 'local_service')
-    whisper_rust_path = os.path.join(local_path, 'whisper-rust')
+    whisper_rust_path = os.path.join(os.path.dirname(__file__), 'whisper-rust', 'target', 'release')
     model_name = os.getenv('WHISPER_MODEL_NAME')
     if not model_name:
         raise EnvironmentError("WHISPER_MODEL_NAME environment variable is not set.")
