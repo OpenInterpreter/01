@@ -1,5 +1,6 @@
 /*Press button to record,released button to playback*/
 
+#include <WiFi.h>
 #include <driver/i2s.h>
 #include <M5Atom.h>
 
@@ -16,6 +17,15 @@
 
 uint8_t microphonedata0[1024 * 70];
 int data_offset = 0;
+
+void setupWiFi() {
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Connected to WiFi");
+}
 
 void InitI2SSpeakerOrMic(int mode) {
   esp_err_t err = ESP_OK;
@@ -67,6 +77,7 @@ void InitI2SSpeakerOrMic(int mode) {
 void setup() {
   M5.begin(true, false, true);
   M5.dis.drawpix(0, CRGB(128, 128, 0));
+  setupWiFi();
   delay(2000);
 }
 
