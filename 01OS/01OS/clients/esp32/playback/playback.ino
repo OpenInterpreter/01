@@ -70,6 +70,7 @@ void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
 }
 
 void InitI2SSpeakerOrMic(int mode) {
+  Serial.printf("InitI2sSpeakerOrMic %d\n", mode);
   esp_err_t err = ESP_OK;
 
   i2s_driver_uninstall(SPEAKER_I2S_NUMBER);
@@ -136,17 +137,19 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       break;
     case WStype_TEXT:
       Serial.printf("[WSc] get text: %s\n", payload);
-      if ((char)payload[0] == 's'){
-        Serial.println("start");
-        speaker_offset = 0;
-         InitI2SSpeakerOrMic(MODE_SPK);
+      {
+        std::string str(payload, payload + length);
+        bool isAudio = str.find("\"audio\"") != std::string::npos;
+        if (isAudio && str.find("\"start\"") != std::string::npos) {
+          Serial.println("start playback");
+          speaker_offset = 0;
+          InitI2SSpeakerOrMic(MODE_SPK);
+        } else if (isAudio && str.find("\"end\"") != std::string::npos) {
+          Serial.println("end playback");
+          // speaker_play(speakerdata0, speaker_offset);
+          // speaker_offset = 0;
+        }
       }
-      if ((char)payload[0] == 'e'){
-        Serial.println("end");
-        // speaker_play(speakerdata0, speaker_offset);
-        // speaker_offset = 0;
-      }
-
       // send message to server
       // webSocket.sendTXT("message here");
       break;
@@ -180,12 +183,12 @@ void websocket_setup() {
     Serial.println("connecting to WiFi");
   }
   Serial.println("connected to WiFi");
-  webSocket.begin(COMPUTER_IP, 9001, "/");
+  webSocket.begin(COMPUTER_IP, 8000, "/");
   webSocket.onEvent(webSocketEvent);
   //    webSocket.setAuthorization("user", "Password");
   webSocket.setReconnectInterval(5000);
-
 }
+
 void setup() {
   M5.begin(true, false, true);
   M5.dis.drawpix(0, CRGB(128, 128, 0));
@@ -208,17 +211,19 @@ void loop() {
   button.loop();
   if (button.justPressed()) {
     Serial.println("Recording...");
-    webSocket.sendTXT("s");
+    webSocket.sendTXT("{\"role\": \"user\", \"type\": \"audio\", \"format\": \"bytes.raw\", \"start\": true}");
     InitI2SSpeakerOrMic(MODE_MIC);
     recording = true;
+    data_offset = 0;
+    Serial.println("Recording ready.");
   } else if (button.justReleased()) {
     Serial.println("Stopped recording.");
-    webSocket.sendTXT("e");
+    webSocket.sendTXT("{\"role\": \"user\", \"type\": \"audio\", \"format\": \"bytes.raw\", \"end\": true}");
     flush_microphone();
     recording = false;
-  }
-
-  if (recording) {
+    data_offset = 0;
+  } else if (recording) {
+    Serial.printf("Reading chunk at %d...\n", data_offset);
     size_t bytes_read;
     i2s_read(
       SPEAKER_I2S_NUMBER,
@@ -226,13 +231,13 @@ void loop() {
       DATA_SIZE, &bytes_read, (100 / portTICK_RATE_MS)
     );
     data_offset += bytes_read;
+    Serial.printf("Read %d bytes in chunk.\n", bytes_read);
 
-    if (data_offset > 1024*10) {
+    if (data_offset > 1024*9) {
       flush_microphone();
     }
   }
 
   M5.update();
   webSocket.loop();
-
 }
