@@ -1,9 +1,7 @@
 from datetime import datetime
 from .utils.logs import setup_logging, logger
-import tkinter as tk
-import tkinter.simpledialog
 from interpreter import interpreter
-from tkinter import messagebox
+from tkinter import messagebox, Button, simpledialog, Tk, Label, Frame, LEFT, ACTIVE
 from ..utils.accumulator import Accumulator
 import time
 import os
@@ -16,6 +14,39 @@ class Skill:
         self.skill_name = name
         self.steps = []
         self.code = ""
+
+class StepCheckDialog(simpledialog.Dialog):
+    def body(self, master):
+        self.title("Step Check")  # Set the title of the dialog window
+        description = "Did I do this step correctly?"  # Add window description
+        Label(master, text=description).pack()  # Display window description
+
+    def buttonbox(self):
+        box = Frame(self)
+        Button(box, text="Yes", width=10, command=self.yes_action, default=ACTIVE).pack(side=LEFT, padx=5, pady=5)
+        Button(box, text="No", width=10, command=self.no_action).pack(side=LEFT, padx=5, pady=5)
+        Button(box, text="Task Complete", width=10, command=self.task_complete_action).pack(side=LEFT, padx=5, pady=5)
+
+        self.bind("<Return>", self.yes_action)
+        self.bind("<Escape>", self.no_action)
+
+        box.pack()
+
+    def yes_action(self, event=None):
+        self.result = "Yes"
+        self.destroy()
+
+    def no_action(self, event=None):
+        self.result = "No"
+        self.destroy()
+
+    def task_complete_action(self, event=None):
+        self.result = "Task Complete"
+        self.destroy()
+
+    def done(self, result):
+        self.result = result
+        self.destroy()
 
 def to_camel_case(text):
     words = text.split()
@@ -36,13 +67,13 @@ def generate_python_steps(function_name, steps):
     return code_string
 
 def teach():
-    root = tk.Tk()
+    root = Tk()
     root.withdraw()
 
-    skill_name = tkinter.simpledialog.askstring("Skill Name", "Please enter the name for the skill:")
+    skill_name = simpledialog.askstring("Skill Name", "Please enter the name for the skill:")
     skill = Skill(skill_name)
     while True:
-        step = tkinter.simpledialog.askstring("Next Step", "Enter the next step (or 'end' to finish): ")
+        step = simpledialog.askstring("Next Step", "Enter the next step (or 'end' to finish): ")
         logger.info(f"Performing step: {step}")
         if step == "end":
             break
@@ -60,10 +91,14 @@ def teach():
             time.sleep(0.05)
             accumulator.accumulate(chunk)
 
-        isCorrect = messagebox.askyesno("To Proceed?", "Did I do this step right?")
-        if isCorrect:
+        stepCheckDialog = StepCheckDialog(root)
+        stepCheckResult = stepCheckDialog.result
+
+        if stepCheckResult == "Yes" or stepCheckResult == "Task Complete":
             skill.steps.append(step)
             skill.code += chunk_code
+            if stepCheckResult == "Task Complete":
+                break
 
     # Uncomment this incase you want steps instead of code
     #python_code = generate_python_steps(skill.skill_name, skill.steps)
