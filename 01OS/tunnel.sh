@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
-echo "Starting up localhost.run tunnel..."
-ssh -o StrictHostKeyChecking=no -R 80:localhost:8000 nokey@localhost.run 2>&1 | while IFS= read -r line; do
-    if [[ "$line" =~ https://([a-zA-Z0-9]+\.lhr\.life) ]]; then
-        echo "Your free localhost.run tunnel is now active. Please set your client SERVER_CONNECTION_URL env var to: \"wss://${BASH_REMATCH[1]}\""
+# Get the SERVER_PORT environment variable, but default to 8000
+SERVER_LOCAL_PORT=${SERVER_LOCAL_PORT:-8000}
+
+echo "Starting up localtunnel service for port $SERVER_LOCAL_PORT on localhost..."
+
+npx localtunnel --port $SERVER_LOCAL_PORT | while IFS= read -r line; do
+    if [[ "$line" == "your url is: https://"* ]]; then
+        echo "Tunnel is up!"
+        echo "Please set your client env variable for SERVER_CONNECTION_URL=wss://${line:21}"
+        break
     fi
 done

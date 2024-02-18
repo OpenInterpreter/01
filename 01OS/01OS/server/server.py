@@ -289,7 +289,7 @@ if __name__ == "__main__":
                 asyncio.create_task(put_kernel_messages_into_queue(from_computer))
                 
             # Start the server
-            logger.info("Starting `server.py`... on wss://localhost:" + str(SERVER_LOCAL_PORT))
+            logger.info("Starting `server.py`... on localhost:" + str(SERVER_LOCAL_PORT))
 
             config = Config(app, host="localhost", port=SERVER_LOCAL_PORT, lifespan='on')
             server = Server(config)

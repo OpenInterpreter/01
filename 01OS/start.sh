@@ -56,7 +56,12 @@ fi
 
 # Check if "--expose" is passed as an argument
 if [[ "$@" == *"--expose"* ]]; then
-    export TUNNEL_START="True"
+    if [[ "$SERVER_START" != "True" ]]; then
+        echo "Error: Start script must be started with --serve for tunneling to work."
+        exit 1
+    else
+        export TUNNEL_START="True"
+    fi
 fi
 
 # Check if "--clear-local" is passed as an argument
