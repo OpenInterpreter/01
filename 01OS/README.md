@@ -11,9 +11,9 @@ pip install 01OS
 
 **Expose an 01 server publically:**
 
-We are currently using localtunnel to handle the creation of public tunnel endpoints.
+We are currently using localtunnel (https://github.com/localtunnel/localtunnel) to handle the creation of public tunnel endpoints.
 
-Note: You will need to install Node and the localtunnel tool before this will work correctly:
+Note: You will need to install Node and localtunnel before exposing the service will work correctly:
 ```npm install -g localtunnel```
 
 ```bash
