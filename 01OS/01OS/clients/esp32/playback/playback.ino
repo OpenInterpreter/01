@@ -11,6 +11,9 @@
 
 #include <WebSocketsClient.h>
 
+
+#define COMPUTER_IP "192.168.68.87"
+
 #define CONFIG_I2S_BCK_PIN 19
 #define CONFIG_I2S_LRCK_PIN 33
 #define CONFIG_I2S_DATA_PIN 22
@@ -22,12 +25,35 @@
 #define MODE_SPK 1
 #define DATA_SIZE 1024
 
-uint8_t microphonedata0[1024 * 30];
-uint8_t speakerdata0[1024 * 30];
+uint8_t microphonedata0[1024 * 10];
+uint8_t speakerdata0[1024 * 1];
 int speaker_offset = 0;
 int data_offset = 0;
 
 WebSocketsClient webSocket;
+
+class ButtonChecker {
+  public:
+    void loop() {
+      lastTickState = thisTickState;
+      thisTickState = M5.Btn.isPressed() != 0;
+    }
+
+    bool justPressed() {
+      return thisTickState && !lastTickState;
+    }
+
+    bool justReleased() {
+      return !thisTickState && lastTickState;
+    }
+
+  private:
+    bool lastTickState = false;
+    bool thisTickState = false;
+};
+
+ButtonChecker button = ButtonChecker();
+
 
 
 void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
@@ -42,8 +68,6 @@ void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
   }
   Serial.printf("\n");
 }
-
-
 
 void InitI2SSpeakerOrMic(int mode) {
   esp_err_t err = ESP_OK;
@@ -101,7 +125,6 @@ void speaker_play(uint8_t *payload,  uint32_t len){
 }
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
-
   switch (type) {
     case WStype_DISCONNECTED:
       Serial.printf("[WSc] Disconnected!\n");
@@ -110,17 +133,18 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       Serial.printf("[WSc] Connected to url: %s\n", payload);
 
       // send message to server when Connected
-      webSocket.sendTXT("Connected");
       break;
     case WStype_TEXT:
       Serial.printf("[WSc] get text: %s\n", payload);
       if ((char)payload[0] == 's'){
         Serial.println("start");
         speaker_offset = 0;
+         InitI2SSpeakerOrMic(MODE_SPK);
       }
       if ((char)payload[0] == 'e'){
         Serial.println("end");
-        speaker_play(payload, speaker_offset);
+        // speaker_play(speakerdata0, speaker_offset);
+        // speaker_offset = 0;
       }
 
       // send message to server
@@ -128,8 +152,11 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       break;
     case WStype_BIN:
       Serial.printf("[WSc] get binary length: %u\n", length);
-      memcpy(&(speakerdata0[speaker_offset]),&payload,length); // this line is likely the issue, the payloads here don't match the data that speaker_play contains
+      memcpy(speakerdata0 + speaker_offset, payload, length);
       speaker_offset += length;
+      size_t bytes_written;
+      i2s_write(SPEAKER_I2S_NUMBER, speakerdata0, speaker_offset, &bytes_written, portMAX_DELAY);
+      speaker_offset = 0;
       
 
       // send data to server
@@ -153,7 +180,7 @@ void websocket_setup() {
     Serial.println("connecting to WiFi");
   }
   Serial.println("connected to WiFi");
-  webSocket.begin("192.168.68.71", 9001, "/");
+  webSocket.begin(COMPUTER_IP, 9001, "/");
   webSocket.onEvent(webSocketEvent);
   //    webSocket.setAuthorization("user", "Password");
   webSocket.setReconnectInterval(5000);
@@ -168,26 +195,43 @@ void setup() {
   delay(2000);
 }
 
+bool recording = false;
+
+void flush_microphone() {
+  Serial.printf("[microphone] flushing %d bytes of data\n", data_offset);
+  if (data_offset == 0) return;
+  webSocket.sendBIN(microphonedata0, data_offset);
+  data_offset = 0;
+}
 
 void loop() {
-  if (M5.Btn.isPressed()) {
-    data_offset = 0;
+  button.loop();
+  if (button.justPressed()) {
+    Serial.println("Recording...");
+    webSocket.sendTXT("s");
     InitI2SSpeakerOrMic(MODE_MIC);
-    M5.dis.drawpix(0, CRGB(128, 128, 0));
-    size_t byte_read;
-
-    while (1) {
-      i2s_read(SPEAKER_I2S_NUMBER,
-               (char *)(microphonedata0 + data_offset), DATA_SIZE,
-               &byte_read, (100 / portTICK_RATE_MS));
-      data_offset += 1024;
-      M5.update();
-      if (M5.Btn.isReleased() || data_offset >= 71679) break;
-      // delay(60);
-    }
-    webSocket.sendBIN(microphonedata0, data_offset);
-
+    recording = true;
+  } else if (button.justReleased()) {
+    Serial.println("Stopped recording.");
+    webSocket.sendTXT("e");
+    flush_microphone();
+    recording = false;
   }
+
+  if (recording) {
+    size_t bytes_read;
+    i2s_read(
+      SPEAKER_I2S_NUMBER,
+      (char *)(microphonedata0 + data_offset),
+      DATA_SIZE, &bytes_read, (100 / portTICK_RATE_MS)
+    );
+    data_offset += bytes_read;
+
+    if (data_offset > 1024*10) {
+      flush_microphone();
+    }
+  }
+
   M5.update();
   webSocket.loop();
 
