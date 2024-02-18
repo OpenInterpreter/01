@@ -291,9 +291,9 @@ class Device:
 
     async def start_async(self):
             # Configuration for WebSocket
-            WS_URL = os.getenv('SERVER_URL')
+            WS_URL = os.getenv('SERVER_CONNECTION_URL')
             if not WS_URL:
-                raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
+                raise ValueError("The environment variable SERVER_CONNECTION_URL is not set. Please set it to proceed.")
 
             # Start the WebSocket communication
             asyncio.create_task(self.websocket_communication(WS_URL))

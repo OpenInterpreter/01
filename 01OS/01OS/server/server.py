@@ -18,7 +18,6 @@ import urllib.parse
 from .utils.kernel import put_kernel_messages_into_queue
 from .i import configure_interpreter
 from interpreter import interpreter
-import ngrok
 from ..utils.accumulator import Accumulator
 from .teach import teach
 from .utils.logs import setup_logging
@@ -30,6 +29,9 @@ accumulator = Accumulator()
 app = FastAPI()
 
 conversation_history_path = Path(__file__).parent / 'conversations' / 'user.json'
+
+SERVER_LOCAL_PORT = int(os.getenv('SERVER_LOCAL_PORT', 8000))
+
 
 # This is so we only say() full sentences
 def is_full_sentence(text):
@@ -269,18 +271,6 @@ async def listener():
 async def stream_tts_to_device(sentence):
     for chunk in stream_tts(sentence):
         await to_device.put(chunk)
-        
-async def setup_ngrok(ngrok_auth_token, parsed_url):
-    # Set up Ngrok
-    logger.info("Setting up Ngrok")
-    ngrok_listener = await ngrok.forward(f"{parsed_url.hostname}:{parsed_url.port}", authtoken=ngrok_auth_token)
-    ngrok_parsed_url = urllib.parse.urlparse(ngrok_listener.url())
-
-    # Setup SERVER_URL environment variable for device to use
-    connection_url = f"wss://{ngrok_parsed_url.hostname}/"
-    logger.info(f"Ngrok established at {ngrok_parsed_url.geturl()}")
-    logger.info(f"\033[1mSERVER_CONNECTION_URL should be set to \"{connection_url}\"\033[0m")
-
 
 from uvicorn import Config, Server
 
@@ -297,20 +287,11 @@ if __name__ == "__main__":
             # Start watching the kernel if it's your job to do that
             if os.getenv('CODE_RUNNER') == "server":
                 asyncio.create_task(put_kernel_messages_into_queue(from_computer))
-
-            server_url = os.getenv('SERVER_URL')
-            if not server_url:
-                raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
-            parsed_url = urllib.parse.urlparse(server_url)
-
-            # Set up Ngrok
-            ngrok_auth_token = os.getenv('NGROK_AUTHTOKEN')
-            if ngrok_auth_token is not None:
-                await setup_ngrok(ngrok_auth_token, parsed_url)
                 
-            logger.info("Starting `server.py`...")
+            # Start the server
+            logger.info("Starting `server.py`... on wss://localhost:" + str(SERVER_LOCAL_PORT))
 
-            config = Config(app, host=parsed_url.hostname, port=parsed_url.port, lifespan='on')
+            config = Config(app, host="localhost", port=SERVER_LOCAL_PORT, lifespan='on')
             server = Server(config)
             await server.serve()
 
