@@ -69,36 +69,36 @@ def generate_python_steps(function_name, steps):
 def teach():
     root = Tk()
     root.withdraw()
-
-    skill_name = simpledialog.askstring("Skill Name", "Please enter the name for the skill:")
-    skill = Skill(skill_name)
-    while True:
-        step = simpledialog.askstring("Next Step", "Enter the next step (or 'end' to finish): ")
-        logger.info(f"Performing step: {step}")
-        if step == "end":
-            break
-
-        chunk_code = ""
-        interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
-        interpreter.force_task_completion = True
-        for chunk in interpreter.chat(step, stream=True, display=False):
-            if "format" in chunk and chunk["format"] == "execution":
-                content = chunk["content"]
-                language = content["format"]
-                code = content["content"]
-                chunk_code += code
-                interpreter.computer.run(code, language)
-            time.sleep(0.05)
-            accumulator.accumulate(chunk)
-
-        stepCheckDialog = StepCheckDialog(root)
-        stepCheckResult = stepCheckDialog.result
-
-        if stepCheckResult == "Yes" or stepCheckResult == "Task Complete":
-            skill.steps.append(step)
-            skill.code += chunk_code
-            if stepCheckResult == "Task Complete":
+    skill_name = simpledialog.askstring("Skill Name", "Please enter the name for the skill:", parent=root)
+    if skill_name:
+        skill = Skill(skill_name)
+        while True:
+            step = simpledialog.askstring("Next Step", "Enter the next step (or 'end' to finish): ", parent=root)
+            if step is None or step == "end":
                 break
+            elif step.strip() == "":
+                continue
+            logger.info(f"Performing step: {step}")
+            chunk_code = ""
+            interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
+            interpreter.force_task_completion = True
+            for chunk in interpreter.chat(step, stream=True, display=False):
+                if "format" in chunk and chunk["format"] == "execution":
+                    content = chunk["content"]
+                    language = content["format"]
+                    code = content["content"]
+                    chunk_code += code
+                    interpreter.computer.run(code, language)
+                time.sleep(0.05)
+                accumulator.accumulate(chunk)
+            
+            stepCheckDialog = StepCheckDialog(root)
+            stepCheckResult = stepCheckDialog.result
+            if stepCheckResult == "Yes" or stepCheckResult == "Task Complete":
+                skill.steps.append(step)
+                skill.code += chunk_code
+                if stepCheckResult == "Task Complete":
+                    break
 
     # Uncomment this incase you want steps instead of code
     #python_code = generate_python_steps(skill.skill_name, skill.steps)
@@ -106,5 +106,6 @@ def teach():
     python_code = generate_python_code(skill.skill_name, skill.code)
     SKILLS_DIR = os.path.dirname(__file__) + "/skills"
     filename = os.path.join(SKILLS_DIR, f"{skill.skill_name.replace(' ', '_')}.py")
+    logger.info(f"Saving skill to: {filename}")
     with open(filename, "w") as file:
         file.write(python_code)
