@@ -203,6 +203,9 @@ async def listener():
         
         for chunk in interpreter.chat(messages, stream=True, display=True):
 
+            if any([m["type"] == "image" for m in interpreter.messages]):
+                interpreter.llm.model = "gpt-4-vision-preview"
+
             logger.debug("Got chunk:", chunk)
 
             # Send it to the user

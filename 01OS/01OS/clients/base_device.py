@@ -269,9 +269,20 @@ class Device:
                         if message["type"] == "audio" and message["format"].startswith("bytes"):
 
                             # Convert bytes to audio file
-                            # Format will be bytes.wav or bytes.opus
-                            audio_bytes = io.BytesIO(message["content"])
-                            audio = AudioSegment.from_file(audio_bytes, codec=message["format"].split(".")[1])
+
+                            audio_bytes = message["content"]
+
+                            # Create an AudioSegment instance with the raw data
+                            audio = AudioSegment(
+                                # raw audio data (bytes)
+                                data=audio_bytes,
+                                # signed 16-bit little-endian format
+                                sample_width=2,
+                                # 16,000 Hz frame rate
+                                frame_rate=16000,
+                                # mono sound
+                                channels=1
+                            )
 
                             self.audiosegments.append(audio)
 

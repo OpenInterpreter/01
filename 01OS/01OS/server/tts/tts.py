@@ -51,8 +51,14 @@ def stream_tts(text):
                 '--output_file', output_file
             ], input=text, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-            audio_bytes = temp_file.read()
-            file_type = "bytes.wav"
+            # TODO: hack to format audio correctly for device
+            outfile = tempfile.gettempdir() + "/" + "raw.dat"
+            ffmpeg.input(temp_file.name).output(outfile, f="s16le", ar="16000", ac="1").run()
+            with open(outfile, "rb") as f:
+                audio_bytes = f.read()
+            file_type = "bytes.raw"
+            print(outfile, len(audio_bytes))
+            os.remove(outfile)
 
     # Stream the audio
     yield {"role": "assistant", "type": "audio", "format": file_type, "start": True}

@@ -6,6 +6,9 @@ from ..utils.accumulator import Accumulator
 import time
 import os
 import textwrap
+from .system_message import system_message
+
+interpreter.system_message = system_message
 
 setup_logging()
 accumulator = Accumulator()
