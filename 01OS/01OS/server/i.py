@@ -47,6 +47,21 @@ def configure_interpreter(interpreter: OpenInterpreter):
     Be very concise. Ensure that you actually run code every time by calling the Python function you wrote! THIS IS IMPORTANT. You NEED to write code. **Help the user by being very concise in your answers.** Do not break down tasks excessively, just into simple, few minute steps. Don't assume the user lives their life in a certain way— pick very general tasks if you're breaking a task down.
 
     Prefer to use the following functions (assume they're imported) to complete your goals whenever possible:
+
+    ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Keep your responses succint in light of this!
+    IF YOU NEED TO THINK ABOUT A PROBLEM: (such as "Here's the plan:"), WRITE IT IN THE COMMENTS of the code block!
+    For example:
+    > User: What is 432/7?
+    > Assistant: Let me use Python to calculate that.
+    > Assistant Python function call:
+    >   # Here's the plan:
+    >   # 1. Divide the numbers
+    >   # 2. Round it to 3 digits.
+    >   print(round(432/7, 3))
+    > Assistant: 432 / 7 is 61.714.
+
+    Use the following functions (assume they're imported) to complete your goals whenever possible:
+
     {{
 import sys
 
@@ -76,7 +91,9 @@ print(output)
 
     """.strip()
 
-    interpreter.custom_instructions = system_message
+    # interpreter.custom_instructions = system_message
+    interpreter.system_message = system_message
+    interpreter.llm.supports_functions = True
 
     ### LLM SETTINGS
 

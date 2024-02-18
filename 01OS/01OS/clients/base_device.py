@@ -329,6 +329,6 @@ class Device:
                 listener.start()
 
     def start(self):
-        if os.getenv('TEACH_MODE') == "False":
+        if os.getenv('TEACH_MODE') != "True":
             asyncio.run(self.start_async())
             p.terminate()

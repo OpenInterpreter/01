@@ -6,6 +6,7 @@ from pydub import AudioSegment
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
+import ffmpeg
 import tempfile
 from openai import OpenAI
 import os
@@ -28,11 +29,17 @@ def stream_tts(text):
             input=text,
             response_format="opus"
         )
-        with tempfile.NamedTemporaryFile(suffix=".opus") as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".opus", delete=False) as temp_file:
             response.stream_to_file(temp_file.name)
 
-            audio_bytes = temp_file.read()
-            file_type = "bytes.opus"
+            # TODO: hack to format audio correctly for device
+            outfile = tempfile.gettempdir() + "/" + "raw.dat"
+            ffmpeg.input(temp_file.name).output(outfile, f="s16le", ar="16000", ac="1").run()
+            with open(outfile, "rb") as f:
+                audio_bytes = f.read()
+            file_type = "bytes.raw"
+            print(outfile, len(audio_bytes))
+            os.remove(outfile)
 
     else:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:

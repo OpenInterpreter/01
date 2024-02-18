@@ -25,6 +25,8 @@ def convert_mime_type_to_format(mime_type: str) -> str:
         return "wav"
     if mime_type == "audio/webm":
         return "webm"
+    if mime_type == "audio/raw":
+        return "dat"
 
     return mime_type
 
@@ -43,7 +45,16 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
 
     # Export to wav
     output_path = os.path.join(temp_dir, f"output_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
-    ffmpeg.input(input_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
+    print(mime_type, input_path, output_path)
+    if mime_type == "audio/raw":
+        ffmpeg.input(
+            input_path,
+            f='s16le',
+            ar='16000',
+            ac=1,
+        ).output(output_path).run()
+    else:
+        ffmpeg.input(input_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
 
     try:
         yield output_path

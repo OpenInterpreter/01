@@ -201,7 +201,7 @@ async def listener():
 
         accumulated_text = ""
         
-        for chunk in interpreter.chat(messages, stream=True, display=False):
+        for chunk in interpreter.chat(messages, stream=True, display=True):
 
             logger.debug("Got chunk:", chunk)
 
@@ -212,7 +212,7 @@ async def listener():
             
             if os.getenv('TTS_RUNNER') == "server":
                 # Speak full sentences out loud
-                if chunk["role"] == "assistant" and "content" in chunk:
+                if chunk["role"] == "assistant" and "content" in chunk and chunk["type"] == "message":
                     accumulated_text += chunk["content"]
                     sentences = split_into_sentences(accumulated_text)
                     
@@ -241,7 +241,7 @@ async def listener():
                 # Check if it's just an end flag. We ignore those.
                 temp_message = await from_user.get()
                 
-                if temp_message == {'role': 'user', 'type': 'message', 'end': True}:
+                if type(temp_message) is dict and temp_message.get("role") == "user" and temp_message.get("end"):
                     # Yup. False alarm.
                     continue
                 else:
@@ -251,8 +251,9 @@ async def listener():
                 with open(conversation_history_path, 'w') as file:
                     json.dump(interpreter.messages, file, indent=4)
 
-                logger.info("New user message recieved. Breaking.")
-                break
+                # TODO: is triggering seemingly randomly
+                #logger.info("New user message recieved. Breaking.")
+                #break
 
             # Also check if there's any new computer messages
             if not from_computer.empty():
