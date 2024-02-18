@@ -3,6 +3,14 @@
 #include <driver/i2s.h>
 #include <M5Atom.h>
 
+#include <Arduino.h>
+
+#include <WiFi.h>
+#include <WiFiMulti.h>
+#include <WiFiClientSecure.h>
+
+#include <WebSocketsClient.h>
+
 #define CONFIG_I2S_BCK_PIN 19
 #define CONFIG_I2S_LRCK_PIN 33
 #define CONFIG_I2S_DATA_PIN 22
@@ -14,8 +22,28 @@
 #define MODE_SPK 1
 #define DATA_SIZE 1024
 
-uint8_t microphonedata0[1024 * 70];
+uint8_t microphonedata0[1024 * 30];
+uint8_t speakerdata0[1024 * 30];
+int speaker_offset = 0;
 int data_offset = 0;
+
+WebSocketsClient webSocket;
+
+
+void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
+  const uint8_t* src = (const uint8_t*) mem;
+  Serial.printf("\n[HEXDUMP] Address: 0x%08X len: 0x%X (%d)", (ptrdiff_t)src, len, len);
+  for (uint32_t i = 0; i < len; i++) {
+    if (i % cols == 0) {
+      Serial.printf("\n[0x%08X] 0x%08X: ", (ptrdiff_t)src, i);
+    }
+    Serial.printf("%02X ", *src);
+    src++;
+  }
+  Serial.printf("\n");
+}
+
+
 
 void InitI2SSpeakerOrMic(int mode) {
   esp_err_t err = ESP_OK;
@@ -25,11 +53,11 @@ void InitI2SSpeakerOrMic(int mode) {
     .mode = (i2s_mode_t)(I2S_MODE_MASTER),
     .sample_rate = 16000,
     .bits_per_sample =
-      I2S_BITS_PER_SAMPLE_16BIT,  // is fixed at 12bit, stereo, MSB
+    I2S_BITS_PER_SAMPLE_16BIT,  // is fixed at 12bit, stereo, MSB
     .channel_format = I2S_CHANNEL_FMT_ALL_RIGHT,
 #if ESP_IDF_VERSION > ESP_IDF_VERSION_VAL(4, 1, 0)
     .communication_format =
-      I2S_COMM_FORMAT_STAND_I2S,  // Set the format of the communication.
+    I2S_COMM_FORMAT_STAND_I2S,  // Set the format of the communication.
 #else                             // 设置通讯格式
     .communication_format = I2S_COMM_FORMAT_I2S,
 #endif
@@ -64,11 +92,82 @@ void InitI2SSpeakerOrMic(int mode) {
                      I2S_CHANNEL_MONO);
 }
 
+void speaker_play(uint8_t *payload,  uint32_t len){
+    Serial.printf("received %lu bytes", len);
+    size_t bytes_written;
+    InitI2SSpeakerOrMic(MODE_SPK);
+    i2s_write(SPEAKER_I2S_NUMBER, payload, len,
+    &bytes_written, portMAX_DELAY);
+}
+
+void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+
+  switch (type) {
+    case WStype_DISCONNECTED:
+      Serial.printf("[WSc] Disconnected!\n");
+      break;
+    case WStype_CONNECTED:
+      Serial.printf("[WSc] Connected to url: %s\n", payload);
+
+      // send message to server when Connected
+      webSocket.sendTXT("Connected");
+      break;
+    case WStype_TEXT:
+      Serial.printf("[WSc] get text: %s\n", payload);
+      if ((char)payload[0] == 's'){
+        Serial.println("start");
+        speaker_offset = 0;
+      }
+      if ((char)payload[0] == 'e'){
+        Serial.println("end");
+        speaker_play(payload, speaker_offset);
+      }
+
+      // send message to server
+      // webSocket.sendTXT("message here");
+      break;
+    case WStype_BIN:
+      Serial.printf("[WSc] get binary length: %u\n", length);
+      memcpy(&(speakerdata0[speaker_offset]),&payload,length); // this line is likely the issue, the payloads here don't match the data that speaker_play contains
+      speaker_offset += length;
+      
+
+      // send data to server
+      // webSocket.sendBIN(payload, length);
+      break;
+    case WStype_ERROR:
+    case WStype_FRAGMENT_TEXT_START:
+    case WStype_FRAGMENT_BIN_START:
+    case WStype_FRAGMENT:
+    case WStype_FRAGMENT_FIN:
+      break;
+  }
+
+}
+
+void websocket_setup() {
+  Serial.begin(115200);
+  WiFi.begin("Soundview_Guest", "");
+  while (WiFi.status() != WL_CONNECTED){
+    delay(500);
+    Serial.println("connecting to WiFi");
+  }
+  Serial.println("connected to WiFi");
+  webSocket.begin("192.168.68.71", 9001, "/");
+  webSocket.onEvent(webSocketEvent);
+  //    webSocket.setAuthorization("user", "Password");
+  webSocket.setReconnectInterval(5000);
+
+}
 void setup() {
   M5.begin(true, false, true);
   M5.dis.drawpix(0, CRGB(128, 128, 0));
+  websocket_setup();
+  InitI2SSpeakerOrMic(MODE_SPK);
+
   delay(2000);
 }
+
 
 void loop() {
   if (M5.Btn.isPressed()) {
@@ -86,10 +185,10 @@ void loop() {
       if (M5.Btn.isReleased() || data_offset >= 71679) break;
       // delay(60);
     }
-    size_t bytes_written;
-    InitI2SSpeakerOrMic(MODE_SPK);
-    i2s_write(SPEAKER_I2S_NUMBER, microphonedata0, data_offset,
-              &bytes_written, portMAX_DELAY);
+    webSocket.sendBIN(microphonedata0, data_offset);
+
   }
   M5.update();
+  webSocket.loop();
+
 }
