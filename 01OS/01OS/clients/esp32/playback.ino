@@ -22,7 +22,9 @@
 #define MODE_SPK 1
 #define DATA_SIZE 1024
 
-uint8_t microphonedata0[1024 * 70];
+uint8_t microphonedata0[1024 * 30];
+uint8_t speakerdata0[1024 * 30];
+int speaker_offset = 0;
 int data_offset = 0;
 
 WebSocketsClient webSocket;
@@ -91,6 +93,7 @@ void InitI2SSpeakerOrMic(int mode) {
 }
 
 void speaker_play(uint8_t *payload,  uint32_t len){
+    Serial.printf("received %lu bytes", len);
     size_t bytes_written;
     InitI2SSpeakerOrMic(MODE_SPK);
     i2s_write(SPEAKER_I2S_NUMBER, payload, len,
@@ -111,14 +114,23 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       break;
     case WStype_TEXT:
       Serial.printf("[WSc] get text: %s\n", payload);
+      if ((char)payload[0] == 's'){
+        Serial.println("start");
+        speaker_offset = 0;
+      }
+      if ((char)payload[0] == 'e'){
+        Serial.println("end");
+        speaker_play(payload, speaker_offset);
+      }
 
       // send message to server
       // webSocket.sendTXT("message here");
       break;
     case WStype_BIN:
       Serial.printf("[WSc] get binary length: %u\n", length);
-      // hexdump(payload, length);
-      speaker_play(payload, length);
+      memcpy(&(speakerdata0[speaker_offset]),&payload,length); // this line is likely the issue, the payloads here don't match the data that speaker_play contains
+      speaker_offset += length;
+      
 
       // send data to server
       // webSocket.sendBIN(payload, length);
@@ -151,6 +163,8 @@ void setup() {
   M5.begin(true, false, true);
   M5.dis.drawpix(0, CRGB(128, 128, 0));
   websocket_setup();
+  InitI2SSpeakerOrMic(MODE_SPK);
+
   delay(2000);
 }
 
@@ -171,18 +185,7 @@ void loop() {
       if (M5.Btn.isReleased() || data_offset >= 71679) break;
       // delay(60);
     }
-    
-    Serial.println(data_offset);
-
-    int chunk_size = 1004;
-    chunk_size = 4096;
-
     webSocket.sendBIN(microphonedata0, data_offset);
-
-    // size_t bytes_written;
-    // InitI2SSpeakerOrMic(MODE_SPK);
-    // i2s_write(SPEAKER_I2S_NUMBER, microphonedata0, data_offset,
-    //           &bytes_written, portMAX_DELAY);
 
   }
   M5.update();
