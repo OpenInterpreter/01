@@ -76,6 +76,7 @@ Try multiple methods before saying the task is impossible. **You can do it!**
 
 import sys
 import os
+import json
 
 original_stdout = sys.stdout
 sys.stdout = open(os.devnull, 'w')
@@ -118,31 +119,29 @@ finally:
 
 # SKILLS
 
-Prefer to use the following functions (assume they're imported) to complete your goals whenever possible:
+You may use the following functions (assume they're imported) to complete your goals whenever possible:
 
 {{
 import sys
+import os
+import json
 
-original_stdout = sys.stdout
-sys.stdout = open(os.devnull, 'w')
-original_stderr = sys.stderr
-sys.stderr = open(os.devnull, 'w')
+from interpreter import interpreter
+from pathlib import Path
 
-try:
-    from interpreter import interpreter
-    from pathlib import Path
+interpreter.model = "gpt-3.5"
 
-    combined_messages = "\\n".join(json.dumps(x) for x in messages[-5:])
-    query_msg = interpreter.chat(f"This is the conversation so far: {combined_messages}. What is a <10 words query that could be used to find functions that would help answer the user's question?")
-    query = query_msg[0]['content']
-    skills_path = Path().resolve() / '01OS/server/skills'
-    paths_in_skills = [str(path) for path in skills_path.glob('**/*.py')]
-    skills = interpreter.computer.skills.search(query, paths=paths_in_skills)
-    lowercase_skills = [skill[0].lower() + skill[1:] for skill in skills]
-    output = "\\n".join(lowercase_skills)
-finally:
-    sys.stdout = original_stdout
-    sys.stderr = original_stderr
+combined_messages = "\\n".join(json.dumps(x) for x in messages[-3:])
+query_msg = interpreter.chat(f"This is the conversation so far: {combined_messages}. What is a <10 words query that could be used to find functions that would help answer the user's question?")
+query = query_msg[0]['content']
+skills_path = Path().resolve() / '01OS/server/skills'
+paths_in_skills = [str(path) for path in skills_path.glob('**/*.py')]
+skills = interpreter.computer.skills.search(query)
+lowercase_skills = [skill[0].lower() + skill[1:] for skill in skills]
+output = "\\n".join(lowercase_skills)
+
+# VERY HACKY! We should fix this, we hard code it for noisy code^:
+print("IGNORE_ALL_ABOVE_THIS_LINE")
 
 print(output)
 }}
@@ -168,37 +167,3 @@ For example:
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user **VERY short.**
 
 """.strip()
-
-test_system_message = """Just return the following to the user:
-
-{{
-import sys
-import os
-
-original_stdout = sys.stdout
-sys.stdout = open(os.devnull, 'w')
-original_stderr = sys.stderr
-sys.stderr = open(os.devnull, 'w')
-
-try:
-    from interpreter import interpreter
-    from pathlib import Path
-
-    interpreter.model = "gpt-3.5"
-
-    combined_messages = "\\n".join(json.dumps(x) for x in messages[-3:])
-    query_msg = interpreter.chat(f"This is the conversation so far: {combined_messages}. What is a <10 words query that could be used to find functions that would help answer the user's question?")
-    query = query_msg[0]['content']
-    skills_path = Path().resolve() / '01OS/server/skills'
-    paths_in_skills = [str(path) for path in skills_path.glob('**/*.py')]
-    skills = interpreter.computer.skills.search(query)
-    lowercase_skills = [skill[0].lower() + skill[1:] for skill in skills]
-    output = "\\n".join(lowercase_skills)
-finally:
-    sys.stdout = original_stdout
-    sys.stderr = original_stderr
-
-print(output)
-}}
-
-"""

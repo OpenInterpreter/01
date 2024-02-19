@@ -2,13 +2,13 @@
 
 [[package]]
 name = "aifs"
-version = "0.0.8"
+version = "0.0.9"
 description = "Local semantic search. Stupidly simple."
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "aifs-0.0.8-py3-none-any.whl", hash = "sha256:7f1d581faecacbcb1a33d3c155656379768ea30349d29ebf18822b9a6c49379b"},
-    {file = "aifs-0.0.8.tar.gz", hash = "sha256:47b779f2fa008f29fe1db17eaa238dee5ea5d0353707d5722b5b9cf8b8aeb83a"},
+    {file = "aifs-0.0.9-py3-none-any.whl", hash = "sha256:beada6d7a0bd45a1ff9c9699b6c3d19c289c8708297925b3500c08f504be41b7"},
+    {file = "aifs-0.0.9.tar.gz", hash = "sha256:dea45935fa2a89e6134b5f651980026b45dc5768798c8159b9f77755570e5ab1"},
 ]
 
 [package.dependencies]
@@ -2702,7 +2702,7 @@ files = []
 develop = false
 
 [package.dependencies]
-aifs = "^0.0.8"
+aifs = "^0.0.9"
 appdirs = "^1.4.4"
 astor = "^0.8.1"
 fastapi = "^0.109.0"
@@ -2735,7 +2735,7 @@ safe = ["semgrep (>=1.52.0,<2.0.0)", "yaspin (>=3.0.1,<4.0.0)"]
 type = "git"
 url = "https://github.com/KillianLucas/open-interpreter.git"
 reference = "HEAD"
-resolved_reference = "afe9860ae3abfbf4de3bc9311cbe3192f02bf864"
+resolved_reference = "797bb4725d3ad1f2b493d8b3f11b7212fe7dfaf4"
 
 [[package]]
 name = "openai"
