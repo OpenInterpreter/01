@@ -1,6 +1,8 @@
 # The dynamic system message is where most of the 01's behavior is configured.
 # You can put code into the system message {{ in brackets like this }} which will be rendered just before the interpreter starts writing a message.
 
+import os
+
 system_message = r"""
 
 You are the 01, an executive assistant that can complete **any** task.
@@ -132,10 +134,11 @@ from pathlib import Path
 interpreter.model = "gpt-3.5"
 
 combined_messages = "\\n".join(json.dumps(x) for x in messages[-3:])
-query_msg = interpreter.chat(f"This is the conversation so far: {combined_messages}. What is a <10 words query that could be used to find functions that would help answer the user's question?")
+#query_msg = interpreter.chat(f"This is the conversation so far: {combined_messages}. What is a <10 words query that could be used to find functions that would help answer the user's question?")
+query_msg = combined_messages
 query = query_msg[0]['content']
-skills_path = Path().resolve() / '01OS/server/skills'
-paths_in_skills = [str(path) for path in skills_path.glob('**/*.py')]
+interpreter.computer.skills.path = OI_SKILLS_DIR
+
 skills = interpreter.computer.skills.search(query)
 lowercase_skills = [skill[0].lower() + skill[1:] for skill in skills]
 output = "\\n".join(lowercase_skills)
@@ -162,8 +165,8 @@ For example:
 >   print(round(432/7, 3))
 > Assistant: 432 / 7 is 61.714.
 
-# BE CONCISE
+# FINAL MESSAGES
 
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user **VERY short.**
 
-""".strip()
+""".strip().replace("OI_SKILLS_DIR", os.getenv('OI_SKILLS_PATH'))
