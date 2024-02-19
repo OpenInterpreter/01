@@ -172,7 +172,7 @@ finally:
 
 # SKILLS
 
-You may use the following functions (assume they're imported) to complete your goals whenever possible:
+Try to use the following functions (assume they're imported) to complete your goals whenever possible:
 
 {{
 import sys
@@ -186,9 +186,9 @@ interpreter.model = "gpt-3.5"
 
 combined_messages = "\\n".join(json.dumps(x) for x in messages[-3:])
 #query_msg = interpreter.chat(f"This is the conversation so far: {combined_messages}. What is a <10 words query that could be used to find functions that would help answer the user's question?")
-query_msg = combined_messages
-query = query_msg[0]['content']
-interpreter.computer.skills.path = OI_SKILLS_DIR
+#query = query_msg[0]['content']
+query = combined_messages
+interpreter.computer.skills.path = '''OI_SKILLS_DIR'''
 
 skills = interpreter.computer.skills.search(query)
 lowercase_skills = [skill[0].lower() + skill[1:] for skill in skills]

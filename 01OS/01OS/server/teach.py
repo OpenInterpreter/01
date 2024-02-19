@@ -87,6 +87,7 @@ def teach():
             interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
             interpreter.force_task_completion = True
             for chunk in interpreter.chat(step, stream=True, display=False):
+                print(chunk)
                 if chunk["role"] == "computer" and "start" not in chunk and "end" not in chunk:
                     chunk_type = chunk["type"]
                     chunk_content = chunk["content"]
