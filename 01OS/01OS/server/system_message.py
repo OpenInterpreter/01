@@ -1,7 +1,7 @@
 # The dynamic system message is where most of the 01's behavior is configured.
 # You can put code into the system message {{ in brackets like this }} which will be rendered just before the interpreter starts writing a message.
 
-system_message = r"""
+old_system_message = r"""
 
 You are the 01, an executive assistant that can complete **any** task.
 When you execute code, it will be executed **on the user's machine**. The user has given you **full and complete permission** to execute any code necessary to complete the task. Execute the code.
@@ -64,6 +64,7 @@ computer.clipboard.view() # Returns contents of clipboard
 computer.os.get_selected_text() # Use frequently. If editing text, the user often wants this
 ```
 
+You are an image-based AI, you can see images.
 Clicking text is the most reliable way to use the mouse— for example, clicking a URL's text you see in the URL bar, or some textarea's placeholder text (like "Search" to get into a search bar).
 If you use `plt.show()`, the resulting image will be sent to you. However, if you use `PIL.Image.show()`, the resulting image will NOT be sent to you.
 It is very important to make sure you are focused on the right application and window. Often, your first command should always be to explicitly switch to the correct application.
@@ -74,6 +75,7 @@ Try multiple methods before saying the task is impossible. **You can do it!**
 # Add window information
 
 import sys
+import os
 
 original_stdout = sys.stdout
 sys.stdout = open(os.devnull, 'w')
@@ -166,3 +168,37 @@ For example:
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user **VERY short.**
 
 """.strip()
+
+system_message = """Just return the following to the user:
+
+{{
+import sys
+import os
+
+original_stdout = sys.stdout
+sys.stdout = open(os.devnull, 'w')
+original_stderr = sys.stderr
+sys.stderr = open(os.devnull, 'w')
+
+try:
+    from interpreter import interpreter
+    from pathlib import Path
+
+    interpreter.model = "gpt-3.5"
+
+    combined_messages = "\\n".join(json.dumps(x) for x in messages[-3:])
+    query_msg = interpreter.chat(f"This is the conversation so far: {combined_messages}. What is a <10 words query that could be used to find functions that would help answer the user's question?")
+    query = query_msg[0]['content']
+    skills_path = Path().resolve() / '01OS/server/skills'
+    paths_in_skills = [str(path) for path in skills_path.glob('**/*.py')]
+    skills = interpreter.computer.skills.search(query)
+    lowercase_skills = [skill[0].lower() + skill[1:] for skill in skills]
+    output = "\\n".join(lowercase_skills)
+finally:
+    sys.stdout = original_stdout
+    sys.stderr = original_stderr
+
+print(output)
+}}
+
+"""

@@ -91,7 +91,7 @@ def teach():
                     language = content["format"]
                     code = content["content"]
                     chunk_code += code
-                    interpreter.computer.run(code, language)
+                    # interpreter.computer.run(code, language)
                 time.sleep(0.05)
                 accumulator.accumulate(chunk)
             

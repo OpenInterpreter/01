@@ -271,6 +271,13 @@ async def listener():
                 json.dump(interpreter.messages, file, indent=4)  
 
 async def stream_tts_to_device(sentence):
+    force_task_completion_responses = [
+        "the task is done",
+        "the task is impossible",
+        "let me know what you'd like to do next",
+    ]
+    if sentence.lower().strip().strip(".!?").strip() in force_task_completion_responses:
+        return
     for chunk in stream_tts(sentence):
         await to_device.put(chunk)
         

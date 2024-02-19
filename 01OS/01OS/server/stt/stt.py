@@ -79,7 +79,6 @@ def get_transcription_file(wav_file_path: str):
         '--file-path', wav_file_path
     ])
 
-    print("Transcription result:", output)
     return output
 
 def get_transcription_bytes(audio_bytes: bytearray, mime_type):
@@ -104,7 +103,6 @@ def stt_wav(wav_file_path: str):
             logger.info(f"openai.BadRequestError: {e}")
             return None
 
-        logger.info(f"Transcription result: {transcript}")
         return transcript
     else:
         temp_dir = tempfile.gettempdir()
@@ -112,7 +110,6 @@ def stt_wav(wav_file_path: str):
         ffmpeg.input(wav_file_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
         try:
             transcript = get_transcription_file(output_path)
-            print("Transcription result:", transcript)
         finally:
             os.remove(output_path)
         return transcript

@@ -23,9 +23,9 @@ ffmpeg-python = "^0.2.0"
 textual = "^0.50.1"
 pydub = "^0.25.1"
 ngrok = "^1.0.0"
-open-interpreter = "^0.2.0"
 simpleaudio = "^1.0.4"
 opencv-python = "^4.9.0.80"
+open-interpreter = {git = "https://github.com/KillianLucas/open-interpreter.git"}
 
 [build-system]
 requires = ["poetry-core"]
