@@ -29,8 +29,8 @@ def configure_interpreter(interpreter: OpenInterpreter):
     ### MISC SETTINGS
 
     interpreter.auto_run = True
-    #interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
-    interpreter.force_task_completion = True
+    interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() in ["applescript", "shell", "zsh", "bash", "python"]]
+    interpreter.force_task_completion = False
     interpreter.offline = True
     interpreter.id = 206 # Used to identify itself to other interpreters. This should be changed programatically so it's unique.
 

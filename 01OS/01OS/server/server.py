@@ -200,75 +200,113 @@ async def listener():
             json.dump(messages, file, indent=4)
 
         accumulated_text = ""
-        
-        for chunk in interpreter.chat(messages, stream=True, display=True):
 
-            if any([m["type"] == "image" for m in interpreter.messages]):
-                interpreter.llm.model = "gpt-4-vision-preview"
+        force_task_completion_message = """AUTOMATED MESSAGE: Proceed. You CAN run code on my machine. If you want to run code, start your message with "```"! If the entire task I asked for is done, say exactly 'The task is done.' If you need some specific information (like username or password) say EXACTLY 'Please provide more information.' If it's impossible, say 'The task is impossible.' (If I haven't provided a task, say exactly 'Let me know what you'd like to do next.') Otherwise keep going."""
+        interpreter.messages = [m for m in interpreter.messages if m["content"] != force_task_completion_message]
+        insert_force_task_completion_message = True
 
-            logger.debug("Got chunk:", chunk)
-
-            # Send it to the user
-            await to_device.put(chunk)
-            # Yield to the event loop, so you actually send it out
-            await asyncio.sleep(0.01)
+        while insert_force_task_completion_message == True:
             
-            if os.getenv('TTS_RUNNER') == "server":
-                # Speak full sentences out loud
-                if chunk["role"] == "assistant" and "content" in chunk and chunk["type"] == "message":
-                    accumulated_text += chunk["content"]
-                    sentences = split_into_sentences(accumulated_text)
+            for chunk in interpreter.chat(messages, stream=True, display=True):
+
+                if chunk["type"] == "code":
+                    insert_force_task_completion_message = False
+
+                if any([m["type"] == "image" for m in interpreter.messages]):
+                    interpreter.llm.model = "gpt-4-vision-preview"
+
+                logger.debug("Got chunk:", chunk)
+
+                # Send it to the user
+                await to_device.put(chunk)
+                # Yield to the event loop, so you actually send it out
+                await asyncio.sleep(0.01)
+                
+                if os.getenv('TTS_RUNNER') == "server":
+                    # Speak full sentences out loud
+                    if chunk["role"] == "assistant" and "content" in chunk and chunk["type"] == "message":
+                        accumulated_text += chunk["content"]
+                        sentences = split_into_sentences(accumulated_text)
+                        
+                        # If we're going to speak, say we're going to stop sending text.
+                        # This should be fixed probably, we should be able to do both in parallel, or only one.
+                        if any(is_full_sentence(sentence) for sentence in sentences):
+                            await to_device.put({"role": "assistant", "type": "message", "end": True})
+                        
+                        if is_full_sentence(sentences[-1]):
+                            for sentence in sentences:
+                                await stream_tts_to_device(sentence)
+                            accumulated_text = ""
+                        else:
+                            for sentence in sentences[:-1]:
+                                await stream_tts_to_device(sentence)
+                            accumulated_text = sentences[-1]
+
+                        # If we're going to speak, say we're going to stop sending text.
+                        # This should be fixed probably, we should be able to do both in parallel, or only one.
+                        if any(is_full_sentence(sentence) for sentence in sentences):
+                            await to_device.put({"role": "assistant", "type": "message", "start": True})
                     
-                    # If we're going to speak, say we're going to stop sending text.
-                    # This should be fixed probably, we should be able to do both in parallel, or only one.
-                    if any(is_full_sentence(sentence) for sentence in sentences):
-                        await to_device.put({"role": "assistant", "type": "message", "end": True})
+                # If we have a new message, save our progress and go back to the top
+                if not from_user.empty():
+
+                    # Check if it's just an end flag. We ignore those.
+                    temp_message = await from_user.get()
                     
-                    if is_full_sentence(sentences[-1]):
-                        for sentence in sentences:
-                            await stream_tts_to_device(sentence)
-                        accumulated_text = ""
+                    if type(temp_message) is dict and temp_message.get("role") == "user" and temp_message.get("end"):
+                        # Yup. False alarm.
+                        continue
                     else:
-                        for sentence in sentences[:-1]:
-                            await stream_tts_to_device(sentence)
-                        accumulated_text = sentences[-1]
+                        # Whoops! Put that back
+                        await from_user.put(temp_message)
 
-                    # If we're going to speak, say we're going to stop sending text.
-                    # This should be fixed probably, we should be able to do both in parallel, or only one.
-                    if any(is_full_sentence(sentence) for sentence in sentences):
-                        await to_device.put({"role": "assistant", "type": "message", "start": True})
-                
-            # If we have a new message, save our progress and go back to the top
-            if not from_user.empty():
+                    with open(conversation_history_path, 'w') as file:
+                        json.dump(interpreter.messages, file, indent=4)
 
-                # Check if it's just an end flag. We ignore those.
-                temp_message = await from_user.get()
+                    # TODO: is triggering seemingly randomly
+                    #logger.info("New user message recieved. Breaking.")
+                    #break
+
+                # Also check if there's any new computer messages
+                if not from_computer.empty():
+                    
+                    with open(conversation_history_path, 'w') as file:
+                        json.dump(interpreter.messages, file, indent=4)
+
+                    logger.info("New computer message recieved. Breaking.")
+                    break
+            else:
+                with open(conversation_history_path, 'w') as file:
+                    json.dump(interpreter.messages, file, indent=4)
+
+                force_task_completion_responses = [
+                    "the task is done.",
+                    "the task is impossible.",
+                    "let me know what you'd like to do next.",
+                    "please provide more information.",
+                ]
+
+                # Did the LLM respond with one of the key messages?
+                if (
+                    interpreter.messages
+                    and any(
+                        task_status in interpreter.messages[-1].get("content", "").lower()
+                        for task_status in force_task_completion_responses
+                    )
+                ):
+                    insert_force_task_completion_message = False
+                    break
                 
-                if type(temp_message) is dict and temp_message.get("role") == "user" and temp_message.get("end"):
-                    # Yup. False alarm.
-                    continue
+                if insert_force_task_completion_message:
+                    interpreter.messages += [
+                        {
+                            "role": "user",
+                            "type": "message",
+                            "content": force_task_completion_message,
+                        }
+                    ]
                 else:
-                    # Whoops! Put that back
-                    await from_user.put(temp_message)
-
-                with open(conversation_history_path, 'w') as file:
-                    json.dump(interpreter.messages, file, indent=4)
-
-                # TODO: is triggering seemingly randomly
-                #logger.info("New user message recieved. Breaking.")
-                #break
-
-            # Also check if there's any new computer messages
-            if not from_computer.empty():
-                
-                with open(conversation_history_path, 'w') as file:
-                    json.dump(interpreter.messages, file, indent=4)
-
-                logger.info("New computer message recieved. Breaking.")
-                break
-        else:
-            with open(conversation_history_path, 'w') as file:
-                json.dump(interpreter.messages, file, indent=4)  
+                    break
 
 async def stream_tts_to_device(sentence):
     force_task_completion_responses = [
