@@ -82,16 +82,20 @@ def teach():
             elif step.strip() == "":
                 continue
             logger.info(f"Performing step: {step}")
+            root.update()
             chunk_code = ""
             interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
             interpreter.force_task_completion = True
             for chunk in interpreter.chat(step, stream=True, display=False):
-                if "format" in chunk and chunk["format"] == "execution":
-                    content = chunk["content"]
-                    language = content["format"]
-                    code = content["content"]
-                    chunk_code += code
-                    interpreter.computer.run(code, language)
+                if chunk["role"] == "computer" and "start" not in chunk and "end" not in chunk:
+                    chunk_type = chunk["type"]
+                    chunk_content = chunk["content"]
+                    chunk_format = chunk["format"]
+                    if chunk_type == "confirmation" and chunk_format == "execution" and chunk_content["type"] == "code" and chunk_content["format"] == "python":
+                        chunk_code += chunk_content["content"]
+                    elif chunk_type == "console" and chunk_format == "output" and ("Traceback" in chunk_content or "Error" in chunk_content or "Exception" in chunk_content):
+                        # this was an error so we disregard chunk_code
+                        chunk_code = ""
                 time.sleep(0.05)
                 accumulator.accumulate(chunk)
             
