@@ -48,7 +48,7 @@ RECORDING = False  # Flag to control recording state
 SPACEBAR_PRESSED = False  # Flag to track spacebar press state
 
 # Camera configuration
-CAMERA_ENABLED = bool(os.getenv('CAMERA_ENABLED', False))
+CAMERA_ENABLED = os.getenv('CAMERA_ENABLED', False).lower() == "true"
 CAMERA_DEVICE_INDEX = int(os.getenv('CAMERA_DEVICE_INDEX', 0))
 CAMERA_WARMUP_SECONDS = float(os.getenv('CAMERA_WARMUP_SECONDS', 0))
 
