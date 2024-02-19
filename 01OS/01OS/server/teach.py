@@ -2,7 +2,6 @@ from datetime import datetime
 from .utils.logs import setup_logging, logger
 from interpreter import interpreter
 from tkinter import messagebox, Button, simpledialog, Tk, Label, Frame, LEFT, ACTIVE
-from ..utils.accumulator import Accumulator
 import time
 import os
 import textwrap
@@ -11,7 +10,6 @@ from .i import configure_interpreter
 interpreter = configure_interpreter(interpreter)
 
 setup_logging()
-accumulator = Accumulator()
 class Skill:
     def __init__(self, name: str):
         self.skill_name = name
@@ -86,7 +84,7 @@ def teach():
             chunk_code = ""
             interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
             interpreter.force_task_completion = True
-            for chunk in interpreter.chat(step, stream=True, display=False):
+            for chunk in interpreter.chat(step, stream=True, display=True):
                 if chunk["role"] == "computer" and "start" not in chunk and "end" not in chunk:
                     chunk_type = chunk["type"]
                     chunk_content = chunk["content"]
@@ -97,7 +95,6 @@ def teach():
                         # this was an error so we disregard chunk_code
                         chunk_code = ""
                 time.sleep(0.05)
-                accumulator.accumulate(chunk)
             
             stepCheckDialog = StepCheckDialog(root)
             stepCheckResult = stepCheckDialog.result
