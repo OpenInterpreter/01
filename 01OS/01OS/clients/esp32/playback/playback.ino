@@ -11,8 +11,8 @@
 
 #include <WebSocketsClient.h>
 
-
-#define COMPUTER_IP "192.168.68.87"
+//ipconfig getifaddr en0
+#define COMPUTER_IP "192.168.68.63"
 
 #define CONFIG_I2S_BCK_PIN 19
 #define CONFIG_I2S_LRCK_PIN 33

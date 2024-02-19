@@ -6,9 +6,9 @@ from ..utils.accumulator import Accumulator
 import time
 import os
 import textwrap
-from .system_message import system_message
+from .i import configure_interpreter
 
-interpreter.system_message = system_message
+interpreter = configure_interpreter(interpreter)
 
 setup_logging()
 accumulator = Accumulator()

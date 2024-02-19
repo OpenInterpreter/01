@@ -49,6 +49,8 @@ def configure_interpreter(interpreter: OpenInterpreter):
         print("Temporarily skipping skills (OI 0.2.1, which is unreleased) so we can push to `pip`.")
         pass
 
+    interpreter.computer.run("python", "tasks=[]")
+
     interpreter.computer.api_base = "https://oi-video-frame.vercel.app/"
     interpreter.computer.run("python","print('test')")
 
