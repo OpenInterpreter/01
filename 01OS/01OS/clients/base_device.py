@@ -48,7 +48,7 @@ RECORDING = False  # Flag to control recording state
 SPACEBAR_PRESSED = False  # Flag to track spacebar press state
 
 # Camera configuration
-CAMERA_ENABLED = bool(os.getenv('CAMERA_ENABLED', False))
+CAMERA_ENABLED = os.getenv('CAMERA_ENABLED', False).lower() == "true"
 CAMERA_DEVICE_INDEX = int(os.getenv('CAMERA_DEVICE_INDEX', 0))
 CAMERA_WARMUP_SECONDS = float(os.getenv('CAMERA_WARMUP_SECONDS', 0))
 
@@ -269,9 +269,20 @@ class Device:
                         if message["type"] == "audio" and message["format"].startswith("bytes"):
 
                             # Convert bytes to audio file
-                            # Format will be bytes.wav or bytes.opus
-                            audio_bytes = io.BytesIO(message["content"])
-                            audio = AudioSegment.from_file(audio_bytes, codec=message["format"].split(".")[1])
+
+                            audio_bytes = message["content"]
+
+                            # Create an AudioSegment instance with the raw data
+                            audio = AudioSegment(
+                                # raw audio data (bytes)
+                                data=audio_bytes,
+                                # signed 16-bit little-endian format
+                                sample_width=2,
+                                # 16,000 Hz frame rate
+                                frame_rate=16000,
+                                # mono sound
+                                channels=1
+                            )
 
                             self.audiosegments.append(audio)
 
@@ -291,9 +302,9 @@ class Device:
 
     async def start_async(self):
             # Configuration for WebSocket
-            WS_URL = os.getenv('SERVER_CONNECTION_URL')
+            WS_URL = os.getenv('SERVER_URL')
             if not WS_URL:
-                raise ValueError("The environment variable SERVER_CONNECTION_URL is not set. Please set it to proceed.")
+                raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
 
             # Start the WebSocket communication
             asyncio.create_task(self.websocket_communication(WS_URL))

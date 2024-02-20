@@ -74,6 +74,10 @@ if [[ "$@" == *"--clear-local"* ]]; then
     exit 0
 fi
 
+### SKILLS PATH
+
+OI_SKILLS_PATH="$SCRIPT_DIR/01OS/server/skills"
+
 ### SETUP
 
 if [[ "$ALL_LOCAL" == "True" ]]; then

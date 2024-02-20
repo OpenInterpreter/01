@@ -18,9 +18,6 @@ class Accumulator:
 
             if "content" in chunk:
 
-                # Display
-                print(chunk['content'], end="", flush=True)
-
                 if any(self.message[key] != chunk[key] for key in self.message if key != "content"):
                     self.message = chunk
                 if "content" not in self.message:

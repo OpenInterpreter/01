@@ -22,9 +22,10 @@ python-dotenv = "^1.0.1"
 ffmpeg-python = "^0.2.0"
 textual = "^0.50.1"
 pydub = "^0.25.1"
-open-interpreter = "^0.2.0"
+ngrok = "^1.0.0"
 simpleaudio = "^1.0.4"
 opencv-python = "^4.9.0.80"
+open-interpreter = {version = "0.2.1-pre-r", extras = ["os"]}
 
 [build-system]
 requires = ["poetry-core"]
