@@ -33,3 +33,16 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 01 = "start:main"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10.1"
+isort = "^5.12.0"
+pre-commit = "^3.6.2"
+
+[tool.black]
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
