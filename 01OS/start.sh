@@ -56,8 +56,22 @@ fi
 
 # Check if "--expose" is passed as an argument
 if [[ "$@" == *"--expose"* ]]; then
-    # If "--expose" is passed, set SERVER_EXPOSE_PUBLICALLY to True
-    export SERVER_EXPOSE_PUBLICALLY="True"
+    if [[ "$SERVER_START" != "True" ]]; then
+        echo "Error: Start script must be started with --serve for tunneling to work."
+        exit 1
+    else
+        export TUNNEL_START="True"
+
+        if [[ "$@" == *"--expose-with-bore"* ]]; then
+            export TUNNEL_METHOD="bore"
+        elif [[ "$@" == *"--expose-with-localtunnel"* ]]; then
+            export TUNNEL_METHOD="localtunnel"
+        elif [[ "$@" == *"--expose-with-ngrok"* ]]; then
+            export TUNNEL_METHOD="ngrok"
+        fi
+
+        echo "exposing server"
+    fi
 fi
 
 # Check if "--clear-local" is passed as an argument
@@ -177,6 +191,14 @@ start_server() {
     echo "Server started as process $SERVER_PID"
 }
 
+# Function to start tunnel service
+start_tunnel() {
+    echo "Starting tunnel..."
+    ./tunnel.sh &
+    TUNNEL_PID=$!
+    echo "Tunnel started as process $TUNNEL_PID"
+}
+
 stop_processes() {
     if [[ -n $CLIENT_PID ]]; then
         echo "Stopping client..."
@@ -185,6 +207,10 @@ stop_processes() {
     if [[ -n $SERVER_PID ]]; then
         echo "Stopping server..."
         kill $SERVER_PID
+    fi
+    if [[ -n $TUNNEL_PID ]]; then
+        echo "Stopping tunnel..."
+        kill $TUNNEL_PID
     fi
 }
 
@@ -203,9 +229,16 @@ if [[ "$CLIENT_START" == "True" ]]; then
     start_client
 fi
 
+# TUNNEL
+# Start tunnel if TUNNEL_START is True
+if [[ "$TUNNEL_START" == "True" ]]; then
+    start_tunnel
+fi
+
 # Wait for client and server processes to exit
 wait $CLIENT_PID
 wait $SERVER_PID
+wait $TUNNEL_PID
 
 # TTS, STT
 

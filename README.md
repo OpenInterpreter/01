@@ -35,11 +35,40 @@ pip install 01OS
 # (Behavior can be modified by changing the contents of `.env`)
 ```
 
-**Expose an 01 server publically:**
+**Expose an 01 Server Publicly**
 
-```bash
-01 --server --expose # This will print a URL that a client can point to.
-```
+We currently support exposing the 01 server publicly via a couple of different tunnel services:
+
+- **bore.pub** ([GitHub](https://github.com/ekzhang/bore))
+  - **Requirements:** Ensure that Rust is installed ([Rust Installation](https://www.rust-lang.org/tools/install)), then run:
+    ```
+    cargo install bore-cli
+    ```
+  - **To Expose:**
+    ```bash
+    01 --server --expose-with-bore
+    ```
+
+- **localtunnel** ([GitHub](https://github.com/localtunnel/localtunnel))
+  - **Requirements:** Ensure that Node.js is installed ([Node.js Download](https://nodejs.org/en/download)), then run:
+    ```
+    npm install -g localtunnel
+    ```
+  - **To Expose:**
+    ```bash
+    01 --server --expose-with-localtunnel
+    ```
+
+- **ngrok** ([Website](https://ngrok.com/))
+  - **Requirements:** Install ngrok ([Getting Started with ngrok](https://ngrok.com/docs/getting-started/)), and set up an ngrok account. Get your auth key from [ngrok dashboard](https://dashboard.ngrok.com/get-started/your-authtoken), then set it in your local configuration by running:
+    ```
+    ngrok config add-authtoken your_auth_token_here
+    ```
+  - **To Expose:**
+    ```bash
+    01 --server --expose-with-ngrok
+    ```
+
 
 **Run a specific client:**
 
@@ -55,7 +84,7 @@ The `--local` flag will install and run the [whisper.cpp](https://github.com/gge
 
 ```bash
 01 --local # Local client and server
-01 --local --server --expose # Expose a local server
+01 --local --server --expose-with-bore  # Expose the local server with a public tunnel
 ```
 
 **Teach Mode (experimental)**
