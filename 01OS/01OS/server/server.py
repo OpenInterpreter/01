@@ -207,6 +207,10 @@ async def listener():
         interpreter.messages = [m for m in interpreter.messages if m["content"] != force_task_completion_message]
         insert_force_task_completion_message = True
 
+        if any([m["type"] == "image" for m in messages]) and interpreter.llm.model.startswith("gpt-"):
+            interpreter.llm.model = "gpt-4-vision-preview"
+            interpreter.llm.supports_vision = True
+
         while insert_force_task_completion_message == True:
             
             for chunk in interpreter.chat(messages, stream=True, display=True):
