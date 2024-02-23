@@ -61,6 +61,16 @@ if [[ "$@" == *"--expose"* ]]; then
         exit 1
     else
         export TUNNEL_START="True"
+
+        if [[ "$@" == *"--expose-with-bore"* ]]; then
+            export TUNNEL_METHOD="bore"
+        elif [[ "$@" == *"--expose-with-localtunnel"* ]]; then
+            export TUNNEL_METHOD="localtunnel"
+        elif [[ "$@" == *"--expose-with-ngrok"* ]]; then
+            export TUNNEL_METHOD="ngrok"
+        fi
+
+        echo "exposing server"
     fi
 fi
 
