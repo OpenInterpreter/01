@@ -1,20 +1,9 @@
 # Roadmap
 
-## Documentation
+- [ ] Release a device that works without internet connection
 
-- [ ] Document CLI arguments
-- [ ]
+- [ ] Train model for computer control
 
-## New features
+- [ ] Publish open source protocols
 
-- [ ]
-
-## Future-proofing
-
-- [ ]
-
-## Hardware
-
-- [ ] Finalize 01 Heavy BOM
-- [ ] Upload CAD/STL files to public repositories
-- [ ] Android ROM flashing
+- [ ] Expanding the devices supported by 01OS
