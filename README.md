@@ -35,29 +35,36 @@ pip install 01OS
 # (Behavior can be modified by changing the contents of `.env`)
 ```
 
-**Expose an 01 server publically:**
+**Expose an 01 Server Publicly**
 
 We currently support exposing the 01 server publicly via a couple of different tunnel services:
 
-- bore.pub (https://github.com/ekzhang/bore)
-  Requirements: Ensure that rust is installed (https://www.rust-lang.org/tools/install), then run `cargo install bore-cli`
-
+- **bore.pub** ([GitHub](https://github.com/ekzhang/bore))
+  - **Requirements:** Ensure that Rust is installed ([Rust Installation](https://www.rust-lang.org/tools/install)), then run:
+    ```
+    cargo install bore-cli
+    ```
+  - **To Expose:**
     ```bash
     01 --server --expose-with-bore
     ```
 
-- localtunnel (https://github.com/localtunnel/localtunnel)
-  Requirements: Ensure that Node is installed (https://nodejs.org/en/download), then run `npm install -g localtunnel`
-
+- **localtunnel** ([GitHub](https://github.com/localtunnel/localtunnel))
+  - **Requirements:** Ensure that Node.js is installed ([Node.js Download](https://nodejs.org/en/download)), then run:
+    ```
+    npm install -g localtunnel
+    ```
+  - **To Expose:**
     ```bash
     01 --server --expose-with-localtunnel
     ```
 
-- ngrok (https://ngrok.com/)
-  Requirements: Install ngrok (https://ngrok.com/docs/getting-started/), and set up an ngrok account.
-  Get your auth key from https://dashboard.ngrok.com/get-started/your-authtoken, then set it in
-  your local configuration by running `ngrok config add-authtoken your_auth_token_here`
-    
+- **ngrok** ([Website](https://ngrok.com/))
+  - **Requirements:** Install ngrok ([Getting Started with ngrok](https://ngrok.com/docs/getting-started/)), and set up an ngrok account. Get your auth key from [ngrok dashboard](https://dashboard.ngrok.com/get-started/your-authtoken), then set it in your local configuration by running:
+    ```
+    ngrok config add-authtoken your_auth_token_here
+    ```
+  - **To Expose:**
     ```bash
     01 --server --expose-with-ngrok
     ```
