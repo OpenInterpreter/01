@@ -12,3 +12,9 @@
 ## Future-proofing
 
 - [ ]
+
+## Hardware
+
+- [ ] Finalize 01 Heavy BOM
+- [ ] Upload CAD/STL files to public repositories
+- [ ] Android ROM flashing
