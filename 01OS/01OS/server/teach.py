@@ -1,13 +1,12 @@
 from datetime import datetime
 from .utils.logs import setup_logging, logger
-from interpreter import interpreter
+from interpreter import interpreter as interpreter_core
 from tkinter import messagebox, Button, simpledialog, Tk, Label, Frame, LEFT, ACTIVE
 import time
 import os
 import textwrap
 from .i import configure_interpreter
-
-interpreter = configure_interpreter(interpreter)
+from .system_messages.TeachModeSystemMessage import system_message
 
 setup_logging()
 class Skill:
@@ -67,14 +66,39 @@ def generate_python_steps(function_name, steps):
     code_string += f'    print({steps})\n'
     return code_string
 
+def configure_interpreter_teach(interpreter):
+    interpreter = configure_interpreter(interpreter)
+    
+    interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
+    interpreter.force_task_completion = True
+    interpreter.os = True
+    interpreter.llm.supports_vision = True
+    interpreter.llm.model = "gpt-4-vision-preview"
+    interpreter.llm.supports_functions = False
+    interpreter.llm.context_window = 110000
+    interpreter.llm.max_tokens = 4096
+    interpreter.auto_run = True
+    interpreter.system_message = system_message
+    return interpreter
+
 def teach():
+    interpreter = configure_interpreter_teach(interpreter_core)
     root = Tk()
     root.withdraw()
     skill_name = simpledialog.askstring("Skill Name", "Please enter the name for the skill:", parent=root)
+    isInit = False
+    isWrong = False
     if skill_name:
         skill = Skill(skill_name)
         while True:
-            step = simpledialog.askstring("Next Step", "Enter the next step (or 'end' to finish): ", parent=root)
+            if not isInit:
+                step = simpledialog.askstring("First Step", "Enter the first step for the skill (or 'end' to finish): ", parent=root)
+                isInit = True
+            else:
+                if isWrong:
+                    step = simpledialog.askstring("Repeat Step", "Please re-phrase the step (or type 'end' to finish): ", parent=root)
+                else:
+                    step = simpledialog.askstring("Next Step", "Enter the next step (or 'end' to finish): ", parent=root)
             if step is None or step == "end":
                 break
             elif step.strip() == "":
@@ -82,8 +106,6 @@ def teach():
             logger.info(f"Performing step: {step}")
             root.update()
             chunk_code = ""
-            interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() == "python"]
-            interpreter.force_task_completion = True
             for chunk in interpreter.chat(step, stream=True, display=True):
                 if chunk["role"] == "computer" and "start" not in chunk and "end" not in chunk:
                     chunk_type = chunk["type"]
@@ -99,17 +121,20 @@ def teach():
             stepCheckDialog = StepCheckDialog(root)
             stepCheckResult = stepCheckDialog.result
             if stepCheckResult == "Yes" or stepCheckResult == "Task Complete":
+                isWrong = False
                 skill.steps.append(step)
                 skill.code += chunk_code
                 if stepCheckResult == "Task Complete":
                     break
+            elif stepCheckResult == "No":
+                isWrong = True
 
-    # Uncomment this incase you want steps instead of code
-    #python_code = generate_python_steps(skill.skill_name, skill.steps)
-    
-    python_code = generate_python_code(skill.skill_name, skill.code)
-    SKILLS_DIR = os.path.dirname(__file__) + "/skills"
-    filename = os.path.join(SKILLS_DIR, f"{skill.skill_name.replace(' ', '_')}.py")
-    logger.info(f"Saving skill to: {filename}")
-    with open(filename, "w") as file:
-        file.write(python_code)
+        # Uncomment this incase you want steps instead of code
+        #python_code = generate_python_steps(skill.skill_name, skill.steps)
+        
+        python_code = generate_python_code(skill.skill_name, skill.code)
+        SKILLS_DIR = os.path.dirname(__file__) + "/skills"
+        filename = os.path.join(SKILLS_DIR, f"{skill.skill_name.replace(' ', '_')}.py")
+        logger.info(f"Saving skill to: {filename}")
+        with open(filename, "w") as file:
+            file.write(python_code)

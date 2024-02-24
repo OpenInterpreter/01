@@ -6,7 +6,7 @@ import glob
 import json
 from pathlib import Path
 from interpreter import OpenInterpreter
-from .system_message import system_message
+from .system_messages.BaseSystemMessage import system_message
 
 
 def configure_interpreter(interpreter: OpenInterpreter):
