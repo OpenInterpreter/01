@@ -91,44 +91,45 @@ OI_SKILLS_PATH="$SCRIPT_DIR/01OS/server/skills"
 ### SETUP
 
 if [[ "$ALL_LOCAL" == "True" ]]; then
-    # if using local models, install the models / executables
+# if using local models, install the models / executables
 
-    ## WHISPER
-    
     CWD=$(pwd)
 
+    # Whisper setup
     STT_PATH="$SCRIPT_DIR/01OS/server/stt"
     WHISPER_RUST_PATH="${STT_PATH}/whisper-rust"
     cd ${WHISPER_RUST_PATH}
 
-    # Check if whisper-rust executable exists
+    # Check if whisper-rust executable exists before attempting to build
     if [[ ! -f "${WHISPER_RUST_PATH}/target/release/whisper-rust" ]]; then
-
         # Check if Rust is installed. Needed to build whisper executable
+
         if ! command -v rustc &> /dev/null; then
             echo "Rust is not installed or is not in system PATH. Please install Rust before proceeding."
             exit 1
         fi
-
-        # Build the Whisper Rust executable
+        # Build Whisper Rust executable if not found
         cargo build --release
+    else
+        echo "Whisper Rust executable already exists. Skipping build."
     fi
 
     WHISPER_MODEL_PATH="${STT_PATH}/local_service"
     if [[ ! -f "${WHISPER_MODEL_PATH}/${WHISPER_MODEL_NAME}" ]]; then
         mkdir -p "${WHISPER_MODEL_PATH}"
         curl -L "${WHISPER_MODEL_URL}${WHISPER_MODEL_NAME}" -o "${WHISPER_MODEL_PATH}/${WHISPER_MODEL_NAME}"
+    else
+        echo "Whisper model already exists. Skipping download."
     fi
 
     cd $CWD
 
     ## PIPER
-
     PIPER_FOLDER_PATH="$SCRIPT_DIR/01OS/server/tts/local_service"
-    if [[ ! -f "$PIPER_FOLDER_PATH" ]]; then   
-
+    if [[ ! -d "$PIPER_FOLDER_PATH/piper" ]]; then # Check if the Piper directory exists
         mkdir -p "${PIPER_FOLDER_PATH}"
 
+        # Determine OS and architecture
         OS=$(uname -s)
         ARCH=$(uname -m)
         if [ "$OS" = "Darwin" ]; then
@@ -143,18 +144,18 @@ if [[ "$ALL_LOCAL" == "True" ]]; then
         fi
         PIPER_ASSETNAME="piper_${OS}_${ARCH}.tar.gz"
         PIPER_URL="https://github.com/rhasspy/piper/releases/latest/download/"
-        
+
         # Save the current working directory
         CWD=$(pwd)
 
         # Navigate to SCRIPT_DIR/01OS/server/tts/local_service
         cd ${PIPER_FOLDER_PATH}
-
         curl -L "${PIPER_URL}${PIPER_ASSETNAME}" -o "${PIPER_ASSETNAME}"
         tar -xvzf $PIPER_ASSETNAME
         cd piper
         curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}"
         curl -OL "${PIPER_VOICE_URL}${PIPER_VOICE_NAME}.json"
+        # Additional setup for macOS
         if [ "$OS" = "macos" ]; then
             if [ "$ARCH" = "x64" ]; then
                 softwareupdate --install-rosetta --agree-to-license
@@ -169,8 +170,11 @@ if [[ "$ALL_LOCAL" == "True" ]]; then
             install_name_tool -change @rpath/libpiper_phonemize.1.dylib "${PIPER_DIR}/piper-phonemize/lib/libpiper_phonemize.1.dylib" "${PIPER_DIR}/piper"
         fi
 
+        echo "Piper setup completed."
         # Navigate back to the current working directory
         cd $CWD
+    else
+        echo "Piper already set up. Skipping download."
     fi
 fi
 
