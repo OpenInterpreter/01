@@ -14,10 +14,10 @@ Official pre-release repository for [The 01 Project](https://twitter.com/helloki
 
 ```bash
 # MacOS
-brew install portaudio ffmpeg
+brew install portaudio ffmpeg cmake
 
 # Ubuntu
-sudo apt-get install portaudio19-dev ffmpeg
+sudo apt-get install portaudio19-dev ffmpeg cmake
 ```
 
 If you want to run local speech-to-text using Whisper, install Rust. Follow the instructions given [here](https://www.rust-lang.org/tools/install).
