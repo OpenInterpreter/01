@@ -29,6 +29,7 @@ from interpreter import interpreter # Just for code execution. Maybe we should l
 from ..server.utils.kernel import put_kernel_messages_into_queue
 from ..server.utils.get_system_info import get_system_info
 from ..server.stt.stt import stt_wav
+from process_utils import kill_process_tree
 
 from ..server.utils.logs import setup_logging
 from ..server.utils.logs import logger
@@ -217,6 +218,7 @@ class Device:
             self.toggle_recording(True)
         elif {keyboard.Key.ctrl, keyboard.KeyCode.from_char('c')} <= self.pressed_keys:
             logger.info("Ctrl+C pressed. Exiting...")
+            kill_process_tree()
             os._exit(0)
 
     def on_release(self, key):

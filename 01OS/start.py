@@ -6,6 +6,8 @@ Just starts `start.sh` with all the same command line arguments. Aliased to 01.
 import os
 import subprocess
 import sys
+import psutil
+from process_utils import kill_process_tree
 
 def main():
 
@@ -18,9 +20,9 @@ def main():
     # Prepare the command
     command = [os.path.join(dir_path, 'start.sh')] + args
 
-    # Start start.sh with the command line arguments
     try:
-        subprocess.run(command, check=True)
+        # Start start.sh using psutil for better process management, and to kill all processes
+        psutil.Popen(command)
     except KeyboardInterrupt:
         print("Exiting...")
-    
+        kill_process_tree()
