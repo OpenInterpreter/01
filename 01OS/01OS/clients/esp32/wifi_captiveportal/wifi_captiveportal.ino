@@ -5,6 +5,9 @@
 #include <DNSServer.h>
 #include <ESPAsyncWebServer.h> //https://github.com/me-no-dev/ESPAsyncWebServer using the latest dev version from @me-no-dev
 #include <esp_wifi.h>          //Used for mpdu_rx_disable android workaround
+#include <HttpClient.h>
+#include <WiFi.h>
+#include <WiFiClient.h>
 
 // Pre reading on the fundamentals of captive portals https://textslashplain.com/2022/06/24/captive-portals/
 
@@ -23,24 +26,24 @@ const String localIPURL = "http://4.3.2.1"; // a string version of the local IP 
 
 String generateHTMLWithSSIDs()
 {
-    String html = "<!DOCTYPE html><html><body><h2>Select Wi-Fi Network</h2><form action='/submit' method='POST'><label for='ssid'>SSID:</label><select id='ssid' name='ssid'>";
+  String html = "<!DOCTYPE html><html><body><h2>Select Wi-Fi Network</h2><form action='/submit' method='POST'><label for='ssid'>SSID:</label><select id='ssid' name='ssid'>";
 
-    int n = WiFi.scanComplete();
-    for (int i = 0; i < n; ++i)
-    {
-        html += "<option value='" + WiFi.SSID(i) + "'>" + WiFi.SSID(i) + "</option>";
-    }
+  int n = WiFi.scanComplete();
+  for (int i = 0; i < n; ++i)
+  {
+    html += "<option value='" + WiFi.SSID(i) + "'>" + WiFi.SSID(i) + "</option>";
+  }
 
-    html += "</select><br><label for='password'>Password:</label><input type='password' id='password' name='password'><br><input type='submit' value='Connect'></form></body></html>";
+  html += "</select><br><label for='password'>Password:</label><input type='password' id='password' name='password'><br><input type='submit' value='Connect'></form></body></html>";
 
-    return html;
+  return html;
 }
 
 const char index_html[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ESP32 WiFi Setup</title>
+  <title>WiFi Setup</title>
   <style>
     body {background-color:#06cc13;}
     h1 {color: white;}
@@ -61,6 +64,29 @@ const char index_html[] PROGMEM = R"=====(
 </html>
 )=====";
 
+const char post_connected_html[] PROGMEM = R"=====(
+<!DOCTYPE html>
+<html>
+<head>
+  <title>01OS Setup</title>
+  <style>
+    body {background-color:#06cc13;}
+    h1 {color: white;}
+    h2 {color: white;}
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h1>01OS Setup</h1>
+  <form action="/submit_01os" method="post">
+    <label for="server_address">01OS Server Address:</label><br>
+    <input type="text" id="server_address" name="server_address"><br>
+    <input type="submit" value="Connect">
+  </form>
+</body>
+</html>
+)=====";
+
 DNSServer dnsServer;
 AsyncWebServer server(80);
 
@@ -69,9 +95,9 @@ void setUpDNSServer(DNSServer &dnsServer, const IPAddress &localIP)
 // Define the DNS interval in milliseconds between processing DNS requests
 #define DNS_INTERVAL 30
 
-    // Set the TTL for DNS response and start the DNS server
-    dnsServer.setTTL(3600);
-    dnsServer.start(53, "*", localIP);
+  // Set the TTL for DNS response and start the DNS server
+  dnsServer.setTTL(3600);
+  dnsServer.start(53, "*", localIP);
 }
 
 void startSoftAccessPoint(const char *ssid, const char *password, const IPAddress &localIP, const IPAddress &gatewayIP)
@@ -81,93 +107,175 @@ void startSoftAccessPoint(const char *ssid, const char *password, const IPAddres
 // Define the WiFi channel to be used (channel 6 in this case)
 #define WIFI_CHANNEL 6
 
-    // Set the WiFi mode to access point and station
-    // WiFi.mode(WIFI_MODE_AP);
+  // Set the WiFi mode to access point and station
+  // WiFi.mode(WIFI_MODE_AP);
 
-    // Define the subnet mask for the WiFi network
-    const IPAddress subnetMask(255, 255, 255, 0);
+  // Define the subnet mask for the WiFi network
+  const IPAddress subnetMask(255, 255, 255, 0);
 
-    // Configure the soft access point with a specific IP and subnet mask
-    WiFi.softAPConfig(localIP, gatewayIP, subnetMask);
+  // Configure the soft access point with a specific IP and subnet mask
+  WiFi.softAPConfig(localIP, gatewayIP, subnetMask);
 
-    // Start the soft access point with the given ssid, password, channel, max number of clients
-    WiFi.softAP(ssid, password, WIFI_CHANNEL, 0, MAX_CLIENTS);
+  // Start the soft access point with the given ssid, password, channel, max number of clients
+  WiFi.softAP(ssid, password, WIFI_CHANNEL, 0, MAX_CLIENTS);
 
-    // Disable AMPDU RX on the ESP32 WiFi to fix a bug on Android
-    esp_wifi_stop();
-    esp_wifi_deinit();
-    wifi_init_config_t my_config = WIFI_INIT_CONFIG_DEFAULT();
-    my_config.ampdu_rx_enable = false;
-    esp_wifi_init(&my_config);
-    esp_wifi_start();
-    vTaskDelay(100 / portTICK_PERIOD_MS); // Add a small delay
+  // Disable AMPDU RX on the ESP32 WiFi to fix a bug on Android
+  esp_wifi_stop();
+  esp_wifi_deinit();
+  wifi_init_config_t my_config = WIFI_INIT_CONFIG_DEFAULT();
+  my_config.ampdu_rx_enable = false;
+  esp_wifi_init(&my_config);
+  esp_wifi_start();
+  vTaskDelay(100 / portTICK_PERIOD_MS); // Add a small delay
 }
 
 void connectToWifi(String ssid, String password)
 {
-    WiFi.begin(ssid.c_str(), password.c_str());
+  WiFi.begin(ssid.c_str(), password.c_str());
 
-    // Wait for connection to establish
-    int attempts = 0;
-    while (WiFi.status() != WL_CONNECTED && attempts < 20)
-    {
-        delay(1000);
-        Serial.print(".");
-        attempts++;
-    }
+  // Wait for connection to establish
+  int attempts = 0;
+  while (WiFi.status() != WL_CONNECTED && attempts < 20)
+  {
+    delay(1000);
+    Serial.print(".");
+    attempts++;
+  }
 
-    if (WiFi.status() == WL_CONNECTED)
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.println("Connected to Wi-Fi");
+  }
+  else
+  {
+    Serial.println("Failed to connect to Wi-Fi. Check credentials.");
+  }
+}
+
+// Number of milliseconds to wait without receiving any data before we give up
+const int kNetworkTimeout = 30*1000;
+// Number of milliseconds to wait if no data is available before trying again
+const int kNetworkDelay = 1000;
+
+void connectTo01OS(String server_address)
+{
+  int err = 0;
+  WiFiClient c;
+  HttpClient http(c);
+
+  String domain = server_address.substring(0, server_address.indexOf(':'));
+  String portStr = server_address.substring(server_address.indexOf(':') + 1);
+  int port = portStr.toInt();
+
+  Serial.println("Connecting to 01OS at "+domain+":"+port+"/ping");
+  err = http.get(domain.c_str(), port, "/ping");
+  //err = http.get("arduino.cc", "/");
+
+  if (err == 0)
+  {
+    Serial.println("Started the ping request");
+
+    err = http.responseStatusCode();
+    if (err >= 0)
     {
-        Serial.println("Connected to Wi-Fi");
+      Serial.print("Got status code: ");
+      Serial.println(err);
+
+      err = http.skipResponseHeaders();
+      if (err >= 0)
+      {
+        int bodyLen = http.contentLength();
+        Serial.print("Content length is: ");
+        Serial.println(bodyLen);
+        Serial.println();
+        Serial.println("Body returned follows:");
+
+        // Now we've got to the body, so we can print it out
+        unsigned long timeoutStart = millis();
+        char c;
+        // Whilst we haven't timed out & haven't reached the end of the body
+        while ((http.connected() || http.available()) &&
+               ((millis() - timeoutStart) < kNetworkTimeout))
+        {
+          if (http.available())
+          {
+            c = http.read();
+            // Print out this character
+            Serial.print(c);
+
+            bodyLen--;
+            // We read something, reset the timeout counter
+            timeoutStart = millis();
+          }
+          else
+          {
+            // We haven't got any data, so let's pause to allow some to
+            // arrive
+            delay(kNetworkDelay);
+          }
+        }
+      }
+      else
+      {
+        Serial.print("Failed to skip response headers: ");
+        Serial.println(err);
+      }
     }
     else
     {
-        Serial.println("Failed to connect to Wi-Fi. Check credentials.");
+      Serial.print("Getting response failed: ");
+      Serial.println(err);
     }
+  }
+  else
+  {
+    Serial.print("Connect failed: ");
+    Serial.println(err);
+  }
 }
 
 void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
 {
-    //======================== Webserver ========================
-    // WARNING IOS (and maybe macos) WILL NOT POP UP IF IT CONTAINS THE WORD "Success" https://www.esp8266.com/viewtopic.php?f=34&t=4398
-    // SAFARI (IOS) IS STUPID, G-ZIPPED FILES CAN'T END IN .GZ https://github.com/homieiot/homie-esp8266/issues/476 this is fixed by the webserver serve static function.
-    // SAFARI (IOS) there is a 128KB limit to the size of the HTML. The HTML can reference external resources/images that bring the total over 128KB
-    // SAFARI (IOS) popup browser has some severe limitations (javascript disabled, cookies disabled)
+  //======================== Webserver ========================
+  // WARNING IOS (and maybe macos) WILL NOT POP UP IF IT CONTAINS THE WORD "Success" https://www.esp8266.com/viewtopic.php?f=34&t=4398
+  // SAFARI (IOS) IS STUPID, G-ZIPPED FILES CAN'T END IN .GZ https://github.com/homieiot/homie-esp8266/issues/476 this is fixed by the webserver serve static function.
+  // SAFARI (IOS) there is a 128KB limit to the size of the HTML. The HTML can reference external resources/images that bring the total over 128KB
+  // SAFARI (IOS) popup browser has some severe limitations (javascript disabled, cookies disabled)
 
-    // Required
-    server.on("/connecttest.txt", [](AsyncWebServerRequest *request)
-              { request->redirect("http://logout.net"); }); // windows 11 captive portal workaround
-    server.on("/wpad.dat", [](AsyncWebServerRequest *request)
-              { request->send(404); }); // Honestly don't understand what this is but a 404 stops win 10 keep calling this repeatedly and panicking the esp32 :)
+  // Required
+  server.on("/connecttest.txt", [](AsyncWebServerRequest *request)
+            { request->redirect("http://logout.net"); }); // windows 11 captive portal workaround
+  server.on("/wpad.dat", [](AsyncWebServerRequest *request)
+            { request->send(404); }); // Honestly don't understand what this is but a 404 stops win 10 keep calling this repeatedly and panicking the esp32 :)
 
-    // Background responses: Probably not all are Required, but some are. Others might speed things up?
-    // A Tier (commonly used by modern systems)
-    server.on("/generate_204", [](AsyncWebServerRequest *request)
-              { request->redirect(localIPURL); }); // android captive portal redirect
-    server.on("/redirect", [](AsyncWebServerRequest *request)
-              { request->redirect(localIPURL); }); // microsoft redirect
-    server.on("/hotspot-detect.html", [](AsyncWebServerRequest *request)
-              { request->redirect(localIPURL); }); // apple call home
-    server.on("/canonical.html", [](AsyncWebServerRequest *request)
-              { request->redirect(localIPURL); }); // firefox captive portal call home
-    server.on("/success.txt", [](AsyncWebServerRequest *request)
-              { request->send(200); }); // firefox captive portal call home
-    server.on("/ncsi.txt", [](AsyncWebServerRequest *request)
-              { request->redirect(localIPURL); }); // windows call home
+  // Background responses: Probably not all are Required, but some are. Others might speed things up?
+  // A Tier (commonly used by modern systems)
+  server.on("/generate_204", [](AsyncWebServerRequest *request)
+            { request->redirect(localIPURL); }); // android captive portal redirect
+  server.on("/redirect", [](AsyncWebServerRequest *request)
+            { request->redirect(localIPURL); }); // microsoft redirect
+  server.on("/hotspot-detect.html", [](AsyncWebServerRequest *request)
+            { request->redirect(localIPURL); }); // apple call home
+  server.on("/canonical.html", [](AsyncWebServerRequest *request)
+            { request->redirect(localIPURL); }); // firefox captive portal call home
+  server.on("/success.txt", [](AsyncWebServerRequest *request)
+            { request->send(200); }); // firefox captive portal call home
+  server.on("/ncsi.txt", [](AsyncWebServerRequest *request)
+            { request->redirect(localIPURL); }); // windows call home
 
-    // B Tier (uncommon)
-    //  server.on("/chrome-variations/seed",[](AsyncWebServerRequest *request){request->send(200);}); //chrome captive portal call home
-    //  server.on("/service/update2/json",[](AsyncWebServerRequest *request){request->send(200);}); //firefox?
-    //  server.on("/chat",[](AsyncWebServerRequest *request){request->send(404);}); //No stop asking Whatsapp, there is no internet connection
-    //  server.on("/startpage",[](AsyncWebServerRequest *request){request->redirect(localIPURL);});
+  // B Tier (uncommon)
+  //  server.on("/chrome-variations/seed",[](AsyncWebServerRequest *request){request->send(200);}); //chrome captive portal call home
+  //  server.on("/service/update2/json",[](AsyncWebServerRequest *request){request->send(200);}); //firefox?
+  //  server.on("/chat",[](AsyncWebServerRequest *request){request->send(404);}); //No stop asking Whatsapp, there is no internet connection
+  //  server.on("/startpage",[](AsyncWebServerRequest *request){request->redirect(localIPURL);});
 
-    // return 404 to webpage icon
-    server.on("/favicon.ico", [](AsyncWebServerRequest *request)
-              { request->send(404); }); // webpage icon
+  // return 404 to webpage icon
+  server.on("/favicon.ico", [](AsyncWebServerRequest *request)
+            { request->send(404); }); // webpage icon
 
-    // Serve Basic HTML Page
-    server.on("/", HTTP_ANY, [](AsyncWebServerRequest *request)
-              {
+  // Serve Basic HTML Page
+  server.on("/", HTTP_ANY, [](AsyncWebServerRequest *request)
+            {
 	String htmlContent = index_html;
     Serial.printf("wifi scan complete: %d . WIFI_SCAN_RUNNING: %d", WiFi.scanComplete(), WIFI_SCAN_RUNNING);
     if(WiFi.scanComplete() > 0) {
@@ -181,9 +289,9 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
 		request->send(response);
 		Serial.println("Served Basic HTML Page"); });
 
-    // the catch all
-    server.onNotFound([](AsyncWebServerRequest *request)
-                      {
+  // the catch all
+  server.onNotFound([](AsyncWebServerRequest *request)
+                    {
 		request->redirect(localIPURL);
 		Serial.print("onnotfound ");
 		Serial.print(request->host());	// This gives some insight into whatever was being requested on the serial monitor
@@ -191,8 +299,8 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
 		Serial.print(request->url());
 		Serial.print(" sent redirect to " + localIPURL + "\n"); });
 
-    server.on("/submit", HTTP_POST, [](AsyncWebServerRequest *request)
-              {
+  server.on("/submit", HTTP_POST, [](AsyncWebServerRequest *request)
+            {
     String ssid;
     String password;
     
@@ -210,51 +318,75 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     connectToWifi(ssid, password);
 
     // Redirect user or send a response back
-    request->send(200, "text/plain", "Attempting to connect to " + ssid); });
+    if (WiFi.status() == WL_CONNECTED) {
+      String htmlContent = post_connected_html;
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/html", htmlContent);
+      response->addHeader("Cache-Control", "public,max-age=31536000");  // save this file to cache for 1 year (unless you refresh)
+      request->send(response);
+      Serial.println("Served Post connection HTML Page"); 
+    } else {
+      request->send(200, "text/plain", "Failed to connect to " + ssid);
+    }
+  });
+
+  server.on("/submit_01os", HTTP_POST, [](AsyncWebServerRequest *request)
+            {
+    String server_address;
+    
+    // Check if SSID parameter exists and assign it
+    if(request->hasParam("server_address", true)) {
+        server_address = request->getParam("server_address", true)->value();
+    }
+
+    // Attempt to connect to the Wi-Fi network with these credentials
+    connectTo01OS(server_address);
+
+    // Redirect user or send a response back
+    request->send(200, "text/plain", "Attempting to connect to 01OS " + server_address); });
 }
 
 void setup()
 {
-    // Set the transmit buffer size for the Serial object and start it with a baud rate of 115200.
-    Serial.setTxBufferSize(1024);
-    Serial.begin(115200);
+  // Set the transmit buffer size for the Serial object and start it with a baud rate of 115200.
+  Serial.setTxBufferSize(1024);
+  Serial.begin(115200);
 
-    // Wait for the Serial object to become available.
-    while (!Serial)
-        ;
+  // Wait for the Serial object to become available.
+  while (!Serial)
+    ;
 
-    WiFi.mode(WIFI_AP_STA);
+  WiFi.mode(WIFI_AP_STA);
 
-    // Print a welcome message to the Serial port.
-    Serial.println("\n\nCaptive Test, V0.5.0 compiled " __DATE__ " " __TIME__ " by CD_FER"); //__DATE__ is provided by the platformio ide
-    Serial.printf("%s-%d\n\r", ESP.getChipModel(), ESP.getChipRevision());
+  // Print a welcome message to the Serial port.
+  Serial.println("\n\nCaptive Test, V0.5.0 compiled " __DATE__ " " __TIME__ " by CD_FER"); //__DATE__ is provided by the platformio ide
+  Serial.printf("%s-%d\n\r", ESP.getChipModel(), ESP.getChipRevision());
 
-    startSoftAccessPoint(ssid, password, localIP, gatewayIP);
+  startSoftAccessPoint(ssid, password, localIP, gatewayIP);
 
-    setUpDNSServer(dnsServer, localIP);
+  setUpDNSServer(dnsServer, localIP);
 
-    WiFi.scanNetworks(true);
+  WiFi.scanNetworks(true);
 
-    setUpWebserver(server, localIP);
-    server.begin();
+  setUpWebserver(server, localIP);
+  server.begin();
 
-    Serial.print("\n");
-    Serial.print("Startup Time:"); // should be somewhere between 270-350 for Generic ESP32 (D0WDQ6 chip, can have a higher startup time on first boot)
-    Serial.println(millis());
-    Serial.print("\n");
+  Serial.print("\n");
+  Serial.print("Startup Time:"); // should be somewhere between 270-350 for Generic ESP32 (D0WDQ6 chip, can have a higher startup time on first boot)
+  Serial.println(millis());
+  Serial.print("\n");
 }
 
 void loop()
-{ 
-    dnsServer.processNextRequest(); // I call this atleast every 10ms in my other projects (can be higher but I haven't tested it for stability)
-    delay(DNS_INTERVAL);            // seems to help with stability, if you are doing other things in the loop this may not be needed
+{
+  dnsServer.processNextRequest(); // I call this atleast every 10ms in my other projects (can be higher but I haven't tested it for stability)
+  delay(DNS_INTERVAL);            // seems to help with stability, if you are doing other things in the loop this may not be needed
 
-    // Check WiFi connection status
-    if (WiFi.status() == WL_CONNECTED)
-    {
-        // If connected, you might want to do something, like printing the IP address
-        Serial.println("Connected to WiFi!");
-        Serial.println("IP Address: " + WiFi.localIP().toString());
-        Serial.println("SSID " + WiFi.SSID());
-    }
+  // Check WiFi connection status
+  //if (WiFi.status() == WL_CONNECTED)
+  //{
+    // If connected, you might want to do something, like printing the IP address
+    //Serial.println("Connected to WiFi!");
+    //Serial.println("IP Address: " + WiFi.localIP().toString());
+    //Serial.println("SSID " + WiFi.SSID());
+  //}
 }
