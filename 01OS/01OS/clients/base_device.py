@@ -29,7 +29,7 @@ from interpreter import interpreter # Just for code execution. Maybe we should l
 from ..server.utils.kernel import put_kernel_messages_into_queue
 from ..server.utils.get_system_info import get_system_info
 from ..server.stt.stt import stt_wav
-from process_utils import kill_process_tree
+from ..server.utils.process_utils import kill_process_tree
 
 from ..server.utils.logs import setup_logging
 from ..server.utils.logs import logger
@@ -184,6 +184,7 @@ class Device:
             if os.getenv('STT_RUNNER') == "client":
                 # Run stt then send text
                 text = stt_wav(wav_path)
+                logger.debug(f"STT result: {text}")
                 send_queue.put({"role": "user", "type": "message", "content": text})
                 send_queue.put({"role": "user", "type": "message", "end": True})
             else:
@@ -295,8 +296,6 @@ class Device:
                                 code = message["content"]
                                 result = interpreter.computer.run(language, code)
                                 send_queue.put(result)
-    
-
             except:
                 logger.debug(traceback.format_exc())
                 logger.info(f"Connecting to `{WS_URL}`...")

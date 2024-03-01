@@ -7,7 +7,10 @@ import os
 import subprocess
 import sys
 import psutil
-from process_utils import kill_process_tree
+import importlib
+# Can't import normally because it starts with a number
+process_utils = importlib.import_module("01OS.server.utils.process_utils")
+kill_process_tree = process_utils.kill_process_tree
 
 def main():
 
