@@ -7,7 +7,7 @@ import queue
 import os
 import traceback
 import re
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
 from starlette.websockets import WebSocket, WebSocketDisconnect
 from .stt.stt import stt_bytes
@@ -106,6 +106,19 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         logger.debug(traceback.format_exc())
         logger.info(f"Connection lost. Error: {e}")
+
+
+@app.post("/")
+async def add_computer_message(request: Request):
+    body = await request.json()
+    text = body.get("text")
+    if not text:
+        return {"error": "Missing 'text' in request body"}, 422
+    message = {"role": "computer", "type": "console", "format": "output", "content": text}
+    from_computer.put({"role": "computer", "type": "console", "format": "output", "start": True})
+    from_computer.put(message)
+    from_computer.put({"role": "computer", "type": "console", "format": "output", "end": True})
+
 
 async def receive_messages(websocket: WebSocket):
     while True:
