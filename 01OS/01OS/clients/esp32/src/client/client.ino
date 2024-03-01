@@ -164,13 +164,24 @@ void connectToWifi(String ssid, String password)
     }
 }
 
-void connectTo01OS(String server_address)
+bool connectTo01OS(String server_address)
 {
     int err = 0;
 
-    String domain = server_address.substring(0, server_address.indexOf(':'));
-    String portStr = server_address.substring(server_address.indexOf(':') + 1);
-    int port = portStr.toInt();
+    String domain;
+    String portStr;
+
+    if (server_address.indexOf(":") != -1) {
+        domain = server_address.substring(0, server_address.indexOf(':'));
+        portStr = server_address.substring(server_address.indexOf(':') + 1);
+    } else {
+        domain = server_address;
+        portStr = ""; // or any default value you want to assign
+    }
+    int port = 0; // Default port value
+    if (portStr.length() > 0) {
+        port = portStr.toInt();
+    }
 
     WiFiClient c;
     HttpClient http(c, domain.c_str(), port);
@@ -178,6 +189,7 @@ void connectTo01OS(String server_address)
     Serial.println("Connecting to 01OS at " + domain + ":" + port + "/ping");
     err = http.get("/ping");
     // err = http.get("arduino.cc", "/");
+    bool connectionSuccess = false;
 
     if (err == 0)
     {
@@ -193,6 +205,7 @@ void connectTo01OS(String server_address)
             {
                 server_domain = domain;
                 server_port = port;
+                connectionSuccess = true;
             }
 
             err = http.skipResponseHeaders();
@@ -246,6 +259,7 @@ void connectTo01OS(String server_address)
         Serial.print("Connect failed: ");
         Serial.println(err);
     }
+  return connectionSuccess;
 }
 
 void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
@@ -352,10 +366,20 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     }
 
     // Attempt to connect to the Wi-Fi network with these credentials
-    connectTo01OS(server_address);
+    bool connectedToServer = connectTo01OS(server_address);
 
     // Redirect user or send a response back
-    request->send(200, "text/plain", "Attempting to connect to 01OS " + server_address); });
+    String connectionMessage;
+
+    if (connectedToServer)
+    {
+      connectionMessage = "Connected to 01OS " + server_address;
+    }
+    else
+    {
+      connectionMessage = "Couldn't connect to 01OS " + server_address;
+    }
+    request->send(200, "text/plain", connectionMessage); });
 }
 
 // ----------------------- END OF WIFI CAPTIVE PORTAL -------------------
