@@ -1,9 +1,11 @@
-"""
-Defines a function which takes a path to an audio file and turns it into text.
-"""
+class Stt:
+    def __init__(self, config):
+        pass
 
-from dotenv import load_dotenv
-load_dotenv()  # take environment variables from .env.
+    def stt(self, audio_file_path):
+        return stt(audio_file_path)
+
+
 
 from datetime import datetime
 import os
@@ -14,9 +16,6 @@ import subprocess
 import openai
 from openai import OpenAI
 
-from ..utils.logs import setup_logging
-from ..utils.logs import logger
-setup_logging()
 
 client = OpenAI()
 
@@ -91,28 +90,18 @@ def stt_bytes(audio_bytes: bytearray, mime_type="audio/wav"):
 
 def stt_wav(wav_file_path: str):
 
-    if os.getenv('ALL_LOCAL') == 'False':
-        audio_file = open(wav_file_path, "rb")
-        try:
-            transcript = client.audio.transcriptions.create(
-                model="whisper-1", 
-                file=audio_file,
-                response_format="text"
-            )
-        except openai.BadRequestError as e:
-            logger.info(f"openai.BadRequestError: {e}")
-            return None
+    audio_file = open(wav_file_path, "rb")
+    try:
+        transcript = client.audio.transcriptions.create(
+            model="whisper-1", 
+            file=audio_file,
+            response_format="text"
+        )
+    except openai.BadRequestError as e:
+        print(f"openai.BadRequestError: {e}")
+        return None
 
-        return transcript
-    else:
-        temp_dir = tempfile.gettempdir()
-        output_path = os.path.join(temp_dir, f"output_stt_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
-        ffmpeg.input(wav_file_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
-        try:
-            transcript = get_transcription_file(output_path)
-        finally:
-            os.remove(output_path)
-        return transcript
+    return transcript
 
 def stt(input_data, mime_type="audio/wav"):
     if isinstance(input_data, str):

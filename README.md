@@ -28,11 +28,10 @@ If you want to run local speech-to-text using Whisper, install Rust. Follow the 
 pip install 01OS
 ```
 
-**Run the 01 end-to-end:**
+**Run the 01:**
 
 ```bash
-01 # This will run a server + attempt to determine and run a client.
-# (Behavior can be modified by changing the contents of `.env`)
+01 # This will run the server and attempt to determine and run a client.
 ```
 
 **Expose an 01 Server Publicly**
@@ -40,6 +39,7 @@ pip install 01OS
 We currently support exposing the 01 server publicly via a couple of different tunnel services:
 
 - **bore.pub** ([GitHub](https://github.com/ekzhang/bore))
+
   - **Requirements:** Ensure that Rust is installed ([Rust Installation](https://www.rust-lang.org/tools/install)), then run:
     ```
     cargo install bore-cli
@@ -50,6 +50,7 @@ We currently support exposing the 01 server publicly via a couple of different t
     ```
 
 - **localtunnel** ([GitHub](https://github.com/localtunnel/localtunnel))
+
   - **Requirements:** Ensure that Node.js is installed ([Node.js Download](https://nodejs.org/en/download)), then run:
     ```
     npm install -g localtunnel
@@ -68,7 +69,6 @@ We currently support exposing the 01 server publicly via a couple of different t
     ```bash
     01 --server --expose-with-ngrok
     ```
-
 
 **Run a specific client:**
 

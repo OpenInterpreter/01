@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
+from platformdirs import user_data_dir
 import os
 import glob
 import json
@@ -36,8 +37,11 @@ def configure_interpreter(interpreter: OpenInterpreter):
 
     ### RESET conversations/user.json
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    user_json_path = os.path.join(script_dir, 'conversations', 'user.json')
+    
+    app_dir = user_data_dir('01')
+    conversations_dir = os.path.join(app_dir, 'conversations')
+    os.makedirs(conversations_dir, exist_ok=True)
+    user_json_path = os.path.join(conversations_dir, 'user.json')
     with open(user_json_path, 'w') as file:
         json.dump([], file)
 

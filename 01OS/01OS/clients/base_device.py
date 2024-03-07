@@ -66,6 +66,7 @@ class Device:
         self.pressed_keys = set()
         self.captured_images = []
         self.audiosegments = []
+        self.server_url = ""
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
         """Captures an image from the specified camera device and saves it to a temporary file. Adds the image to the captured_images list."""
@@ -303,10 +304,7 @@ class Device:
 
     async def start_async(self):
             # Configuration for WebSocket
-            WS_URL = os.getenv('SERVER_URL')
-            if not WS_URL:
-                raise ValueError("The environment variable SERVER_URL is not set. Please set it to proceed.")
-
+            WS_URL = f"ws://{self.server_url}"
             # Start the WebSocket communication
             asyncio.create_task(self.websocket_communication(WS_URL))
 

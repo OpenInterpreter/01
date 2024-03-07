@@ -1,17 +1,17 @@
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
+from platformdirs import user_data_dir
 import ast
 import json
 import queue
 import os
 import traceback
+from .utils.bytes_to_wav import bytes_to_wav
 import re
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
 from starlette.websockets import WebSocket, WebSocketDisconnect
-from .stt.stt import stt_bytes
-from .tts.tts import stream_tts
 from pathlib import Path
 import asyncio
 import urllib.parse
@@ -28,7 +28,8 @@ accumulator = Accumulator()
 
 app = FastAPI()
 
-conversation_history_path = Path(__file__).parent / 'conversations' / 'user.json'
+app_dir = user_data_dir('01')
+conversation_history_path = os.path.join(app_dir, 'conversations', 'user.json')
 
 SERVER_LOCAL_PORT = int(os.getenv('SERVER_LOCAL_PORT', 8000))
 
@@ -198,7 +199,9 @@ async def listener():
             # Convert bytes to audio file
             # Format will be bytes.wav or bytes.opus
             mime_type = "audio/" + message["format"].split(".")[1]
-            text = stt_bytes(message["content"], mime_type)
+            audio_file_path = bytes_to_wav(message["content"], mime_type)
+            text = stt(audio_file_path)
+            print(text)
             message = {"role": "user", "type": "message", "content": text}
 
         # At this point, we have only text messages
@@ -335,30 +338,77 @@ async def stream_tts_to_device(sentence):
     ]
     if sentence.lower().strip().strip(".!?").strip() in force_task_completion_responses:
         return
+
     for chunk in stream_tts(sentence):
         await to_device.put(chunk)
 
+def stream_tts(sentence):
+    
+    audio_file = tts(sentence)
+
+    with open(audio_file, "rb") as f:
+        audio_bytes = f.read()
+    os.remove(audio_file)
+
+    file_type = "bytes.raw"
+    chunk_size = 1024
+
+    # Stream the audio
+    yield {"role": "assistant", "type": "audio", "format": file_type, "start": True}
+    for i in range(0, len(audio_bytes), chunk_size):
+        chunk = audio_bytes[i:i+chunk_size]
+        yield chunk
+    yield {"role": "assistant", "type": "audio", "format": file_type, "end": True}
+
 from uvicorn import Config, Server
+import os
+import platform
+from importlib import import_module
+
+async def main(server_host, server_port, llm_service, model, llm_supports_vision, llm_supports_functions, context_window, max_tokens, temperature, tts_service, stt_service):
+        
+        # Setup services
+        application_directory = user_data_dir('01')
+        services_directory = os.path.join(application_directory, 'services')
+
+        service_dict = {'llm': llm_service, 'tts': tts_service, 'stt': stt_service}
+
+        for service in service_dict:
+
+            service_directory = os.path.join(services_directory, service, service_dict[service])
+
+            # This is the folder they can mess around in
+            config = {"service_directory": service_directory}
+
+            if service == "llm":
+                config.update({
+                    "interpreter": interpreter,
+                    "model": model,
+                    "llm_supports_vision": llm_supports_vision,
+                    "llm_supports_functions": llm_supports_functions,
+                    "context_window": context_window,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature
+                })
+
+            module = import_module(f'.server.services.{service}.{service_dict[service]}.{service}', package='01OS')
+            ServiceClass = getattr(module, service.capitalize())
+            service_instance = ServiceClass(config)
+            globals()[service] = getattr(service_instance, service)
+
+        interpreter.llm.completions = llm
+        
+        # Start listening
+        asyncio.create_task(listener())
+
+        # Start watching the kernel if it's your job to do that
+        if True: # in the future, code can run on device. for now, just server.
+            asyncio.create_task(put_kernel_messages_into_queue(from_computer))
+            
+        config = Config(app, host=server_host, port=int(server_port), lifespan='on')
+        server = Server(config)
+        await server.serve()
 
 # Run the FastAPI app
 if __name__ == "__main__":
-
-    async def main():
-        if os.getenv('TEACH_MODE') == "True":
-            teach()
-        else:
-            # Start listening
-            asyncio.create_task(listener())
-
-            # Start watching the kernel if it's your job to do that
-            if os.getenv('CODE_RUNNER') == "server":
-                asyncio.create_task(put_kernel_messages_into_queue(from_computer))
-                
-            # Start the server
-            logger.info("Starting `server.py`... on localhost:" + str(SERVER_LOCAL_PORT))
-
-            config = Config(app, host="localhost", port=SERVER_LOCAL_PORT, lifespan='on')
-            server = Server(config)
-            await server.serve()
-
     asyncio.run(main())
