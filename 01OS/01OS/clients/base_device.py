@@ -28,13 +28,14 @@ from interpreter import interpreter # Just for code execution. Maybe we should l
 # In the future, I guess kernel watching code should be elsewhere? Somewhere server / client agnostic?
 from ..server.utils.kernel import put_kernel_messages_into_queue
 from ..server.utils.get_system_info import get_system_info
-from ..server.stt.stt import stt_wav
 from ..server.utils.process_utils import kill_process_tree
 
 from ..server.utils.logs import setup_logging
 from ..server.utils.logs import logger
 setup_logging()
 
+os.environ["STT_RUNNER"] = "server"
+os.environ["TTS_RUNNER"] = "server"
 
 from ..utils.accumulator import Accumulator
 
@@ -183,6 +184,10 @@ class Device:
             self.queue_all_captured_images()
 
             if os.getenv('STT_RUNNER') == "client":
+
+                # THIS DOES NOT WORK. We moved to this very cool stt_service, llm_service
+                # way of doing things. stt_wav is not a thing anymore. Needs work to work
+
                 # Run stt then send text
                 text = stt_wav(wav_path)
                 logger.debug(f"STT result: {text}")

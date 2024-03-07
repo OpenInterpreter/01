@@ -213,6 +213,13 @@ async def listener():
             # Format will be bytes.wav or bytes.opus
             mime_type = "audio/" + message["format"].split(".")[1]
             audio_file_path = bytes_to_wav(message["content"], mime_type)
+
+            # For microphone debugging:
+            if False:
+                os.system(f"open {audio_file_path}")
+                import time
+                time.sleep(15)
+
             text = stt(audio_file_path)
             print(text)
             message = {"role": "user", "type": "message", "content": text}

@@ -5,7 +5,7 @@ import concurrent.futures
 import threading
 import os
 import importlib
-from .server.tunnel import create_tunnel
+create_tunnel = importlib.import_module(".server.tunnel", package="01OS").create_tunnel
 import signal
 app = typer.Typer()
 
@@ -56,7 +56,7 @@ def run(
     signal.signal(signal.SIGINT, handle_exit)
 
     if server:
-        from .server.server import main
+        main = importlib.import_module(".server.server", package="01OS").main
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         server_thread = threading.Thread(target=loop.run_until_complete, args=(main(server_host, server_port, llm_service, model, llm_supports_vision, llm_supports_functions, context_window, max_tokens, temperature, tts_service, stt_service),))
