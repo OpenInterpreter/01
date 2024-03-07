@@ -22,6 +22,19 @@ from ..utils.accumulator import Accumulator
 from .teach import teach
 from .utils.logs import setup_logging
 from .utils.logs import logger
+
+from ..utils.print_markdown import print_markdown
+
+markdown = """
+○
+
+*Starting...*
+"""
+print("")
+print_markdown(markdown)
+print("")
+
+
 setup_logging()
 
 accumulator = Accumulator()
@@ -365,8 +378,28 @@ import os
 import platform
 from importlib import import_module
 
+# these will be overwritten
+HOST = ''
+PORT = 0
+
+@app.on_event("startup")
+async def startup_event():
+    server_url = f"{HOST}:{PORT}"
+    print("")
+    print_markdown(f"\n*Ready.*\n")
+    print("")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    print_markdown("*Server is shutting down*")
+
 async def main(server_host, server_port, llm_service, model, llm_supports_vision, llm_supports_functions, context_window, max_tokens, temperature, tts_service, stt_service):
-        
+
+        global HOST
+        global PORT
+        PORT = server_port
+        HOST = server_host
+
         # Setup services
         application_directory = user_data_dir('01')
         services_directory = os.path.join(application_directory, 'services')

@@ -4,9 +4,9 @@ import platform
 import concurrent.futures
 import threading
 import os
-import signal
 import importlib
-
+from .server.tunnel import create_tunnel
+import signal
 app = typer.Typer()
 
 @app.command()
@@ -63,9 +63,7 @@ def run(
         server_thread.start()
 
     if expose:
-        #tunnel_thread = threading.Thread(target=tunnel_service, args=[server_port])
-        #tunnel_thread.start()
-        tunnel_thread = threading.Thread(target=os.system, args=("./tunnel.sh",))
+        tunnel_thread = threading.Thread(target=create_tunnel, args=[tunnel_service, server_host, server_port])
         tunnel_thread.start()
 
     if client:
