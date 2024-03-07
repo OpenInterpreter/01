@@ -46,12 +46,9 @@ def configure_interpreter(interpreter: OpenInterpreter):
         json.dump([], file)
 
     ### SKILLS
-    try:
-        interpreter.computer.skills.path = Path(os.getenv('OI_SKILLS_PATH'))
-        interpreter.computer.skills.import_skills()
-    except:
-        print("Temporarily skipping skills (OI 0.2.1, which is unreleased) so we can push to `pip`.")
-        pass
+    skills_dir = user_data_dir('01', 'skills')
+    interpreter.computer.skills.path = skills_dir
+    interpreter.computer.skills.import_skills()
 
     interpreter.computer.run("python", "tasks=[]")
 
