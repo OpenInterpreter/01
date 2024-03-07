@@ -40,7 +40,7 @@ def run(
     
     if local:
         tts_service = "piper"
-        llm_service = "llamafile"
+        # llm_service = "llamafile"
         stt_service = "local-whisper"
     
     if not server_url:
