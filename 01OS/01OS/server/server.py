@@ -19,7 +19,6 @@ from .utils.kernel import put_kernel_messages_into_queue
 from .i import configure_interpreter
 from interpreter import interpreter
 from ..utils.accumulator import Accumulator
-from .teach import teach
 from .utils.logs import setup_logging
 from .utils.logs import logger
 
