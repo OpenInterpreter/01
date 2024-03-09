@@ -86,8 +86,11 @@ def run(
         client_thread.start()
 
     try:
-        server_thread.join()
-        tunnel_thread.join()
-        client_thread.join()
+        if server:
+            server_thread.join()
+        if expose:
+            tunnel_thread.join()
+        if client:
+            client_thread.join()
     except KeyboardInterrupt:
         os.kill(os.getpid(), signal.SIGINT)
