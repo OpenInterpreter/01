@@ -1,21 +1,17 @@
-name: Run Test
+name: Pre-commit
 
 on:
-  # pull_request:
-  #   branches: [main]
-  push:
+  pull_request:
+    branches: [main]
 
 concurrency:
-  group: "test"
+  group: "lint"
   cancel-in-progress: false
 
 jobs:
-  pytest:
-    name: Run Test
+  pre-commit:
+    name: Pre-Commit
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,5 +27,4 @@ jobs:
           poetry config virtualenvs.create false
           poetry install --no-interaction --with dev
       - name: Run Pre-commit
-        working-directory: 01OS
-        run: pytest test
+        run: pre-commit run --all-files
