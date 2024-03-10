@@ -2,8 +2,8 @@
 
 # Set python to prioritize the module files from the current directory
 # If we don't do this, then the python interpreter will not be able to find the modules,
-# and will throw an error like "ModuleNotFoundError: No module named '01OS'".
-# If we solve the problem by pip installing the official 01OS package, then those
+# and will throw an error like "ModuleNotFoundError: No module named '_01OS'".
+# If we solve the problem by pip installing the official _01OS package, then those
 # modules will run instead of the local ones that we are trying to develop with.
 export PYTHONPATH="$(pwd):$PYTHONPATH"
 
@@ -76,17 +76,17 @@ fi
 
 # Check if "--clear-local" is passed as an argument
 if [[ "$@" == *"--clear-local"* ]]; then
-    # If "--clear-local" is passed, clear the contents of the folders in script_dir/01OS/server/{tts and stt}/local_service
+    # If "--clear-local" is passed, clear the contents of the folders in script_dir/_01OS/server/{tts and stt}/local_service
     echo "Clearing local services..."
-    rm -rf "$SCRIPT_DIR/01OS/server/tts/local_service"/*
-    rm -rf "$SCRIPT_DIR/01OS/server/stt/local_service"/*
+    rm -rf "$SCRIPT_DIR/_01OS/server/tts/local_service"/*
+    rm -rf "$SCRIPT_DIR/_01OS/server/stt/local_service"/*
     echo "Exiting after clearing local services..."
     exit 0
 fi
 
 ### SKILLS PATH
 
-OI_SKILLS_PATH="$SCRIPT_DIR/01OS/server/skills"
+OI_SKILLS_PATH="$SCRIPT_DIR/_01OS/server/skills"
 
 ### SETUP
 
@@ -96,7 +96,7 @@ if [[ "$ALL_LOCAL" == "True" ]]; then
     CWD=$(pwd)
 
     # Whisper setup
-    STT_PATH="$SCRIPT_DIR/01OS/server/stt"
+    STT_PATH="$SCRIPT_DIR/_01OS/server/stt"
     WHISPER_RUST_PATH="${STT_PATH}/whisper-rust"
     cd ${WHISPER_RUST_PATH}
 
@@ -125,7 +125,7 @@ if [[ "$ALL_LOCAL" == "True" ]]; then
     cd $CWD
 
     ## PIPER
-    PIPER_FOLDER_PATH="$SCRIPT_DIR/01OS/server/tts/local_service"
+    PIPER_FOLDER_PATH="$SCRIPT_DIR/_01OS/server/tts/local_service"
     if [[ ! -d "$PIPER_FOLDER_PATH/piper" ]]; then # Check if the Piper directory exists
         mkdir -p "${PIPER_FOLDER_PATH}"
 
@@ -148,7 +148,7 @@ if [[ "$ALL_LOCAL" == "True" ]]; then
         # Save the current working directory
         CWD=$(pwd)
 
-        # Navigate to SCRIPT_DIR/01OS/server/tts/local_service
+        # Navigate to SCRIPT_DIR/_01OS/server/tts/local_service
         cd ${PIPER_FOLDER_PATH}
         curl -L "${PIPER_URL}${PIPER_ASSETNAME}" -o "${PIPER_ASSETNAME}"
         tar -xvzf $PIPER_ASSETNAME
@@ -182,7 +182,7 @@ fi
 
 start_client() {
     echo "Starting client..."
-    bash $SCRIPT_DIR/01OS/clients/start.sh &
+    bash $SCRIPT_DIR/_01OS/clients/start.sh &
     CLIENT_PID=$!
     echo "client started as process $CLIENT_PID"
 }
@@ -190,7 +190,7 @@ start_client() {
 # Function to start server
 start_server() {
     echo "Starting server..."
-    python -m 01OS.server.server &
+    python -m _01OS.server.server &
     SERVER_PID=$!
     echo "Server started as process $SERVER_PID"
 }

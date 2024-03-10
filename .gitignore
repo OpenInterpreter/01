@@ -4,9 +4,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-01OS/01OS/server/conversations/user.json
-01OS/01OS/server/tts/local_service/*
-01OS/01OS/server/stt/local_service/*
+_01OS/_01OS/server/conversations/user.json
+_01OS/_01OS/server/tts/local_service/*
+_01OS/_01OS/server/stt/local_service/*
 
 # C extensions
 *.so
@@ -167,5 +167,5 @@ cython_debug/
 
 # ignore the aifs index files
 _.aifs
-01OS/output_audio.wav
+_01OS/output_audio.wav
 .DS_Store

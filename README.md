@@ -25,7 +25,7 @@ Today is launch day. Read our <a href="https://changes.openinterpreter.com/log/t
 <br> -->
 
 ```shell
-pip install 01OS
+pip install _01OS
 ```
 
 > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup).
@@ -38,7 +38,7 @@ pip install 01OS
 
 **The 01 project** is an open-source ecosystem for artificially intelligent devices.
 
-By combining code-interpreting language models with speech recognition and voice synthesis, the 01’s flagship operating system (the 01OS) can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
+By combining code-interpreting language models with speech recognition and voice synthesis, the 01’s flagship operating system (the _01OS) can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
 
 We intend to become the “Linux” of this space— open, modular, and free for personal or commercial use.
 
@@ -61,7 +61,7 @@ If you want to run local speech-to-text using Whisper, install Rust. Follow the 
 ### Install and run the 01 CLI
 
 ```shell
-pip install 01OS
+pip install _01OS
 ```
 
 ```shell
@@ -113,8 +113,8 @@ Please see our [contributing guidelines](docs/CONTRIBUTING.md) for more details 
 # Clone the repo
 git clone https://github.com/KillianLucas/01.git
 
-# Go to the 01OS directory
-cd 01OS
+# Go to the _01OS directory
+cd _01OS
 
 # Install python dependencies
 poetry install

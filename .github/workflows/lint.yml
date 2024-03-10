@@ -27,7 +27,7 @@ jobs:
         run: sudo apt-get install portaudio19-dev python-all-dev
 
       - name: Install Poetry Package
-        working-directory: 01OS # Set the working directory to "01OS"
+        working-directory: _01OS # Set the working directory to "_01OS"
         run: |
           pip install --upgrade pip
           pip install poetry==1.3.2

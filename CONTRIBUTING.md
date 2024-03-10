@@ -1,6 +1,6 @@
 # ●
 
-**01 is the world's first open-source Language Model Computer (LMC). 01OS is the operating system that powers it**
+**01 is the world's first open-source Language Model Computer (LMC). _01OS is the operating system that powers it**
 
 There are many ways to contribute, from helping others on [Github](https://github.com/KillianLucas/01/issues) or [Discord](https://discord.gg/Hvz9Axh84z), writing documentation, or improving code.
 
@@ -14,7 +14,7 @@ If you encounter a bug or have a feature in mind, [search if an issue already ex
 
 ## Philosophy
 
-01OS embodies a philosophy of breaking free from technological limitations and knowledge gaps by leveraging AI for intuitive, natural language interactions, democratizing access to compute through open-source flexibility and transforming devices into responsive, human-centric computing tools.
+_01OS embodies a philosophy of breaking free from technological limitations and knowledge gaps by leveraging AI for intuitive, natural language interactions, democratizing access to compute through open-source flexibility and transforming devices into responsive, human-centric computing tools.
 
 # Contribution Guidelines
 
@@ -31,7 +31,7 @@ We will review PRs when possible and work with you to integrate your contributio
 
 Once you've forked the code and created a new branch for your work, you can run the fork by following these steps:
 
-1. CD into the project folder `/01OS`
+1. CD into the project folder `/_01OS`
 2. Install dependencies `poetry install`
 3. Run the program `poetry run 01`
 
