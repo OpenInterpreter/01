@@ -1,0 +1,52 @@
+[tool.poetry]
+name = "_01OS"
+packages = [
+    {include = "_01OS"},
+]
+include = ["start.py"]
+version = "0.0.13"
+description = "The open-source language model computer"
+authors = ["Killian <killian@openinterpreter.com>"]
+license = "AGPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+pyaudio = "^0.2.14"
+pynput = "^1.7.6"
+fastapi = "^0.110.0"
+uvicorn = "^0.27.1"
+websockets = "^12.0"
+python-dotenv = "^1.0.1"
+ffmpeg-python = "^0.2.0"
+textual = "^0.50.1"
+pydub = "^0.25.1"
+ngrok = "^1.0.0"
+simpleaudio = "^1.0.4"
+opencv-python = "^4.9.0.80"
+open-interpreter = {version = "0.2.1rc2", extras = ["os"]}
+psutil = "^5.9.8"
+typer = "^0.9.0"
+platformdirs = "^4.2.0"
+rich = "^13.7.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+01 = "start:app"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10.1"
+isort = "^5.12.0"
+pre-commit = "^3.6.2"
+pytest = "^8.1.1"
+
+[tool.black]
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
