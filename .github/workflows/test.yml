@@ -12,29 +12,43 @@ concurrency:
 jobs:
   pytest:
     name: Run Test
-    runs-on: ubuntu-latest
+
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11"]
     defaults:
       run:
         working-directory: 01OS
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install poetry
         run: pipx install poetry
+
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
+
+      - name: Installing Portaudio in Ubuntu
+        if: ${{ matrix.os }} == "ubuntu-latest"
+        run: sudo apt-get install portaudio19-dev python-all-dev
+
+      - name: Installing Portaudio in Mac
+        if: ${{ matrix.os }} == "mac-latest"
+        run: brew install portaudio
+
       - name: Install Poetry Package
         run: |
-          sudo apt-get install portaudio19-dev python-all-dev
           pip install --upgrade pip
           pip install poetry==1.3.2
           poetry config virtualenvs.create false
           poetry install --no-interaction --with dev
+
       - name: Run Pytest
         run: poetry run pytest tests
