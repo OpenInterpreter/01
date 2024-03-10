@@ -1,16 +1,52 @@
-# ○
-
 Official pre-release repository for [The 01 Project](https://twitter.com/hellokillian/status/1745875973583896950).
 
-> **11** days remaining until launch
+> **4** days remaining until launch
+
+<h1 align="center">○</h1>
+
+<p align="center">
+    <a href="https://discord.gg/Hvz9Axh84z">
+        <img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=social&logoColor=black"/></a>
+    <br>
+    <br>
+    <strong>The open-source language model computer.</strong><br>
+    <!-- <br><a href="https://openinterpreter.com">Preorder the Light</a>‎ ‎ |‎ ‎ <a href="https://openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://docs.openinterpreter.com/">Documentation</a><br> -->
+</p>
 
 <br>
 
-### [View task list ↗](https://github.com/KillianLucas/01/blob/main/TASKS.md)
+![poster](https://pbs.twimg.com/media/GDqTVYzbgAIfLJf?format=png&name=4096x4096)
 
 <br>
 
-## Install dependencies:
+<!-- <p align="center">
+Today is launch day. Read our <a href="https://changes.openinterpreter.com/log/the-new-computer-update">founding statement →</a>
+</p>
+<br> -->
+
+```shell
+pip install 01OS
+```
+
+> Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup).
+
+```shell
+01 # Run this to start the 01.
+```
+
+<br>
+
+**The 01 project** is an open-source ecosystem for artificially intelligent devices.
+
+By combining code-interpreting language models with speech recognition and voice synthesis, the 01’s flagship operating system (the 01OS) can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
+
+We intend to become the “Linux” of this space— open, modular, and free for personal or commercial use.
+
+<br>
+
+## Setup
+
+### Install dependencies
 
 ```bash
 # MacOS
@@ -22,92 +58,76 @@ sudo apt-get install portaudio19-dev ffmpeg cmake
 
 If you want to run local speech-to-text using Whisper, install Rust. Follow the instructions given [here](https://www.rust-lang.org/tools/install).
 
-## Setup for usage (experimental):
+### Install and run the 01 CLI
 
-```bash
+```shell
 pip install 01OS
 ```
 
-**Run the 01:**
+```shell
+01 # This will start a server and a client.
 
-```bash
-01 # This will run the server and attempt to determine and run a client.
+01 --server # Start only a server.
+01 --server --expose # Start and expose a server via Ngrok. This will print a `server_url` for clients to connect to.
+
+01 --client --server_url your-server.com # Start only a client.
 ```
 
-**Expose an 01 Server Publicly**
+### Swap out service providers
 
-We currently support exposing the 01 server publicly via a couple of different tunnel services:
+The 01 is model agnostic to speech-to-text, text-to-speech, and language model providers.
 
-- **bore.pub** ([GitHub](https://github.com/ekzhang/bore))
+Select your provider by running:
 
-  - **Requirements:** Ensure that Rust is installed ([Rust Installation](https://www.rust-lang.org/tools/install)), then run:
-    ```
-    cargo install bore-cli
-    ```
-  - **To Expose:**
-    ```bash
-    01 --server --expose-with-bore
-    ```
-
-- **localtunnel** ([GitHub](https://github.com/localtunnel/localtunnel))
-
-  - **Requirements:** Ensure that Node.js is installed ([Node.js Download](https://nodejs.org/en/download)), then run:
-    ```
-    npm install -g localtunnel
-    ```
-  - **To Expose:**
-    ```bash
-    01 --server --expose-with-localtunnel
-    ```
-
-- **ngrok** ([Website](https://ngrok.com/))
-  - **Requirements:** Install ngrok ([Getting Started with ngrok](https://ngrok.com/docs/getting-started/)), and set up an ngrok account. Get your auth key from [ngrok dashboard](https://dashboard.ngrok.com/get-started/your-authtoken), then set it in your local configuration by running:
-    ```
-    ngrok config add-authtoken your_auth_token_here
-    ```
-  - **To Expose:**
-    ```bash
-    01 --server --expose-with-ngrok
-    ```
-
-**Run a specific client:**
-
-```bash
-01 --client macos # Options: macos, rpi
+```shell
+01 --tts-service openai
+01 --llm-service openai
+01 --stt-service openai
 ```
 
-**Run locally:**
+[View all providers ↗](https://docs.litellm.ai/docs/providers/), or [join the 01 team by adding a service provider. ↗]()
 
-The current default uses OpenAI's services.
+### Run the 01 locally
 
-The `--local` flag will install and run the [whisper.cpp](https://github.com/ggerganov/whisper.cpp) STT and [Piper](https://github.com/rhasspy/piper) TTS models.
+Some service providers don't require an internet connection.
 
-```bash
-01 --local # Local client and server
-01 --local --server --expose-with-bore  # Expose the local server with a public tunnel
+The following command will attempt to download and use the best providers for your hardware:
+
+```shell
+01 --local
 ```
 
-**Teach Mode (experimental)**
+## How Does it Work?
 
-Running `01 --teach` runs 01 in teach mode, where you can add your own skills for Open Interpreter to use, through an easy-to-follow GUI.
+The 01 equips a language model (wrapped in a voice interface) with an `exec()` function, which allows it to write and run code to control computers.
 
-<br>
+We only stream speech to/from the end user's device.
 
-## Setup for development:
+# Contributing
+
+Please see our [contributing guidelines](docs/CONTRIBUTING.md) for more details on how to get involved.
+
+### Setup for development
 
 ```bash
-# Clone the repo, cd into the 01OS directory
+# Clone the repo
 git clone https://github.com/KillianLucas/01.git
+
+# Go to the 01OS directory
 cd 01OS
 
-# Install dependencies, run the commands above
+# Install python dependencies
 poetry install
+
+# Run it
 poetry run 01
 ```
 
-**Configuration:**
+<br>
 
-Copy the `01OS/.env.example` file to `01OS/.env` then configure the environment variables within the file.
+# Roadmap
+
+Visit [our roadmap](https://github.com/KillianLucas/open-interpreter/blob/main/docs/ROADMAP.md) to see the future of the 01.
 
 <br>
 

@@ -3,7 +3,7 @@ name = "01OS"
 packages = [
     {include = "01OS"},
 ]
-include = [".env.example", "start.py", "start.sh"]
+include = ["start.py"]
 version = "0.0.13"
 description = "The open-source language model computer"
 authors = ["Killian <killian@openinterpreter.com>"]
@@ -12,7 +12,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-asyncio = "^3.4.3"
 pyaudio = "^0.2.14"
 pynput = "^1.7.6"
 fastapi = "^0.110.0"

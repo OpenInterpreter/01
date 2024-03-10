@@ -38,6 +38,55 @@ def run(
             local: bool = typer.Option(False, "--local", help="Use recommended local services for LLM, STT, and TTS"),
         ):
     
+    _run(
+        server=server,
+        server_host=server_host,
+        server_port=server_port,
+        tunnel_service=tunnel_service,
+        expose=expose,
+        client=client,
+        server_url=server_url,
+        client_type=client_type,
+        llm_service=llm_service,
+        model=model,
+        llm_supports_vision=llm_supports_vision,
+        llm_supports_functions=llm_supports_functions,
+        context_window=context_window,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        tts_service=tts_service,
+        stt_service=stt_service,
+        local=local
+    )
+
+def _run(
+            server: bool = False,
+            server_host: str = "0.0.0.0",
+            server_port: int = 8000,
+            
+            tunnel_service: str = "bore",
+            expose: bool = False,
+            
+            client: bool = False,
+            server_url: str = None,
+            client_type: str = "auto",
+            
+            llm_service: str = "litellm",
+            
+            model: str = "gpt-4",
+            llm_supports_vision: bool = False,
+            llm_supports_functions: bool = False,
+            context_window: int = 2048,
+            max_tokens: int = 4096,
+            temperature: float = 0.8,
+            
+            tts_service: str = "openai",
+            
+            stt_service: str = "openai",
+
+            local: bool = False
+        ):
+    
     if local:
         tts_service = "piper"
         # llm_service = "llamafile"
