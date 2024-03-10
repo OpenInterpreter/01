@@ -1,9 +1,7 @@
 name: Run Test
 
 on:
-  # pull_request:
-  #   branches: [main]
-  push:
+  push: # Trigger the workflow on push events
 
 concurrency:
   group: "test"
@@ -18,10 +16,13 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11"]
+
     defaults:
       run:
         working-directory: 01OS
+
     runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,14 +36,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
 
+      # Install Portaudio on Ubuntu
       - name: Installing Portaudio in Ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install portaudio19-dev python-all-dev
 
+      # Install Portaudio on macOS using Homebrew
       - name: Installing Portaudio in Mac
         if: matrix.os == 'macos-latest'
         run: brew install portaudio
 
+      # Install Poetry and project dependencies
       - name: Install Poetry Package
         run: |
           pip install --upgrade pip
@@ -50,5 +54,6 @@ jobs:
           poetry config virtualenvs.create false
           poetry install --no-interaction --with dev
 
+      # Run pytest
       - name: Run Pytest
         run: poetry run pytest tests

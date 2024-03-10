@@ -5,26 +5,34 @@ on:
     branches: [main]
 
 concurrency:
-  group: "lint"
+  group: "lint" # Concurrency group named "lint"
   cancel-in-progress: false
 
 jobs:
   pre-commit:
     name: Pre-Commit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Run the job on the latest version of Ubuntu
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Checkout the repository code
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.11" # Set up Python version 3.11 for the job
+
+      # Install Portaudio on Ubuntu
+      - name: Installing Portaudio in Ubuntu
+        run: sudo apt-get install portaudio19-dev python-all-dev
+
       - name: Install Poetry Package
-        working-directory: 01OS
+        working-directory: 01OS # Set the working directory to "01OS"
         run: |
           pip install --upgrade pip
           pip install poetry==1.3.2
           poetry config virtualenvs.create false
           poetry install --no-interaction --with dev
+
       - name: Run Pre-commit
         run: pre-commit run --all-files
