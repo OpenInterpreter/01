@@ -1,7 +1,9 @@
 name: Run Test
 
 on:
-  push: # Trigger the workflow on push events
+  pull_request:
+    branches: [main]
+  # push: # Trigger the workflow on push events
 
 concurrency:
   group: "test"
