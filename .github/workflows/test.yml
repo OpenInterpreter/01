@@ -1,0 +1,61 @@
+name: Run Test
+
+on:
+  pull_request:
+    branches: [main]
+  # push: # Trigger the workflow on push events
+
+concurrency:
+  group: "test"
+  cancel-in-progress: false
+
+jobs:
+  pytest:
+    name: Run Test
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11"]
+
+    defaults:
+      run:
+        working-directory: 01OS
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "poetry"
+
+      # Install Portaudio on Ubuntu
+      - name: Installing Portaudio in Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install portaudio19-dev python-all-dev
+
+      # Install Portaudio on macOS using Homebrew
+      - name: Installing Portaudio in Mac
+        if: matrix.os == 'macos-latest'
+        run: brew install portaudio
+
+      # Install Poetry and project dependencies
+      - name: Install Poetry Package
+        run: |
+          pip install --upgrade pip
+          pip install poetry==1.3.2
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --with dev
+
+      # Run pytest
+      - name: Run Pytest
+        run: poetry run pytest tests
