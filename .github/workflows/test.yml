@@ -40,7 +40,7 @@ jobs:
         run: sudo apt-get install portaudio19-dev python-all-dev
 
       - name: Installing Portaudio in Mac
-        if: matrix.os == 'mac-latest'
+        if: matrix.os == 'macos-latest'
         run: brew install portaudio
 
       - name: Install Poetry Package
