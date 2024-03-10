@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -35,4 +37,4 @@ jobs:
           poetry config virtualenvs.create false
           poetry install --no-interaction --with dev
       - name: Run Pytest
-        run: pytest tests
+        run: poetry run pytest tests
