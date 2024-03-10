@@ -26,7 +26,7 @@ jobs:
       - name: Install Poetry Package
         working-directory: 01OS
         run: |
-          apt-get install portaudio19-dev python-all-dev
+          sudo apt-get install portaudio19-dev python-all-dev
           pip install --upgrade pip
           pip install poetry==1.3.2
           poetry config virtualenvs.create false
