@@ -1,0 +1,37 @@
+---
+title: 01OS Settings
+description: "Settings when running 01OS"
+---
+
+### Server
+
+Runs the server
+
+```bash Terminal
+01 --server
+```
+
+### Expose
+
+Expose an 01 server publically
+
+```bash Terminal
+01 --server --expose # This will print a URL that a client can point to.
+```
+
+### Client
+
+Runs a specific client
+
+```bash Terminal
+01 --client macos # Options: macos, rpi
+```
+
+### Local
+
+The --local flag will install and run the whisper.cpp STT and Piper TTS models.
+
+```bash Terminal
+01 --local # Local client and server
+01 --local --server --expose # Expose a local server
+```

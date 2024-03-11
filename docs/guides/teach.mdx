@@ -1,0 +1,24 @@
+---
+title: Adding Skills
+description: "Teach 01OS new skills"
+---
+
+Sometimes the 01OS will run into a task it doesn't have the skills to do yet. When this happens, you can teach it a new skill using Teach Mode. Teach Mode consists of 3 steps: start teach mode, walk through and confirm each step, then exit teach mode.
+
+## How To Teach
+
+- < To start Teach Mode >
+- cd ../01/01OS/ (we reccomend starting a virtual environment [would it be good to link to info on setting up a venv?])
+- poetry run 01 --teach
+- Enter the name of the skill you want to teach.
+- Walk through the first step to show the 01OS what the action looks like.
+- The 01OS will attempt to perform the first step.
+- Confirm whether or not the 01OS successfully copied your action.
+> - If it wasn't performed correctly, select "no" and adjust the prompt for the retrying.
+> - If it was performed correctly, select "yes" and the code for that step will be added to the skill's python file 
+- Once you've finished all steps required to perform the skill, confirm that the skill is complete.
+- The skill has been saved as a Python file, which the 01OS can now intelligently execute whenever your prompt would benefit from the skill.
+
+_Disclaimer:_ We caution against showing any sensitive information on your screen while Teach Mode is running.
+The developer preview version of 01OS collects data during Teach Mode that is used to train the 01OS for future versions. 
+Reach out to partnerships@openinterpreter.com with any questions or concerns. [Thoughs Mike? would it be better to setup privacy@openinterpreter.com or something lol?]

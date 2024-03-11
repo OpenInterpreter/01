@@ -1,0 +1,63 @@
+{
+  "name": "01",
+  "logo": {
+    "dark": "/logo/Z-icon-white.png",
+    "light": "/logo/Z-icon-black.png"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#000000",
+    "light": "#FFFFFF",
+    "dark": "#000000",
+    "background": {
+      "light": "#FFFFFF",
+      "dark": "#000000"
+    },
+    "anchors": {
+      "from": "#000000",
+      "to": "#000000"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/KillianLucas/01"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Join Discord",
+    "url": "https://discord.com/invite/Hvz9Axh84z"
+  },
+  "primaryTab": {
+    "name": "Home"
+  },
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "setup"]
+    },
+    {
+      "group": "Guides",
+      "pages": ["guides/hardware", "guides/software", "guides/teach"]
+    },
+    {
+      "group": "01OS",
+      "pages": ["01os/01os-settings", "01os/environment-variables"]
+    },
+    {
+      "group": "Technical",
+      "pages": [
+        "technical-instructions/development",
+        "technical-instructions/build-hardware"
+      ]
+    }
+  ],
+  "feedback": {
+    "suggestEdit": true
+  },
+  "footerSocials": {
+    "twitter": "https://x.com/OpenInterpreter",
+    "github": "https://github.com/KillianLucas/01",
+    "discord": "https://discord.gg/E2XTbkj4JF"
+  }
+}
