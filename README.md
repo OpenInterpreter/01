@@ -72,7 +72,7 @@ pip install 01OS
 
 ### For ESP32 boards
 
-Please visit our [ESP32 setup documentation](https://github.com/KillianLucas/01/tree/main/01OS/01OS/clients/esp32).
+Please visit our [ESP32 setup documentation](https://github.com/OpenInterpreter/01/tree/main/01OS/01OS/clients/esp32).
 
 ### For Mac, Windows, and Ubuntu machines
 
