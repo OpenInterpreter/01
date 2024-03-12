@@ -28,7 +28,7 @@ Today is launch day. Read our <a href="https://changes.openinterpreter.com/log/t
 pip install 01OS
 ```
 
-> Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup).
+<!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
 
 ```shell
 01 # Run this to start the 01.
@@ -38,9 +38,9 @@ pip install 01OS
 
 **The 01 project** is an open-source ecosystem for artificially intelligent devices.
 
-By combining code-interpreting language models with speech recognition and voice synthesis, the 01’s flagship operating system (the 01OS) can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
+By combining code-interpreting language models ("interpreters") with speech recognition and voice synthesis, the 01’s flagship operating system ("01OS") can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
 
-We intend to become the “Linux” of this space— open, modular, and free for personal or commercial use.
+We intend to become the “Linux” of this new space— open, modular, and free for personal or commercial use.
 
 <br>
 
@@ -65,7 +65,7 @@ pip install 01OS
 ```
 
 ```shell
-01 # This will start a server and a client.
+01 # Start a server and a client.
 
 01 --server # Start only a server.
 01 --server --expose # Start and expose a server via Ngrok. This will print a `server_url` for clients to connect to.
