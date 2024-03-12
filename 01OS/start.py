@@ -15,7 +15,7 @@ def run(
             server_host: str = typer.Option("0.0.0.0", "--server-host", help="Specify the server host where the server will deploy"),
             server_port: int = typer.Option(8000, "--server-port", help="Specify the server port where the server will deploy"),
             
-            tunnel_service: str = typer.Option("bore", "--tunnel-service", help="Specify the tunnel service"),
+            tunnel_service: str = typer.Option("ngrok", "--tunnel-service", help="Specify the tunnel service"),
             expose: bool = typer.Option(False, "--expose", help="Expose server to internet"),
             
             client: bool = typer.Option(False, "--client", help="Run client"),
