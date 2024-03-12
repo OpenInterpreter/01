@@ -19,7 +19,7 @@ int server_port = 8000;
 
 // Pre reading on the fundamentals of captive portals https://textslashplain.com/2022/06/24/captive-portals/
 
-const char *ssid = "captive"; // FYI The SSID can't have a space in it.
+const char *ssid = "01-Light"; // FYI The SSID can't have a space in it.
 // const char * password = "12345678"; //Atleast 8 chars
 const char *password = NULL; // no password
 
@@ -38,7 +38,21 @@ const int kNetworkDelay = 1000;
 
 String generateHTMLWithSSIDs()
 {
-    String html = "<!DOCTYPE html><html><body><h2>Select Wi-Fi Network</h2><form action='/submit' method='POST'><label for='ssid'>SSID:</label><select id='ssid' name='ssid'>";
+ String html = "<!DOCTYPE html><html><head><title>WiFi Setup</title>"
+    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+    "<style> *{box-sizing: border-box;} body {background-color: #fff; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; font-family: Helvetica, sans-serif;} "
+    "h1 {color: black; text-align: center; margin: 40px;}"
+    "form {display: flex; flex-direction: column; align-items: center;} "
+    "input[type='text'], input[type='password'], select {margin-bottom: 10px; font-size: 16px; padding: 8px;} "
+    "input[type='submit'] {background-color: black; color: white; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px; margin-top: 28px;} "
+    "input[type='submit']:hover {background-color: #333; }#otherSSID {display: none;}</style>"
+    "<script>function checkSSID(value) {"
+    "var otherSSID = document.getElementById('otherSSID');"
+    "if(value === 'OTHER') { otherSSID.style.display = 'block'; } else { otherSSID.style.display = 'none'; }}"
+    "</script></head>"
+    "<body><h1>01 Light</h1><form action='/submit' method='post'>"
+    "<div><div><label for='ssid'>WiFi Network Name:</label><br><br>"
+    "<select id='ssid' name='ssid' onchange='checkSSID(this.value);'>";
 
     int n = WiFi.scanComplete();
     for (int i = 0; i < n; ++i)
@@ -46,35 +60,12 @@ String generateHTMLWithSSIDs()
         html += "<option value='" + WiFi.SSID(i) + "'>" + WiFi.SSID(i) + "</option>";
     }
 
-    html += "</select><br><label for='password'>Password:</label><input type='password' id='password' name='password'><br><input type='submit' value='Connect'></form></body></html>";
+    html += "<option value='OTHER'>Other</option></select><br><br><input type='text' id='otherSSID' name='otherSSID' placeholder='Enter WiFi Name'><br></div><div><label for='password'>Password:</label><br><br>"
+            "<input type='password' id='password' name='password' ><br></div></div>"
+            "<input type='submit' value='Connect'/></form></body></html>";
 
     return html;
 }
-
-const char index_html[] PROGMEM = R"=====(
-<!DOCTYPE html>
-<html>
-<head>
-  <title>WiFi Setup</title>
-  <style>
-    body {background-color:#06cc13;}
-    h1 {color: white;}
-    h2 {color: white;}
-  </style>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-  <h1>WiFi Setup</h1>
-  <form action="/submit" method="post">
-    <label for="ssid">SSID:</label><br>
-    <input type="text" id="ssid" name="ssid"><br>
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password"><br><br>
-    <input type="submit" value="Connect">
-  </form>
-</body>
-</html>
-)=====";
 
 const char post_connected_html[] PROGMEM = R"=====(
 <!DOCTYPE html>
@@ -82,19 +73,109 @@ const char post_connected_html[] PROGMEM = R"=====(
 <head>
   <title>01OS Setup</title>
   <style>
-    body {background-color:white;}
-    h1 {color: black;}
-    h2 {color: black;}
+  
+  * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      font-family: Helvetica, sans-serif;
+    }
+
+    h1 {
+      color: black;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    input[type="text"]{
+      width: 100%;
+      font-size: 16px;
+      padding: 8px;
+    }
+    input[type="submit"] {
+      background-color: black;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+      width: 100%;
+    }
+    input[type="submit"]:hover {
+      background-color: #333;
+    }
+    
+
+
+    #error_message {
+    color: red;
+    font-weight: bold;
+    text-align: center; 
+    width: 100%;
+    margin-top: 20px; 
+    max-width: 300px;
+}
   </style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
   <h1>01OS Setup</h1>
   <form action="/submit_01os" method="post">
-    <label for="server_address">01OS Server Address:</label><br>
-    <input type="text" id="server_address" name="server_address"><br>
-    <input type="submit" value="Connect">
+    <div class="contain">
+      <label for="server_address">Server Address:</label><br><br>
+      <input type="text" id="server_address" name="server_address"><br><br>
+    </div>
+
+   
+
+    <input type="submit" value="Connect"/>
+     <p id="error_message"></p>
   </form>
+</body>
+</html>
+)=====";
+
+String successHtml = R"=====(
+<!DOCTYPE html>
+<html>
+<head>
+  <title>01OS Setup</title>
+  <style>
+    body {
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+    }
+    h2 {
+      color: black;
+      text-align: center;
+      margin-bottom: 0px;
+
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h2>Connected to 01OS!</h1>
+  <p>You can now close this window</p>
 </body>
 </html>
 )=====";
@@ -167,28 +248,50 @@ void connectToWifi(String ssid, String password)
 bool connectTo01OS(String server_address)
 {
     int err = 0;
+    int port = 80;
 
     String domain;
     String portStr;
 
-    if (server_address.indexOf(":") != -1) {
-        domain = server_address.substring(0, server_address.indexOf(':'));
-        portStr = server_address.substring(server_address.indexOf(':') + 1);
+    // Remove http and https, as it causes errors in HttpClient, the library relies on adding the host header itself
+    if (server_address.startsWith("http://")) {
+        server_address.remove(0, 7);
+
+    } else if (server_address.startsWith("https://")) {
+        server_address.remove(0, 8);
+
+    }
+
+    // Remove trailing slash, causes issues
+    if (server_address.endsWith("/")) {
+        server_address.remove(server_address.length() - 1);
+    }
+
+    int colonIndex = server_address.indexOf(':');
+    if (colonIndex != -1) {
+        domain = server_address.substring(0, colonIndex);
+        portStr = server_address.substring(colonIndex + 1);
     } else {
         domain = server_address;
-        portStr = ""; // or any default value you want to assign
+        portStr = ""; 
     }
-    int port = 0; // Default port value
+
+    WiFiClient c;
+
+
+    //If there is a port, set it
     if (portStr.length() > 0) {
         port = portStr.toInt();
     }
 
-    WiFiClient c;
-    HttpClient http(c, domain.c_str(), port);
-
+    HttpClient http(c, domain.c_str(), port); 
     Serial.println("Connecting to 01OS at " + domain + ":" + port + "/ping");
+
+    if (domain.indexOf("ngrok") != -1) {
+        http.sendHeader("ngrok-skip-browser-warning", "80");
+    }
+
     err = http.get("/ping");
-    // err = http.get("arduino.cc", "/");
     bool connectionSuccess = false;
 
     if (err == 0)
@@ -215,20 +318,21 @@ bool connectTo01OS(String server_address)
                 Serial.print("Content length is: ");
                 Serial.println(bodyLen);
                 Serial.println();
-                Serial.println("Body returned follows:");
+                Serial.println("Body:");
 
                 // Now we've got to the body, so we can print it out
                 unsigned long timeoutStart = millis();
                 char c;
                 // Whilst we haven't timed out & haven't reached the end of the body
                 while ((http.connected() || http.available()) &&
-                       ((millis() - timeoutStart) < kNetworkTimeout))
+                    ((millis() - timeoutStart) < kNetworkTimeout))
                 {
                     if (http.available())
                     {
                         c = http.read();
                         // Print out this character
                         Serial.print(c);
+                        Serial.print("");
 
                         bodyLen--;
                         // We read something, reset the timeout counter
@@ -256,7 +360,7 @@ bool connectTo01OS(String server_address)
     }
     else
     {
-        Serial.print("Connect failed: ");
+        Serial.print("Connection failed: ");
         Serial.println(err);
     }
   return connectionSuccess;
@@ -304,18 +408,18 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     // Serve Basic HTML Page
     server.on("/", HTTP_ANY, [](AsyncWebServerRequest *request)
               {
-	String htmlContent = index_html;
-    Serial.printf("wifi scan complete: %d . WIFI_SCAN_RUNNING: %d", WiFi.scanComplete(), WIFI_SCAN_RUNNING);
+	String htmlContent = "";
+    Serial.printf("Wifi scan complete: %d . WIFI_SCAN_RUNNING: %d", WiFi.scanComplete(), WIFI_SCAN_RUNNING);
     if(WiFi.scanComplete() > 0) {
       // Scan complete, process results
-      Serial.println("done scanning wifi");
+      Serial.println("Done scanning wifi");
       htmlContent = generateHTMLWithSSIDs();
       // WiFi.scanNetworks(true); // Start a new scan in async mode
     }
 		AsyncWebServerResponse *response = request->beginResponse(200, "text/html", htmlContent);
 		response->addHeader("Cache-Control", "public,max-age=31536000");  // save this file to cache for 1 year (unless you refresh)
 		request->send(response);
-		Serial.println("Served Basic HTML Page"); });
+		Serial.println("Served HTML Page"); });
 
     // the catch all
     server.onNotFound([](AsyncWebServerRequest *request)
@@ -335,12 +439,19 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     // Check if SSID parameter exists and assign it
     if(request->hasParam("ssid", true)) {
         ssid = request->getParam("ssid", true)->value();
+        // If "OTHER" is selected, use the value from "otherSSID"
+        if(ssid == "OTHER" && request->hasParam("otherSSID", true)) {
+            ssid = request->getParam("otherSSID", true)->value();
+            Serial.println("OTHER SSID SELECTED: " + ssid);
+        }
     }
-
+    
     // Check if Password parameter exists and assign it
     if(request->hasParam("password", true)) {
         password = request->getParam("password", true)->value();
     }
+    // Serial.println(ssid);
+    // Serial.println(password);
 
     // Attempt to connect to the Wi-Fi network with these credentials
     connectToWifi(ssid, password);
@@ -373,13 +484,27 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
 
     if (connectedToServer)
     {
-      connectionMessage = "Connected to 01OS " + server_address;
+        AsyncWebServerResponse *response = request->beginResponse(200, "text/html", successHtml);
+        response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");  // Prevent caching of this page
+        request->send(response);     
+        Serial.println(" ");
+        Serial.println("Connected to 01 websocket!");
+        Serial.println(" ");
+        Serial.println("Served success HTML Page");
     }
     else
     {
-      connectionMessage = "Couldn't connect to 01OS " + server_address;
+      // If connection fails, serve the error page instead of sending plain text
+        String htmlContent = String(post_connected_html); // Load your HTML template
+        // Inject the error message
+        htmlContent.replace("<p id=\"error_message\"></p>", "<p id=\"error_message\" style=\"color: red;\">Error connecting, please try again.</p>");
+        
+        AsyncWebServerResponse *response = request->beginResponse(200, "text/html", htmlContent);
+        response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");  // Prevent caching of this page
+        request->send(response);
+        Serial.println("Served Post connection HTML Page with error message");
     }
-    request->send(200, "text/plain", connectionMessage); });
+    });
 }
 
 // ----------------------- END OF WIFI CAPTIVE PORTAL -------------------
@@ -444,7 +569,7 @@ void InitI2SSpeakerOrMic(int mode)
 #if ESP_IDF_VERSION > ESP_IDF_VERSION_VAL(4, 1, 0)
         .communication_format =
             I2S_COMM_FORMAT_STAND_I2S, // Set the format of the communication.
-#else                                  // 设置通讯格式
+#else                                 
         .communication_format = I2S_COMM_FORMAT_I2S,
 #endif
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
@@ -478,7 +603,7 @@ void InitI2SSpeakerOrMic(int mode)
     err += i2s_set_pin(SPEAKER_I2S_NUMBER, &tx_pin_config);
     // Serial.println("Init i2s_set_clk");
     err += i2s_set_clk(SPEAKER_I2S_NUMBER, 16000, I2S_BITS_PER_SAMPLE_16BIT,
-                       I2S_CHANNEL_MONO);
+                    I2S_CHANNEL_MONO);
 }
 
 void speaker_play(uint8_t *payload, uint32_t len)
@@ -487,7 +612,7 @@ void speaker_play(uint8_t *payload, uint32_t len)
     size_t bytes_written;
     InitI2SSpeakerOrMic(MODE_SPK);
     i2s_write(SPEAKER_I2S_NUMBER, payload, len,
-              &bytes_written, portMAX_DELAY);
+            &bytes_written, portMAX_DELAY);
 }
 
 void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
@@ -551,7 +676,7 @@ void websocket_setup(String server_domain, int port)
         return;
     }
     Serial.println("connected to WiFi");
-    webSocket.begin(server_domain, port, "/");
+    webSocket.begin(server_domain, 80, "/");
     webSocket.onEvent(webSocketEvent);
     //    webSocket.setAuthorization("user", "Password");
     webSocket.setReconnectInterval(5000);
@@ -559,7 +684,7 @@ void websocket_setup(String server_domain, int port)
 
 void flush_microphone()
 {
-    Serial.printf("[microphone] flushing %d bytes of data\n", data_offset);
+    Serial.printf("[microphone] flushing and sending %d bytes of data\n", data_offset);
     if (data_offset == 0)
         return;
     webSocket.sendBIN(microphonedata0, data_offset);
@@ -601,7 +726,7 @@ void setup()
     Serial.print("\n");
 
     M5.begin(true, false, true);
-    M5.dis.drawpix(0, CRGB(128, 128, 0));
+    M5.dis.drawpix(0, CRGB(255, 0, 50));
 }
 
 void loop()
@@ -615,18 +740,18 @@ void loop()
         if (server_domain != "")
         {
             Serial.println("Setting up websocket to 01OS " + server_domain + ":" + server_port);
-
             websocket_setup(server_domain, server_port);
             InitI2SSpeakerOrMic(MODE_SPK);
 
             hasSetupWebsocket = true;
+            M5.dis.drawpix(0, CRGB(0, 128, 150));
 
             Serial.println("Websocket connection flow completed");
         }
-        else
-        {
-            Serial.println("No valid 01OS server address yet...");
-        }
+        // else
+        // {
+        //     // Serial.println("No valid 01OS server address yet...");
+        // }
         // If connected, you might want to do something, like printing the IP address
         // Serial.println("Connected to WiFi!");
         // Serial.println("IP Address: " + WiFi.localIP().toString());
