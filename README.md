@@ -1,6 +1,6 @@
 Official pre-release repository for [The 01 Project](https://twitter.com/hellokillian/status/1745875973583896950).
 
-> **4** days remaining until launch
+> **3** days remaining until launch
 
 <h1 align="center">○</h1>
 
@@ -65,9 +65,20 @@ pip install 01OS
 ```
 
 ```shell
+01 --server # Start a server for a hardware device to listen to.
+```
+
+# Client Setup
+
+### For ESP32 boards
+
+Please visit our [ESP32 setup documentation](https://github.com/KillianLucas/01/tree/main/01OS/01OS/clients/esp32).
+
+### For Mac, Windows, and Ubuntu machines
+
+```
 01 # Start a server and a client.
 
-01 --server # Start only a server.
 01 --server --expose # Start and expose a server via Ngrok. This will print a `server_url` for clients to connect to.
 
 01 --client --server_url your-server.com # Start only a client.
