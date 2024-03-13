@@ -1,11 +1,7 @@
 ---
 title: Introduction
-description: "The 01 is a Language Model Computer. 01OS is its operating system"
+description: "The open-source language model computer."
 ---
-
-Introduction (the what, ripped from the github) — same as OI, I think should have a very basic setup on the bottom of that page, just about cloning the repo and running start.py.
-
-** PREVIOUS **
 
 <img
   src="https://openinterpreter.com/assets/banner.jpg"
@@ -13,17 +9,22 @@ Introduction (the what, ripped from the github) — same as OI, I think should h
   style={{ transform: "translateY(-1.25rem)" }}
 />
 
-The 01 Operating System (01OS) is open source software that operates computers using language models, powered by Open Interpreter.
-This allows computers to understand natural language requests, and execute tasks on your behalf.
-These guides will cover the steps for installing, using, and teaching 01OS.
+The 01 project is an open-source ecosystem for artificially intelligent devices.
 
-## Getting Started
+By combining code-interpreting language models ("interpreters") with speech recognition and voice synthesis, the 01’s flagship operating system ("01OS") can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
 
-The 01 Light is the interface with 01OS. It connects to your computer or our hosted service via the Internet or directly to an 01 Heavy (coming soon).
+We intend to become the “Linux” of this new space— open, modular, and free for personal or commercial use.
 
-You can order a pre-made device or find instructions for building your own at openinterpreter.com/01OS/guides/hardware-guide.
-You will always have the option to build your own device.
+## Quick Start
 
-To connect to your device, use the one click installer.
+```bash
+# Clone the repo, cd into the 01OS directory
+git clone https://github.com/OpenInterpreter/01.git
+cd 01OS
+
+# Install dependencies and run start.py
+poetry install
+poetry run 01
+```
 
 _Disclaimer:_ The current version of 01OS is a developer preview.
