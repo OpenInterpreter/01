@@ -5,8 +5,6 @@ description: "Get your 01 client up and running"
 
 (lets you pick from a grid of avaliable clients)
 
-- Desktop (basically says "just run start.py with no args, that will run the server with a client, or start.py --client to just run the client")
-
 ## ESP32 Playback
 
 To set up audio recording + playback on the ESP32 (M5 Atom), do the following:
@@ -20,3 +18,21 @@ To set up audio recording + playback on the ESP32 (M5 Atom), do the following:
 
 4. The board needs to connect to WiFi. Once you flash, connect to ESP32 wifi "captive" which will get wifi details. Once it connects, it will ask you to enter 01OS server address in the format "domain.com:port" or "ip:port". Once its able to connect you can use the device.
 5. To flash the .ino to the board, connect the board to the USB port, select the port from the dropdown on the IDE, then select the M5Atom board (or M5Stack-ATOM if you have that). Click on upload to flash the board.
+
+## Desktop
+
+### Server with a client
+
+```bash
+# install dependencies
+poetry install
+
+# run start.py with no args
+poetry run 01
+```
+
+### Client only
+
+```bash
+poetry run 01 --client
+```
