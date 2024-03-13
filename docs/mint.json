@@ -21,7 +21,7 @@
   "topbarLinks": [
     {
       "name": "GitHub",
-      "url": "https://github.com/KillianLucas/01"
+      "url": "https://github.com/OpenInterpreter/01"
     }
   ],
   "topbarCtaButton": {
@@ -34,22 +34,27 @@
   "navigation": [
     {
       "group": "Getting Started",
-      "pages": ["introduction", "setup"]
+      "pages": ["getting-started/introduction", "getting-started/setup"]
     },
     {
-      "group": "Guides",
-      "pages": ["guides/hardware", "guides/software", "guides/teach"]
+      "group": "Server",
+      "pages": ["server/setup"]
     },
     {
-      "group": "01OS",
-      "pages": ["01os/01os-settings", "01os/environment-variables"]
-    },
-    {
-      "group": "Technical",
+      "group": "Services",
       "pages": [
-        "technical-instructions/development",
-        "technical-instructions/build-hardware"
+        "services/language-model",
+        "services/speech-to-text",
+        "services/text-to-speech"
       ]
+    },
+    {
+      "group": "Client",
+      "pages": ["client/setup"]
+    },
+    {
+      "group": "Bodies",
+      "pages": ["bodies/01-light", "bodies/01-heavy"]
     }
   ],
   "feedback": {
