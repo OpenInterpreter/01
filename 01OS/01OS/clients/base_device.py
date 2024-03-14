@@ -153,7 +153,7 @@ class Device:
 
         """Record audio from the microphone and add it to the queue."""
         stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
-        logger.info("Recording started...")
+        print("Recording started...")
         global RECORDING
 
         # Create a temporary WAV file to store the audio data
@@ -171,7 +171,7 @@ class Device:
         wav_file.close()
         stream.stop_stream()
         stream.close()
-        logger.info("Recording stopped.")
+        print("Recording stopped.")
 
         duration = wav_file.getnframes() / RATE
         if duration < 0.3:
@@ -255,9 +255,9 @@ class Device:
             try:
                 async with websockets.connect(WS_URL) as websocket:
                     if CAMERA_ENABLED:
-                        logger.info("Press the spacebar to start/stop recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
+                        print("Press the spacebar to start/stop recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
                     else:
-                        logger.info("Press the spacebar to start/stop recording. Press CTRL-C to exit.")
+                        print("Press the spacebar to start/stop recording. Press CTRL-C to exit.")
                         
                     asyncio.create_task(self.message_sender(websocket))
 

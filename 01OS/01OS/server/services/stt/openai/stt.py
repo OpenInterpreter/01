@@ -44,16 +44,15 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
 
     # Export to wav
     output_path = os.path.join(temp_dir, f"output_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
-    print(mime_type, input_path, output_path)
     if mime_type == "audio/raw":
         ffmpeg.input(
             input_path,
             f='s16le',
             ar='16000',
             ac=1,
-        ).output(output_path).run()
+        ).output(output_path, loglevel='panic').run()
     else:
-        ffmpeg.input(input_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k').run()
+        ffmpeg.input(input_path).output(output_path, acodec='pcm_s16le', ac=1, ar='16k', loglevel='panic').run()
 
     try:
         yield output_path

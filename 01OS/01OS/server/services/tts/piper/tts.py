@@ -24,7 +24,7 @@ class Tts:
 
             # TODO: hack to format audio correctly for device
             outfile = tempfile.gettempdir() + "/" + "raw.dat"
-            ffmpeg.input(temp_file.name).output(outfile, f="s16le", ar="16000", ac="1").run()
+            ffmpeg.input(temp_file.name).output(outfile, f="s16le", ar="16000", ac="1", loglevel='panic').run()
 
             return outfile
 
