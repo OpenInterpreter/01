@@ -25,6 +25,7 @@ const char *password = NULL; // no password
 
 #define MAX_CLIENTS 4  // ESP32 supports up to 10 but I have not tested it yet
 #define WIFI_CHANNEL 6 // 2.4ghz channel 6 https://en.wikipedia.org/wiki/List_of_WLAN_channels#2.4_GHz_(802.11b/g/n/ax)
+#define DNS_INTERVAL 30 // Define the DNS interval in milliseconds between processing DNS requests
 
 const IPAddress localIP(4, 3, 2, 1);          // the IP address the web server, Samsung requires the IP to be in public space
 const IPAddress gatewayIP(4, 3, 2, 1);        // IP address of the network should be the same as the local IP for captive portals
@@ -185,9 +186,6 @@ AsyncWebServer server(80);
 
 void setUpDNSServer(DNSServer &dnsServer, const IPAddress &localIP)
 {
-// Define the DNS interval in milliseconds between processing DNS requests
-#define DNS_INTERVAL 30
-
     // Set the TTL for DNS response and start the DNS server
     dnsServer.setTTL(3600);
     dnsServer.start(53, "*", localIP);
@@ -195,13 +193,8 @@ void setUpDNSServer(DNSServer &dnsServer, const IPAddress &localIP)
 
 void startSoftAccessPoint(const char *ssid, const char *password, const IPAddress &localIP, const IPAddress &gatewayIP)
 {
-// Define the maximum number of clients that can connect to the server
-#define MAX_CLIENTS 4
-// Define the WiFi channel to be used (channel 6 in this case)
-#define WIFI_CHANNEL 6
-
     // Set the WiFi mode to access point and station
-    // WiFi.mode(WIFI_MODE_AP);
+    WiFi.mode(WIFI_MODE_AP);
 
     // Define the subnet mask for the WiFi network
     const IPAddress subnetMask(255, 255, 255, 0);
@@ -520,6 +513,8 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
 #define MODE_SPK 1
 #define DATA_SIZE 1024
 
+#define MAX_DATA_LEN (1024 * 9)
+
 uint8_t microphonedata0[1024 * 10];
 uint8_t speakerdata0[1024 * 1];
 int speaker_offset;
@@ -598,10 +593,7 @@ void InitI2SSpeakerOrMic(int mode)
     tx_pin_config.ws_io_num = CONFIG_I2S_LRCK_PIN;
     tx_pin_config.data_out_num = CONFIG_I2S_DATA_PIN;
     tx_pin_config.data_in_num = CONFIG_I2S_DATA_IN_PIN;
-
-    // Serial.println("Init i2s_set_pin");
     err += i2s_set_pin(SPEAKER_I2S_NUMBER, &tx_pin_config);
-    // Serial.println("Init i2s_set_clk");
     err += i2s_set_clk(SPEAKER_I2S_NUMBER, 16000, I2S_BITS_PER_SAMPLE_16BIT,
                     I2S_CHANNEL_MONO);
 }
@@ -678,7 +670,7 @@ void websocket_setup(String server_domain, int port)
     Serial.println("connected to WiFi");
     webSocket.begin(server_domain, 80, "/");
     webSocket.onEvent(webSocketEvent);
-    //    webSocket.setAuthorization("user", "Password");
+    // webSocket.setAuthorization("user", "Password");
     webSocket.setReconnectInterval(5000);
 }
 
@@ -689,6 +681,31 @@ void flush_microphone()
         return;
     webSocket.sendBIN(microphonedata0, data_offset);
     data_offset = 0;
+}
+
+void audio_recording_task(void *arg) {
+    while (1) {
+        if (recording) {
+            Serial.printf("Reading chunk at %d...\n", data_offset);
+            size_t bytes_read;
+            i2s_read(
+                SPEAKER_I2S_NUMBER,
+                (char *)(microphonedata0 + data_offset),
+                DATA_SIZE, &bytes_read, (100 / portTICK_RATE_MS));
+            data_offset += bytes_read;
+            Serial.printf("Read %d bytes in chunk.\n", bytes_read);
+
+            // Only send here
+            if (data_offset > MAX_DATA_LEN)
+            {
+                flush_microphone();
+                delay(10);
+            }
+        }
+        else {
+            delay(100);    // Wait for recording event
+        }
+    }
 }
 
 // ----------------------- END OF PLAYBACK -------------------
@@ -727,12 +744,19 @@ void setup()
 
     M5.begin(true, false, true);
     M5.dis.drawpix(0, CRGB(255, 0, 50));
+
+    /* Create task for I2S */
+    xTaskCreate(audio_recording_task, "AUDIO", 4096, NULL, 4, NULL);
 }
 
 void loop()
 {
-    dnsServer.processNextRequest(); // I call this atleast every 10ms in my other projects (can be higher but I haven't tested it for stability)
-    delay(DNS_INTERVAL);            // seems to help with stability, if you are doing other things in the loop this may not be needed
+    // Don't use delay here, should use elapsed time
+    uint32_t last_dns_ms = 0;
+    if ((millis() - last_dns_ms) > DNS_INTERVAL) {
+        last_dns_ms = millis();            // seems to help with stability, if you are doing other things in the loop this may not be needed
+        dnsServer.processNextRequest();    // I call this atleast every 10ms in my other projects (can be higher but I haven't tested it for stability)
+    }         
 
     // Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED && !hasSetupWebsocket)
@@ -748,15 +772,8 @@ void loop()
 
             Serial.println("Websocket connection flow completed");
         }
-        // else
-        // {
-        //     // Serial.println("No valid 01OS server address yet...");
-        // }
-        // If connected, you might want to do something, like printing the IP address
-        // Serial.println("Connected to WiFi!");
-        // Serial.println("IP Address: " + WiFi.localIP().toString());
-        // Serial.println("SSID " + WiFi.SSID());
     }
+
     if (WiFi.status() == WL_CONNECTED && hasSetupWebsocket)
     {
         button.loop();
@@ -776,22 +793,6 @@ void loop()
             flush_microphone();
             recording = false;
             data_offset = 0;
-        }
-        else if (recording)
-        {
-            Serial.printf("Reading chunk at %d...\n", data_offset);
-            size_t bytes_read;
-            i2s_read(
-                SPEAKER_I2S_NUMBER,
-                (char *)(microphonedata0 + data_offset),
-                DATA_SIZE, &bytes_read, (100 / portTICK_RATE_MS));
-            data_offset += bytes_read;
-            Serial.printf("Read %d bytes in chunk.\n", bytes_read);
-
-            if (data_offset > 1024 * 9)
-            {
-                flush_microphone();
-            }
         }
 
         M5.update();
