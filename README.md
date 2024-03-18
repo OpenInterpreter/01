@@ -5,8 +5,7 @@ Official pre-release repository for [The 01 Project](https://twitter.com/helloki
 <h1 align="center">○</h1>
 
 <p align="center">
-    <a href="https://discord.gg/Hvz9Axh84z">
-        <img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=social&logoColor=black"/></a>
+    <a href="https://discord.gg/Hvz9Axh84z"><img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=social&logoColor=black"/></a> <a href="https://0ggfznkwh4j.typeform.com/to/kkStE8WF"><img alt="Partner" src="https://img.shields.io/badge/become%20a%20partner-20B2AA?style=for-the-badge&color=black"/></a>
     <br>
     <br>
     <strong>The open-source language model computer.</strong><br>
