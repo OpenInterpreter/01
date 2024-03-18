@@ -24,22 +24,24 @@ Today is launch day. Read our <a href="https://changes.openinterpreter.com/log/t
 <br> -->
 
 ```shell
-pip install 01OS
+git clone https://github.com/OpenInterpreter/01
+cd 01/01OS
 ```
 
 <!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
 
 ```shell
-01 # Run this to start the 01.
+poetry install
+poetry run 01
 ```
 
 <br>
 
-**The 01 project** is an open-source ecosystem for artificially intelligent devices.
+**The 01 project** is building a new kind of computer.
 
-By combining code-interpreting language models ("interpreters") with speech recognition and voice synthesis, the 01’s flagship operating system ("01OS") can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
+Our flagship operating system can power natural language, computer-operating devices like the Rabbit R1, Humane Pin, or [Star Trek](https://www.youtube.com/watch?v=1ZXugicgn6U) computer.
 
-We intend to become the “Linux” of this new space— open, modular, and free for personal or commercial use.
+We intend to become the “GNU/Linux” of this space by committing to staying open-source, modular, and free.
 
 <br>
 
