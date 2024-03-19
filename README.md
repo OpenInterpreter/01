@@ -37,13 +37,27 @@ poetry run 01
 
 <br>
 
-**The 01 project** is building a new kind of computer.
+**The 01 Project** is creating an ecosystem for AI devices.
 
-Our flagship operating system can power natural language, computer-operating devices like the Rabbit R1, Humane Pin, or [Star Trek](https://www.youtube.com/watch?v=1ZXugicgn6U) computer.
+Our flagship operating system can power conversational devices like the Rabbit R1, Humane Pin, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
 
-We intend to become the “GNU/Linux” of this space by committing to staying open-source, modular, and free.
+We intend to become the GNU/Linux of this space by committing to staying open-source, modular, and free.
 
-<br>
+## Unified API
+
+The unified API is a standard Python interface for key services used in the 01:
+
+- `/stt` for speech-to-text
+- `/llm` for language models
+- `/tts` for text-to-speech
+
+## Bodies
+
+The 01OS can be housed in many different bodies. We highly encourage PRs that add to this list:
+
+The **01 Light** is an ESP32-based voice interface that controls your home computer over the internet. It's used in combination with the **01 Server**.
+
+The **01 Heavy** is a device that runs everything locally.
 
 ## Setup
 
