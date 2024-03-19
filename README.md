@@ -12,6 +12,13 @@ Official pre-release repository for [The 01 Project](https://twitter.com/helloki
     <!-- <br><a href="https://openinterpreter.com">Preorder the Light</a>‎ ‎ |‎ ‎ <a href="https://openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://docs.openinterpreter.com/">Documentation</a><br> -->
 </p>
 
+<div align="center">
+
+ | [日本語](docs/README_JP.md) | [English](README.md) |
+
+</div>
+
+
 <br>
 
 ![poster](https://pbs.twimg.com/media/GDqTVYzbgAIfLJf?format=png&name=4096x4096)
