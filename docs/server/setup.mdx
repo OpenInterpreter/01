@@ -3,18 +3,46 @@ title: "Setup"
 description: "Get your 01 server up and running"
 ---
 
-- Interpreter
-  - Open Interpreter (explains i.py, how you configure your interpreter, cover the basic settings of OI (that file is literally just modifying an interpreter from OI)
-  - Language Model (LLM setup via interpreter.model in i.py or from the command line via start.py --server --llm-service llamafile)
-- Voice Interface (explains that you can run --tts-service and --stt-service to swap out for different services, which are in /Services/Speech-to-text and /Services/Text-to-text)
-
 ## Run Server
 
 ```bash
 poetry run 01  --server
 ```
 
-## Flags
+## Configure
+
+A core part of the 01 server is the interpreter which is an instance of Open Interpreter.
+Open Interpreter is highly configurable and only requires updating a single file.
+
+```bash
+# Edit i.py
+01OS/01OS/server/i.py
+```
+
+Properties such as `model`, `context_window`, and many more can be updated here.
+
+### LLM service provider
+
+If you wish to use a local model, you can use the `--llm-service` flag:
+
+```bash
+# use llamafile
+poetry run 01 --server --llm-service llamafile
+```
+
+For more information about LLM service providers, check out the page on <a href="/services/language-model">Language Models</a>.
+
+### Voice Interface
+
+Both speech-to-text and text-to-speech can be configured in 01OS.
+
+You are able to pass CLI flags `--tts-service` and/or `--stt-service` with the desired service provider to swap out different services
+
+These different service providers can be found in `/services/stt` and `/services/tts`
+
+For more information, please read about <a href="/services/speech-to-text">speech-to-text</a> and <a href="/services/text-to-speech">text-to-speech</a>
+
+## CLI Flags
 
 - `--server`  
   Run server.
