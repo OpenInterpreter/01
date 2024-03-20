@@ -25,6 +25,9 @@ from .utils.logs import logger
 
 from ..utils.print_markdown import print_markdown
 
+os.environ["STT_RUNNER"] = "server"
+os.environ["TTS_RUNNER"] = "server"
+
 markdown = """
 ○
 
@@ -167,7 +170,7 @@ async def receive_messages(websocket: WebSocket):
 async def send_messages(websocket: WebSocket):
     while True:
         message = await to_device.get()
-        logger.debug(f"Sending to the device: {type(message)} {message}")
+        print(f"Sending to the device: {type(message)} {str(message)[:100]}")
         
         try:
             if isinstance(message, dict):
