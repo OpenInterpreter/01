@@ -3003,13 +3003,13 @@ sympy = "*"
 
 [[package]]
 name = "open-interpreter"
-version = "0.2.2"
+version = "0.2.3"
 description = "Let language models run code"
 optional = false
-python-versions = ">=3.9,<3.12"
+python-versions = "<3.12,>=3.9"
 files = [
-    {file = "open_interpreter-0.2.2-py3-none-any.whl", hash = "sha256:fa7cf9e6fb1926ebdf44e86ea722dec37f9e5535bb204a31173761bf2330acc1"},
-    {file = "open_interpreter-0.2.2.tar.gz", hash = "sha256:56f97ad042f6168b1c9423338a62143f5f27f0d23c05dae39f86d848afd0d0dc"},
+    {file = "open_interpreter-0.2.3-py3-none-any.whl", hash = "sha256:180323d8389240fc68e9006f41e3fdded642b11e330b00f1aa07084b712d9172"},
+    {file = "open_interpreter-0.2.3.tar.gz", hash = "sha256:2fa86d92c73ea81a8b1f9d47e891a12bfd1a49c90640dc98f691a4da82f50035"},
 ]
 
 [package.dependencies]
@@ -9130,4 +9130,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "44c3b162fd5c73e7d04b8a71345cb50068bf239f2cc5f6cb6722b55fe3acbe9c"
+content-hash = "d5de37058973a6266c116cfb89c763da663f3d8cd71973a1779562fedee82f03"
