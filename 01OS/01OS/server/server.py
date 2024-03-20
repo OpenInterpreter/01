@@ -170,7 +170,7 @@ async def receive_messages(websocket: WebSocket):
 async def send_messages(websocket: WebSocket):
     while True:
         message = await to_device.get()
-        print(f"Sending to the device: {type(message)} {str(message)[:100]}")
+        #print(f"Sending to the device: {type(message)} {str(message)[:100]}")
         
         try:
             if isinstance(message, dict):
