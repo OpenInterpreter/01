@@ -3,20 +3,21 @@ title: "Speech To Text"
 description: "Converts your voice into text"
 ---
 
-To select your Speech-To-Text provider:
+## Whisper (Local)
+
+This option installs whisper-rust to allow all speech to text to be done locally on device.
+
+```bash
+# Set a local STT service
+01 --stt-service local-whisper
+```
+
+## Whisper (Hosted)
 
 ```bash
 # Set STT service
 01 --stt-service openai
 ```
-
-## Whisper (Local)
-
-Local, nice!
-
-## Whisper (Hosted)
-
-Still cool!
 
 ## Other Models
 
