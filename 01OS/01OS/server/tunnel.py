@@ -71,7 +71,7 @@ def create_tunnel(tunnel_method='ngrok', server_host='localhost', server_port=80
 
         # If ngrok is installed, start it on the specified port
         # process = subprocess.Popen(f'ngrok http {server_port} --log=stdout', shell=True, stdout=subprocess.PIPE)
-        process = subprocess.Popen(f'ngrok http   {server_port} --scheme http,https  --log=stdout', shell=True, stdout=subprocess.PIPE)
+        process = subprocess.Popen(f'ngrok http {server_port} --scheme http,https  --log=stdout', shell=True, stdout=subprocess.PIPE)
 
         # Initially, no URL is found
         found_url = False

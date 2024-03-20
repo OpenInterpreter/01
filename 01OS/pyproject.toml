@@ -24,11 +24,11 @@ pydub = "^0.25.1"
 ngrok = "^1.0.0"
 simpleaudio = "^1.0.4"
 opencv-python = "^4.9.0.80"
-open-interpreter = { git = "https://github.com/KillianLucas/open-interpreter.git", branch = "development" }
 psutil = "^5.9.8"
 typer = "^0.9.0"
 platformdirs = "^4.2.0"
 rich = "^13.7.1"
+open-interpreter = "^0.2.2"
 
 [build-system]
 requires = ["poetry-core"]

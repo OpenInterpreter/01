@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
+import traceback
 from platformdirs import user_data_dir
 import ast
 import json
@@ -183,136 +184,138 @@ async def send_messages(websocket: WebSocket):
 async def listener():
 
     while True:
-        while True:
-            if not from_user.empty():
-                chunk = await from_user.get()
-                break
-            elif not from_computer.empty():
-                chunk = from_computer.get()
-                break
-            await asyncio.sleep(1)
+        try:
+            while True:
+                if not from_user.empty():
+                    chunk = await from_user.get()
+                    break
+                elif not from_computer.empty():
+                    chunk = from_computer.get()
+                    break
+                await asyncio.sleep(1)
 
-        
+            
 
-        message = accumulator.accumulate(chunk)
-        if message == None:
-            # Will be None until we have a full message ready
-            continue
-
-        # print(str(message)[:1000])
-
-        # At this point, we have our message
-
-        if message["type"] == "audio" and message["format"].startswith("bytes"):
-
-            if not message["content"]: # If it was nothing / silence
+            message = accumulator.accumulate(chunk)
+            if message == None:
+                # Will be None until we have a full message ready
                 continue
 
-            # Convert bytes to audio file
-            # Format will be bytes.wav or bytes.opus
-            mime_type = "audio/" + message["format"].split(".")[1]
-            audio_file_path = bytes_to_wav(message["content"], mime_type)
+            # print(str(message)[:1000])
 
-            # For microphone debugging:
-            if False:
-                os.system(f"open {audio_file_path}")
-                import time
-                time.sleep(15)
+            # At this point, we have our message
 
-            text = stt(audio_file_path)
-            print("> ", text)
-            message = {"role": "user", "type": "message", "content": text}
+            if message["type"] == "audio" and message["format"].startswith("bytes"):
 
-        # At this point, we have only text messages
-
-        if type(message["content"]) != str:
-            print("This should be a string, but it's not:", message["content"])
-            message["content"] = message["content"].decode()
-
-        # Custom stop message will halt us
-        if message["content"].lower().strip(".,! ") == "stop":
-            continue
-
-        # Load, append, and save conversation history
-        with open(conversation_history_path, 'r') as file:
-            messages = json.load(file)
-        messages.append(message)
-        with open(conversation_history_path, 'w') as file:
-            json.dump(messages, file, indent=4)
-
-        accumulated_text = ""
-
-
-        if any([m["type"] == "image" for m in messages]) and interpreter.llm.model.startswith("gpt-"):
-            interpreter.llm.model = "gpt-4-vision-preview"
-            interpreter.llm.supports_vision = True
-        
-        for chunk in interpreter.chat(messages, stream=True, display=True):
-
-            if any([m["type"] == "image" for m in interpreter.messages]):
-                interpreter.llm.model = "gpt-4-vision-preview"
-
-            logger.debug("Got chunk:", chunk)
-
-            # Send it to the user
-            await to_device.put(chunk)
-            # Yield to the event loop, so you actually send it out
-            await asyncio.sleep(0.01)
-            
-            if os.getenv('TTS_RUNNER') == "server":
-                # Speak full sentences out loud
-                if chunk["role"] == "assistant" and "content" in chunk and chunk["type"] == "message":
-                    accumulated_text += chunk["content"]
-                    sentences = split_into_sentences(accumulated_text)
-                    
-                    # If we're going to speak, say we're going to stop sending text.
-                    # This should be fixed probably, we should be able to do both in parallel, or only one.
-                    if any(is_full_sentence(sentence) for sentence in sentences):
-                        await to_device.put({"role": "assistant", "type": "message", "end": True})
-                    
-                    if is_full_sentence(sentences[-1]):
-                        for sentence in sentences:
-                            await stream_tts_to_device(sentence)
-                        accumulated_text = ""
-                    else:
-                        for sentence in sentences[:-1]:
-                            await stream_tts_to_device(sentence)
-                        accumulated_text = sentences[-1]
-
-                    # If we're going to speak, say we're going to stop sending text.
-                    # This should be fixed probably, we should be able to do both in parallel, or only one.
-                    if any(is_full_sentence(sentence) for sentence in sentences):
-                        await to_device.put({"role": "assistant", "type": "message", "start": True})
-                
-            # If we have a new message, save our progress and go back to the top
-            if not from_user.empty():
-
-                # Check if it's just an end flag. We ignore those.
-                temp_message = await from_user.get()
-                
-                if type(temp_message) is dict and temp_message.get("role") == "user" and temp_message.get("end"):
-                    # Yup. False alarm.
+                if "content" not in message or message["content"] == None: # If it was nothing / silence
                     continue
-                else:
-                    # Whoops! Put that back
-                    await from_user.put(temp_message)
 
-                with open(conversation_history_path, 'w') as file:
-                    json.dump(interpreter.messages, file, indent=4)
+                # Convert bytes to audio file
+                # Format will be bytes.wav or bytes.opus
+                mime_type = "audio/" + message["format"].split(".")[1]
+                audio_file_path = bytes_to_wav(message["content"], mime_type)
 
-                # TODO: is triggering seemingly randomly
-                #logger.info("New user message recieved. Breaking.")
-                #break
+                # For microphone debugging:
+                if False:
+                    os.system(f"open {audio_file_path}")
+                    import time
+                    time.sleep(15)
 
-            # Also check if there's any new computer messages
-            if not from_computer.empty():
-                
-                with open(conversation_history_path, 'w') as file:
-                    json.dump(interpreter.messages, file, indent=4)
+                text = stt(audio_file_path)
+                print("> ", text)
+                message = {"role": "user", "type": "message", "content": text}
 
-                logger.info("New computer message recieved. Breaking.")
-                break
+            # At this point, we have only text messages
+
+            if type(message["content"]) != str:
+                print("This should be a string, but it's not:", message["content"])
+                message["content"] = message["content"].decode()
+
+            # Custom stop message will halt us
+            if message["content"].lower().strip(".,! ") == "stop":
+                continue
+
+            # Load, append, and save conversation history
+            with open(conversation_history_path, 'r') as file:
+                messages = json.load(file)
+            messages.append(message)
+            with open(conversation_history_path, 'w') as file:
+                json.dump(messages, file, indent=4)
+
+            accumulated_text = ""
+
+
+            if any([m["type"] == "image" for m in messages]) and interpreter.llm.model.startswith("gpt-"):
+                interpreter.llm.model = "gpt-4-vision-preview"
+                interpreter.llm.supports_vision = True
             
+            for chunk in interpreter.chat(messages, stream=True, display=True):
+
+                if any([m["type"] == "image" for m in interpreter.messages]):
+                    interpreter.llm.model = "gpt-4-vision-preview"
+
+                logger.debug("Got chunk:", chunk)
+
+                # Send it to the user
+                await to_device.put(chunk)
+                # Yield to the event loop, so you actually send it out
+                await asyncio.sleep(0.01)
+                
+                if os.getenv('TTS_RUNNER') == "server":
+                    # Speak full sentences out loud
+                    if chunk["role"] == "assistant" and "content" in chunk and chunk["type"] == "message":
+                        accumulated_text += chunk["content"]
+                        sentences = split_into_sentences(accumulated_text)
+                        
+                        # If we're going to speak, say we're going to stop sending text.
+                        # This should be fixed probably, we should be able to do both in parallel, or only one.
+                        if any(is_full_sentence(sentence) for sentence in sentences):
+                            await to_device.put({"role": "assistant", "type": "message", "end": True})
+                        
+                        if is_full_sentence(sentences[-1]):
+                            for sentence in sentences:
+                                await stream_tts_to_device(sentence)
+                            accumulated_text = ""
+                        else:
+                            for sentence in sentences[:-1]:
+                                await stream_tts_to_device(sentence)
+                            accumulated_text = sentences[-1]
+
+                        # If we're going to speak, say we're going to stop sending text.
+                        # This should be fixed probably, we should be able to do both in parallel, or only one.
+                        if any(is_full_sentence(sentence) for sentence in sentences):
+                            await to_device.put({"role": "assistant", "type": "message", "start": True})
+                    
+                # If we have a new message, save our progress and go back to the top
+                if not from_user.empty():
+
+                    # Check if it's just an end flag. We ignore those.
+                    temp_message = await from_user.get()
+                    
+                    if type(temp_message) is dict and temp_message.get("role") == "user" and temp_message.get("end"):
+                        # Yup. False alarm.
+                        continue
+                    else:
+                        # Whoops! Put that back
+                        await from_user.put(temp_message)
+
+                    with open(conversation_history_path, 'w') as file:
+                        json.dump(interpreter.messages, file, indent=4)
+
+                    # TODO: is triggering seemingly randomly
+                    #logger.info("New user message recieved. Breaking.")
+                    #break
+
+                # Also check if there's any new computer messages
+                if not from_computer.empty():
+                    
+                    with open(conversation_history_path, 'w') as file:
+                        json.dump(interpreter.messages, file, indent=4)
+
+                    logger.info("New computer message recieved. Breaking.")
+                    break
+        except:
+            traceback.print_exc()
 
 async def stream_tts_to_device(sentence):
     force_task_completion_responses = [
