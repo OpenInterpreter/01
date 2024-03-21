@@ -17,7 +17,7 @@ Official pre-release repository for [The 01 Project](https://twitter.com/helloki
 
 <br>
 
-![poster](https://pbs.twimg.com/media/GDqTVYzbgAIfLJf?format=png&name=4096x4096)
+![OI-O1-BannerDemo-2](https://github.com/OpenInterpreter/01/assets/63927363/fb80e880-9ae7-489c-b495-035be4d56414)
 
 We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typeform.com/to/kkStE8WF)
 
