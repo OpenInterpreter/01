@@ -7,8 +7,8 @@
 # - ngrok
 TUNNEL_METHOD=${TUNNEL_METHOD:-bore}
 
-# Get the SERVER_PORT environment variable, but default to 8000
-SERVER_LOCAL_PORT=${SERVER_LOCAL_PORT:-8000}
+# Get the SERVER_PORT environment variable, but default to 10001
+SERVER_LOCAL_PORT=${SERVER_LOCAL_PORT:-10001}
 
 echo "Using $TUNNEL_METHOD to expose port $SERVER_LOCAL_PORT on localhost..."
 

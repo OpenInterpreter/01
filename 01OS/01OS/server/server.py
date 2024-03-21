@@ -8,6 +8,7 @@ import json
 import queue
 import os
 import traceback
+import datetime
 from .utils.bytes_to_wav import bytes_to_wav
 import re
 from fastapi import FastAPI, Request
@@ -47,7 +48,7 @@ app = FastAPI()
 app_dir = user_data_dir('01')
 conversation_history_path = os.path.join(app_dir, 'conversations', 'user.json')
 
-SERVER_LOCAL_PORT = int(os.getenv('SERVER_LOCAL_PORT', 8000))
+SERVER_LOCAL_PORT = int(os.getenv('SERVER_LOCAL_PORT', 10001))
 
 
 # This is so we only say() full sentences
@@ -131,10 +132,10 @@ async def add_computer_message(request: Request):
     text = body.get("text")
     if not text:
         return {"error": "Missing 'text' in request body"}, 422
-    message = {"role": "computer", "type": "console", "format": "output", "content": text}
-    from_computer.put({"role": "computer", "type": "console", "format": "output", "start": True})
-    from_computer.put(message)
-    from_computer.put({"role": "computer", "type": "console", "format": "output", "end": True})
+    message = {"role": "user", "type": "message", "content": text}
+    await from_user.put({"role": "user", "type": "message", "start": True})
+    await from_user.put(message)
+    await from_user.put({"role": "user", "type": "message", "end": True})
 
 
 async def receive_messages(websocket: WebSocket):
@@ -382,7 +383,13 @@ async def main(server_host, server_port, llm_service, model, llm_supports_vision
         services_directory = os.path.join(application_directory, 'services')
 
         service_dict = {'llm': llm_service, 'tts': tts_service, 'stt': stt_service}
-
+        
+        # Create a temp file with the session number
+        session_file_path = os.path.join(user_data_dir('01'), '01-session.txt')
+        with open(session_file_path, 'w') as session_file:
+            session_id = int(datetime.datetime.now().timestamp() * 1000)
+            session_file.write(str(session_id))
+            
         for service in service_dict:
 
             service_directory = os.path.join(services_directory, service, service_dict[service])

@@ -5,7 +5,7 @@ import shutil
 import time
 from ..utils.print_markdown import print_markdown
 
-def create_tunnel(tunnel_method='ngrok', server_host='localhost', server_port=8000):
+def create_tunnel(tunnel_method='ngrok', server_host='localhost', server_port=10001):
     print_markdown(f"Exposing server to the internet...")
 
     if tunnel_method == "bore":
