@@ -1,11 +1,14 @@
 Official pre-release repository for [The 01 Project](https://twitter.com/hellokillian/status/1745875973583896950).
 
-> **3** days remaining until launch
+> **1** day remaining until launch
+
+<br>
+<br>
 
 <h1 align="center">○</h1>
 
 <p align="center">
-    <a href="https://discord.gg/Hvz9Axh84z"><img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=social&logoColor=black"/></a> <a href="https://0ggfznkwh4j.typeform.com/to/kkStE8WF"><img alt="Partner" src="https://img.shields.io/badge/become%20a%20partner-20B2AA?style=for-the-badge&color=black"/></a>
+    <a href="https://discord.gg/Hvz9Axh84z"><img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=social&logoColor=black"/></a>
     <br>
     <br>
     <strong>The open-source language model computer.</strong><br>
@@ -16,42 +19,77 @@ Official pre-release repository for [The 01 Project](https://twitter.com/helloki
 
 ![poster](https://pbs.twimg.com/media/GDqTVYzbgAIfLJf?format=png&name=4096x4096)
 
-<br>
-
-<!-- <p align="center">
-Today is launch day. Read our <a href="https://changes.openinterpreter.com/log/the-new-computer-update">founding statement →</a>
-</p>
-<br> -->
-
-```shell
-git clone https://github.com/OpenInterpreter/01
-cd 01/01OS
-```
-
-<!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
-
-```shell
-poetry install
-poetry run 01
-```
+We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typeform.com/to/kkStE8WF)
 
 <br>
 
-**The 01 Project** is creating an ecosystem for AI devices.
+---
+
+⚠️ **WARNING:** This experimental project is under rapid development and lacks basic safeguards. Until a stable `1.0` release, **ONLY** run this repository on devices without sensitive information or access to paid services. ⚠️
+
+---
+
+<br>
+
+**The 01 Project** is building an open-source ecosystem for AI devices.
 
 Our flagship operating system can power conversational devices like the Rabbit R1, Humane Pin, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
 
-We intend to become the GNU/Linux of this space by committing to staying open-source, modular, and free.
+We intend to become the GNU/Linux of this space by committing to staying open, modular, and free.
 
-## Unified API
+<br>
 
-The unified API is a standard Python interface for key services used in the 01:
+# Software
 
-- `/stt` for speech-to-text
-- `/llm` for language models
-- `/tts` for text-to-speech
+```shell
+git clone https://github.com/OpenInterpreter/01 # Clone the repository
+cd software/source # CD into the source directory
+```
 
-## Bodies
+> Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup).
+
+```shell
+brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
+poetry install # Install Python dependencies
+export OPENAI_API_KEY=sk... # OR run `poetry run 01 --local` to run everything locally
+poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
+```
+
+<br>
+
+# Hardware
+
+- The **01 Light** is an ESP32-based voice interface. Build instructions are here. It works in tandem with the **01 Server** running on your home computer.
+- **Mac OSX** and **Ubuntu** are supported by running `poetry run 01`. This uses your spacebar to simulate the 01 Light.
+- The **01 Heavy** is a device that runs everything locally.
+
+**We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
+
+# How does it work?
+
+The 01 exposes a speech-to-speech websocket at `localhost:10001`.
+
+If you stream raw audio bytes to `/` in [LMC format](https://docs.openinterpreter.com/protocols/lmc-messages), you will recieve its response in the same format.
+
+Inspired in part by [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/status/1723140519554105733), we point a [code-interpreting language model](https://github.com/OpenInterpreter/open-interpreter) at your computer's [kernel](https://github.com/OpenInterpreter/01/blob/main/01OS/01OS/server/utils/kernel.py), forming a **l**anguage **m**odel **c**omputer (LMC).
+
+<img width="100%" alt="LMC" src="https://github.com/OpenInterpreter/01/assets/63927363/52417006-a2ca-4379-b309-ffee3509f5d4">
+
+This architecture fuses classical computers (powerful, deterministic) with language models (flexible, non-deterministic). We believe it inherits the best of both— unifying the unreasonable power of classical computers with the human-like usability of language models.
+
+---
+---
+---
+
+# Protocols
+
+### LMC Messages
+
+### Dynamic System Messages
+
+
+
+The 01OS 
 
 The 01OS can be housed in many different bodies. We highly encourage PRs that add to this list:
 
@@ -59,7 +97,7 @@ The **01 Light** is an ESP32-based voice interface that controls your home compu
 
 The **01 Heavy** is a device that runs everything locally.
 
-## Setup
+# Software
 
 ### Install dependencies
 
