@@ -52,7 +52,7 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 # Hardware
 
-- The **01 Light** is an ESP32-based voice interface. [Build instructions are here.](https://github.com/OpenInterpreter/01/tree/main/hardware/light) It works in tandem with the **01 Server** running on your home computer.
+- The **01 Light** is an ESP32-based voice interface. [Build instructions are here.](https://github.com/OpenInterpreter/01/tree/main/hardware/light) It works in tandem with the **01 Server** (setup guide below) running on your home computer.
 - **Mac OSX** and **Ubuntu** are supported by running `poetry run 01`. This uses your spacebar to simulate the 01 Light.
 - The **01 Heavy** is a standalone device that runs everything locally.
 
@@ -60,29 +60,27 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 <br>
 
-# How does it work?
+# What does it do?
 
 The 01 exposes a speech-to-speech websocket at `localhost:10001`.
 
 If you stream raw audio bytes to `/` in [LMC format](https://docs.openinterpreter.com/protocols/lmc-messages), you will recieve its response in the same format.
 
-Inspired in part by [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/status/1723140519554105733), we point a [code-interpreting language model](https://github.com/OpenInterpreter/open-interpreter) at your computer's [kernel](https://github.com/OpenInterpreter/01/blob/main/01OS/01OS/server/utils/kernel.py), forming a **l**anguage **m**odel **c**omputer (LMC).
+Inspired in part by [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/status/1723140519554105733), we run a [code-interpreting language model](https://github.com/OpenInterpreter/open-interpreter), and call it when certain events occur at your computer's [kernel](https://github.com/OpenInterpreter/01/blob/main/01OS/01OS/server/utils/kernel.py).
+
+The 01 wraps this in a voice interface:
 
 <br>
 
 <img width="100%" alt="LMC" src="https://github.com/OpenInterpreter/01/assets/63927363/52417006-a2ca-4379-b309-ffee3509f5d4"><br><br>
 
-This architecture fuses **classical computers**— precise, powerful machines— with **language models**— imprecise, intelligent machines.
-
-We believe the 01 inherits the best of both, unifying the power and connectivity of classical computers with the natural, human-like usability of language models.
-
 # Protocols
 
-### LMC Messages
+## LMC Messages
 
 To communicate with different components of this system, we introduce [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) format, which extends OpenAI’s messages format to include a "computer" role.
 
-### Dynamic System Messages
+## Dynamic System Messages
 
 Dynamic System Messages enable you to execute code inside the LLM's system message, moments before it appears to the AI.
 
@@ -91,9 +89,21 @@ interpreter.system_message = r" The time is {{time.time()}}. " # Anything in dou
 interpreter.chat("What time is it?") # It will know, without making a tool/API call
 ```
 
-### Guides
+# Guides
 
-# Local Mode
+## 01 Server
+
+To run the server on your Desktop and connect it to your 01 Light, run the following commands:
+
+```shell
+brew install ngrok/ngrok/ngrok
+ngrok authtoken ... # Use your ngrok authtoken
+poetry run 01 --server --expose
+```
+
+The final command will print a server URL. You can enter this into your 01 Light's captive WiFi portal to connect to your 01 Server.
+
+## Local Mode
 
 ```
 poetry run 01 --local
@@ -101,7 +111,7 @@ poetry run 01 --local
 
 If you want to run local speech-to-text using Whisper, you must install Rust. Follow the instructions given [here](https://www.rust-lang.org/tools/install).
 
-# Ubuntu Dependencies
+## Ubuntu Dependencies
 
 ```bash
 sudo apt-get install portaudio19-dev ffmpeg cmake
