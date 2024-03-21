@@ -115,7 +115,7 @@ Please see our [contributing guidelines](docs/CONTRIBUTING.md) for more details 
 
 # Roadmap
 
-Visit [our roadmap](https://github.com/KillianLucas/open-interpreter/blob/main/docs/ROADMAP.md) to see the future of the 01.
+Visit [our roadmap](/ROADMAP.md) to see the future of the 01.
 
 <br>
 
