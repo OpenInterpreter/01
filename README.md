@@ -1,10 +1,3 @@
-Official pre-release repository for [The 01 Project](https://twitter.com/hellokillian/status/1745875973583896950).
-
-> **1** day remaining until launch
-
-<br>
-<br>
-
 <h1 align="center">○</h1>
 
 <p align="center">
@@ -87,14 +80,14 @@ We believe the 01 inherits the best of both, unifying the power and connectivity
 
 ### LMC Messages
 
-To communicate with different componnents of this system, we introduced [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) format, which extends OpenAI’s messages format to include the "computer" role, and a few more minor improvemets.
+To communicate with different componnents of this system, we introduced [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) format, which extends OpenAI’s messages format to include the "computer" role.
 
 ### Dynamic System Messages
 
 Dynamic System Messages enable you to execute code inside the LLM's system message, moments before the "rendered" system message (which now includes the outputs of your code) is sent to the language model.
 
 ```python
-interpreter.system_message = r" The time is {{time.time()}}. "
+interpreter.system_message = r" The time is {{time.time()}}. " # Anything in double brackets will be executed as Python
 interpreter.chat("What time is it?") # It will know, without making a tool/API call
 ```
 
