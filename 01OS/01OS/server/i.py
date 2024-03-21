@@ -1,13 +1,13 @@
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
-from platformdirs import user_data_dir
 import os
 import glob
 import time
 import json
 from pathlib import Path
 from interpreter import OpenInterpreter
+import shutil
 
 
 system_message = r"""
@@ -46,9 +46,11 @@ Store the user's tasks in a Python list called `tasks`.
 The user's current task list (it might be empty) is: {{ tasks }}
 When the user completes the current task, you should remove it from the list and read the next item by running `tasks = tasks[1:]\ntasks[0]`. Then, tell the user what the next task is.
 When the user tells you about a set of tasks, you should intelligently order tasks, batch similar tasks, and break down large tasks into smaller tasks (for this, you should consult the user and get their permission to break it down). Your goal is to manage the task list as intelligently as possible, to make the user as efficient and non-overwhelmed as possible. They will require a lot of encouragement, support, and kindness. Don't say too much about what's ahead of them— just try to focus them on each step at a time.
-After starting a task, you should check in with the user around the estimated completion time to see if the task is completed.
-To do this, schedule a reminder based on estimated completion time using the function `schedule(days=0, hours=0, mins=0, secs=0, datetime="valid date time", message="Your message here.")`. You'll receive the message at the time you scheduled it.
-THE SCHEDULE FUNCTION HAS ALREADY BEEN IMPORTED. YOU DON'T NEED TO IMPORT THE `schedule` FUNCTION.
+
+After starting a task, you should check in with the user around the estimated completion time to see if the task is completed. 
+To do this, schedule a reminder based on estimated completion time using the function `schedule(message="Your message here.", start="8am")`, WHICH HAS ALREADY BEEN IMPORTED. YOU DON'T NEED TO IMPORT THE `schedule` FUNCTION. IT IS AVAILABLE. You'll receive the message at the time you scheduled it. If the user says to monitor something, simply schedule it with an interval of a duration that makes sense for the problem by specifying an interval, like this: `schedule(message="Your message here.", interval="5m")`
+
+
 If there are tasks, you should guide the user through their list one task at a time, convincing them to move forward, giving a pep talk if need be.
 
 # THE COMPUTER API
@@ -296,9 +298,39 @@ def configure_interpreter(interpreter: OpenInterpreter):
 
     from platformdirs import user_data_dir
 
-    directory = os.path.join(user_data_dir("01"), "skills")
-    interpreter.computer.skills.path = directory
-    interpreter.computer.skills.import_skills()
+
+    
+    # Directory paths
+    repo_skills_dir = os.path.join(os.path.dirname(__file__), "skills")
+    user_data_skills_dir = os.path.join(user_data_dir("01"), "skills")
+
+    # Create the user data skills directory if it doesn't exist
+    os.makedirs(user_data_skills_dir, exist_ok=True)
+
+    # Copy Python files from the repository skills directory to the user data skills directory, ignoring __init__.py files
+    for filename in os.listdir(repo_skills_dir):
+        if filename.endswith(".py") and filename != "__init__.py":
+            src_file = os.path.join(repo_skills_dir, filename)
+            dst_file = os.path.join(user_data_skills_dir, filename)
+            shutil.copy2(src_file, dst_file)
+            
+    interpreter.computer.debug = True
+    interpreter.computer.skills.path = user_data_skills_dir
+    
+    # Import skills
+    interpreter.computer.save_skills = False
+    
+    for file in glob.glob(os.path.join(interpreter.computer.skills.path, "*.py")):
+        code_to_run = ""
+        with open(file, "r") as f:
+            code_to_run += f.read() + "\n"
+
+        print("IMPORTING SKILLS:\n", code_to_run)
+
+        for line in interpreter.computer.run("python", code_to_run, stream=True):
+            print(line)
+    
+    interpreter.computer.save_skills = True
 
 
     # Initialize user's task list

@@ -1,34 +1,66 @@
-import threading
+import os
 from datetime import datetime
-import json
-import subprocess
-import requests
+from pytimeparse import parse
+from crontab import CronTab
+from uuid import uuid4
+from datetime import datetime
+from platformdirs import user_data_dir
 
-
-def send_request(message) -> None:
-    url = "http://localhost:8000/"
-    data = {"text": message}
-    try:
-        response = requests.post(url, json=data)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        print(f"Request failed: {e}")  
-
-def schedule(days=0, hours=0, mins=0, secs=0, target_datetime=None, message="") -> None:
-    """Schedules a reminder after a specified delay or for a specific datetime. The delay is defined by days, hours, minutes, and seconds. If a target_datetime is provided, it schedules the reminder for that datetime instead."""
+def schedule(message="", start=None, interval=None) -> None:
+    """
+    Schedules a task at a particular time, or at a particular interval
+    """
+    if start and interval:
+        raise ValueError("Cannot specify both start time and interval.")
     
-    if target_datetime is None:
-        # Calculate the delay in seconds if no target_datetime is provided
-        delay = days * 86400 + hours * 3600 + mins * 60 + secs
-    else:
-        # Calculate the delay in seconds from now until the target datetime
-        now = datetime.now()
-        delay = (target_datetime - now).total_seconds()
-        # Ensure delay is non-negative
-        delay = max(0, delay)
+    if not start and not interval:
+        raise ValueError("Either start time or interval must be specified.")
+    
+    # Read the temp file to see what the current session is
+    session_file_path = os.path.join(user_data_dir('01'), '01-session.txt')
+    
+    with open(session_file_path, 'r') as session_file:
+        file_session_value = session_file.read().strip()
 
-    # Create a timer
-    timer = threading.Timer(delay, send_request, args=[message])
 
-    # Start the timer
-    timer.start()                                                                     
+    prefixed_message = "AUTOMATED MESSAGE FROM SCHEDULER: " + message
+    
+    # Escape the message and the json, cron is funky with quotes
+    escaped_question = prefixed_message.replace('"', '\\"')
+    json_data = f"{{\\\"text\\\": \\\"{escaped_question}\\\"}}"
+
+    command = f'''bash -c 'if [ "$(cat "{session_file_path}")" == "{file_session_value}" ]; then /usr/bin/curl -X POST -H "Content-Type: application/json" -d "{json_data}" http://localhost:8000/; fi' '''
+    
+    cron = CronTab(user=True)
+    job = cron.new(command=command)
+    # Prefix with 01 dev preview so we can delete them all in the future
+    job_id = "01-dev-preview-" + str(uuid4())
+    job.set_comment(job_id)
+    if start:
+        try:
+            start_time = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            raise ValueError(f"Invalid datetime format: {start}.")
+        job.setall(start_time)
+        print(f"Task scheduled for {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    elif interval:
+        seconds = parse(interval)
+        if seconds <= 60:
+            job.minute.every(1)
+            print("Task scheduled every minute")
+        elif seconds < 3600:
+            minutes = max(int(seconds / 60), 1)
+            job.minute.every(minutes)
+            print(f"Task scheduled every {minutes} minutes")
+        elif seconds < 86400:
+            hours = max(int(seconds / 3600), 1)
+            job.hour.every(hours)
+            print(f"Task scheduled every {hours} hour(s)")
+        else:
+            days = max(int(seconds / 86400), 1)
+            job.day.every(days)
+            print(f"Task scheduled every {days} day(s)")
+        
+    cron.write()
+
