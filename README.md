@@ -85,6 +85,7 @@ To communicate with different components of this system, we introduce [LMC Messa
 Dynamic System Messages enable you to execute code inside the LLM's system message, moments before it appears to the AI.
 
 ```python
+# Edit the following settings in i.py
 interpreter.system_message = r" The time is {{time.time()}}. " # Anything in double brackets will be executed as Python
 interpreter.chat("What time is it?") # It will know, without making a tool/API call
 ```
@@ -110,6 +111,10 @@ poetry run 01 --local
 ```
 
 If you want to run local speech-to-text using Whisper, you must install Rust. Follow the instructions given [here](https://www.rust-lang.org/tools/install).
+
+## Customizations
+
+To customize the behavior of the system, edit the [system message, model, skills library path,](https://docs.openinterpreter.com/settings/all-settings) etc. in `i.py`. This file sets up an interpreter, and is powered by Open Interpreter.
 
 ## Ubuntu Dependencies
 
