@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: 01OS
+        working-directory: software
 
     runs-on: ${{ matrix.os }}
 

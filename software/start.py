@@ -5,7 +5,9 @@ import concurrent.futures
 import threading
 import os
 import importlib
-create_tunnel = importlib.import_module(".server.tunnel", package="01OS").create_tunnel
+from source.server.tunnel import create_tunnel
+from source.server.server import main
+
 import signal
 app = typer.Typer()
 
@@ -105,7 +107,6 @@ def _run(
     signal.signal(signal.SIGINT, handle_exit)
 
     if server:
-        main = importlib.import_module(".server.server", package="01OS").main
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         server_thread = threading.Thread(target=loop.run_until_complete, args=(main(server_host, server_port, llm_service, model, llm_supports_vision, llm_supports_functions, context_window, max_tokens, temperature, tts_service, stt_service),))
@@ -130,7 +131,7 @@ def _run(
                 except FileNotFoundError:
                     client_type = "linux"
 
-        module = importlib.import_module(f".clients.{client_type}.device", package='01OS')
+        module = importlib.import_module(f".clients.{client_type}.device", package='source')
         client_thread = threading.Thread(target=module.main, args=[server_url])
         client_thread.start()
 

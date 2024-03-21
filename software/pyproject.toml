@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "01OS"
 packages = [
-    {include = "01OS"},
+    {include = "source"},
 ]
 include = ["start.py"]
 version = "0.0.13"
