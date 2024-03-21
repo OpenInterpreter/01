@@ -36,7 +36,7 @@ We intend to become the GNU/Linux of this space by staying open, modular, and fr
 
 ```shell
 git clone https://github.com/OpenInterpreter/01 # Clone the repository
-cd software/source # CD into the source directory
+cd 01/01OS # CD into the source directory
 ```
 
 <!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
