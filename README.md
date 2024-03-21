@@ -63,7 +63,7 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 - **Mac OSX** and **Ubuntu** are supported by running `poetry run 01`. This uses your spacebar to simulate the 01 Light.
 - The **01 Heavy** is a standalone device that runs everything locally.
 
-**We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). <br> [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
+**We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 
 <br>
 
@@ -83,115 +83,40 @@ This architecture fuses **classical computers**— precise, powerful machines—
 
 We believe the 01 inherits the best of both, unifying the power and connectivity of classical computers with the natural, human-like usability of language models.
 
----
----
----
-
 # Protocols
 
 ### LMC Messages
 
+To communicate with different componnents of this system, we introduced [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) format, which extends OpenAI’s messages format to include the "computer" role, and a few more minor improvemets.
+
 ### Dynamic System Messages
 
+Dynamic System Messages enable you to execute code inside the LLM's system message, moments before the "rendered" system message (which now includes the outputs of your code) is sent to the language model.
 
+```python
+interpreter.system_message = r" The time is {{time.time()}}. "
+interpreter.chat("What time is it?") # It will know, without making a tool/API call
+```
 
-The 01OS 
+### Guides
 
-The 01OS can be housed in many different bodies. We highly encourage PRs that add to this list:
+# Local Mode
 
-The **01 Light** is an ESP32-based voice interface that controls your home computer over the internet. It's used in combination with the **01 Server**.
+```
+poetry run 01 --local
+```
 
-The **01 Heavy** is a device that runs everything locally.
+If you want to run local speech-to-text using Whisper, you must install Rust. Follow the instructions given [here](https://www.rust-lang.org/tools/install).
 
-# Software
-
-### Install dependencies
+# Ubuntu Dependencies
 
 ```bash
-# MacOS
-brew install portaudio ffmpeg cmake
-
-# Ubuntu
 sudo apt-get install portaudio19-dev ffmpeg cmake
 ```
-
-If you want to run local speech-to-text using Whisper, install Rust. Follow the instructions given [here](https://www.rust-lang.org/tools/install).
-
-### Install and run the 01 CLI
-
-```shell
-pip install 01OS
-```
-
-```shell
-01 --server # Start a server for a hardware device to listen to.
-```
-
-# Client Setup
-
-### For ESP32 boards
-
-Please visit our [ESP32 setup documentation](https://github.com/OpenInterpreter/01/tree/main/01OS/01OS/clients/esp32).
-
-### For Mac, Windows, and Ubuntu machines
-
-```
-01 # Start a server and a client.
-
-01 --server --expose # Start and expose a server via Ngrok. This will print a `server_url` for clients to connect to.
-
-01 --client --server_url your-server.com # Start only a client.
-```
-
-### Swap out service providers
-
-The 01 is model agnostic to speech-to-text, text-to-speech, and language model providers.
-
-Select your provider by running:
-
-```shell
-01 --tts-service openai
-01 --llm-service openai
-01 --stt-service openai
-```
-
-[View all providers ↗](https://docs.litellm.ai/docs/providers/), or [join the 01 team by adding a service provider. ↗]()
-
-### Run the 01 locally
-
-Some service providers don't require an internet connection.
-
-The following command will attempt to download and use the best providers for your hardware:
-
-```shell
-01 --local
-```
-
-## How Does it Work?
-
-The 01 equips a language model (wrapped in a voice interface) with an `exec()` function, which allows it to write and run code to control computers.
-
-We only stream speech to/from the end user's device.
 
 # Contributing
 
 Please see our [contributing guidelines](docs/CONTRIBUTING.md) for more details on how to get involved.
-
-### Setup for development
-
-```bash
-# Clone the repo
-git clone https://github.com/KillianLucas/01.git
-
-# Go to the 01OS directory
-cd 01OS
-
-# Install python dependencies
-poetry install
-
-# Run it
-poetry run 01
-```
 
 <br>
 
@@ -211,16 +136,7 @@ The story of devices that came before the 01.
 
 Things we want to steal great ideas from.
 
-<br>
-
-## Direction
-
-### [Goals ↗](https://github.com/KillianLucas/01/blob/main/GOALS.md)
-
-What we're going to do.
-
-### [Use Cases ↗](https://github.com/KillianLucas/01/blob/main/USE_CASES.md)
-
-What the 01 will be able to do.
 
 <br>
+
+○
