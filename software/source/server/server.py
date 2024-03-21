@@ -408,7 +408,8 @@ async def main(server_host, server_port, llm_service, model, llm_supports_vision
                     "temperature": temperature
                 })
 
-            module = import_module(f'.server.services.{service}.{service_dict[service]}.{service}', package='01OS')
+            module = import_module(f'.server.services.{service}.{service_dict[service]}.{service}', package='source')
+            
             ServiceClass = getattr(module, service.capitalize())
             service_instance = ServiceClass(config)
             globals()[service] = getattr(service_instance, service)
