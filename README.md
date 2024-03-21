@@ -36,14 +36,14 @@ We intend to become the GNU/Linux of this space by staying open, modular, and fr
 
 ```shell
 git clone https://github.com/OpenInterpreter/01 # Clone the repository
-cd software/source # CD into the source directory
+cd software/source # CD into the source directory 
 ```
 
 <!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
 
 ```shell
 brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
-poetry install # Install Python dependencies
+poetry install # Install Python dependencies in the folder .../01/01OS
 export OPENAI_API_KEY=sk... # OR run `poetry run 01 --local` to run everything locally
 poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 ```
