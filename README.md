@@ -80,11 +80,11 @@ We believe the 01 inherits the best of both, unifying the power and connectivity
 
 ### LMC Messages
 
-To communicate with different componnents of this system, we introduced [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) format, which extends OpenAI’s messages format to include the "computer" role.
+To communicate with different components of this system, we introduce [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) format, which extends OpenAI’s messages format to include a "computer" role.
 
 ### Dynamic System Messages
 
-Dynamic System Messages enable you to execute code inside the LLM's system message, moments before the "rendered" system message (which now includes the outputs of your code) is sent to the language model.
+Dynamic System Messages enable you to execute code inside the LLM's system message, moments before it appears to the AI.
 
 ```python
 interpreter.system_message = r" The time is {{time.time()}}. " # Anything in double brackets will be executed as Python
