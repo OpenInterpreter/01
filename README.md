@@ -65,6 +65,8 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 **We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 
+<br>
+
 # How does it work?
 
 The 01 exposes a speech-to-speech websocket at `localhost:10001`.
@@ -73,7 +75,9 @@ If you stream raw audio bytes to `/` in [LMC format](https://docs.openinterprete
 
 Inspired in part by [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/status/1723140519554105733), we point a [code-interpreting language model](https://github.com/OpenInterpreter/open-interpreter) at your computer's [kernel](https://github.com/OpenInterpreter/01/blob/main/01OS/01OS/server/utils/kernel.py), forming a **l**anguage **m**odel **c**omputer (LMC).
 
-<img width="100%" alt="LMC" src="https://github.com/OpenInterpreter/01/assets/63927363/52417006-a2ca-4379-b309-ffee3509f5d4">
+<br>
+
+<img width="100%" alt="LMC" src="https://github.com/OpenInterpreter/01/assets/63927363/52417006-a2ca-4379-b309-ffee3509f5d4"><br><br>
 
 This architecture fuses classical computers (powerful, deterministic) with language models (flexible, non-deterministic). We believe it inherits the best of both— unifying the unreasonable power of classical computers with the human-like usability of language models.
 
