@@ -52,7 +52,7 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 # Hardware
 
-- The **01 Light** is an ESP32-based voice interface. Build instructions are here. It works in tandem with the **01 Server** running on your home computer.
+- The **01 Light** is an ESP32-based voice interface. [Build instructions are here.](https://github.com/OpenInterpreter/01/tree/main/hardware/light) It works in tandem with the **01 Server** running on your home computer.
 - **Mac OSX** and **Ubuntu** are supported by running `poetry run 01`. This uses your spacebar to simulate the 01 Light.
 - The **01 Heavy** is a standalone device that runs everything locally.
 
