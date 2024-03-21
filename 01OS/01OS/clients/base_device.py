@@ -255,9 +255,9 @@ class Device:
             try:
                 async with websockets.connect(WS_URL) as websocket:
                     if CAMERA_ENABLED:
-                        print("Press the spacebar to start/stop recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
+                        print("\nPress the spacebar to start/stop recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
                     else:
-                        print("Press the spacebar to start/stop recording. Press CTRL-C to exit.")
+                        print("\nPress the spacebar to start/stop recording. Press CTRL-C to exit.")
                         
                     asyncio.create_task(self.message_sender(websocket))
 

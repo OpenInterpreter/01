@@ -29,7 +29,7 @@ def schedule(message="", start=None, interval=None) -> None:
     escaped_question = prefixed_message.replace('"', '\\"')
     json_data = f"{{\\\"text\\\": \\\"{escaped_question}\\\"}}"
 
-    command = f'''bash -c 'if [ "$(cat "{session_file_path}")" == "{file_session_value}" ]; then /usr/bin/curl -X POST -H "Content-Type: application/json" -d "{json_data}" http://localhost:8000/; fi' '''
+    command = f'''bash -c 'if [ "$(cat "{session_file_path}")" == "{file_session_value}" ]; then /usr/bin/curl -X POST -H "Content-Type: application/json" -d "{json_data}" http://localhost:10001/; fi' '''
     
     cron = CronTab(user=True)
     job = cron.new(command=command)

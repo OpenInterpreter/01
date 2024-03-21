@@ -13,7 +13,7 @@ app = typer.Typer()
 def run(
             server: bool = typer.Option(False, "--server", help="Run server"),
             server_host: str = typer.Option("0.0.0.0", "--server-host", help="Specify the server host where the server will deploy"),
-            server_port: int = typer.Option(8000, "--server-port", help="Specify the server port where the server will deploy"),
+            server_port: int = typer.Option(10001, "--server-port", help="Specify the server port where the server will deploy"),
             
             tunnel_service: str = typer.Option("ngrok", "--tunnel-service", help="Specify the tunnel service"),
             expose: bool = typer.Option(False, "--expose", help="Expose server to internet"),
@@ -62,7 +62,7 @@ def run(
 def _run(
             server: bool = False,
             server_host: str = "0.0.0.0",
-            server_port: int = 8000,
+            server_port: int = 10001,
             
             tunnel_service: str = "bore",
             expose: bool = False,

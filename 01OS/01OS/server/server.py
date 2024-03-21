@@ -48,7 +48,7 @@ app = FastAPI()
 app_dir = user_data_dir('01')
 conversation_history_path = os.path.join(app_dir, 'conversations', 'user.json')
 
-SERVER_LOCAL_PORT = int(os.getenv('SERVER_LOCAL_PORT', 8000))
+SERVER_LOCAL_PORT = int(os.getenv('SERVER_LOCAL_PORT', 10001))
 
 
 # This is so we only say() full sentences

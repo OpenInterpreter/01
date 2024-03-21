@@ -13,7 +13,7 @@
 #include <WebSocketsClient.h>
 
 String server_domain = "";
-int server_port = 8000;
+int server_port = 10001;
 
 // ----------------------- START OF WIFI CAPTIVE PORTAL -------------------
 

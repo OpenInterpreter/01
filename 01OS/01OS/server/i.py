@@ -325,10 +325,7 @@ def configure_interpreter(interpreter: OpenInterpreter):
         with open(file, "r") as f:
             code_to_run += f.read() + "\n"
 
-        print("IMPORTING SKILLS:\n", code_to_run)
-
-        for line in interpreter.computer.run("python", code_to_run, stream=True):
-            print(line)
+        interpreter.computer.run("python", code_to_run)
     
     interpreter.computer.save_skills = True
 
