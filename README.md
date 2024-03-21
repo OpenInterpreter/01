@@ -33,9 +33,9 @@ We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typef
 
 **The 01 Project** is building an open-source ecosystem for AI devices.
 
-Our flagship operating system can power conversational devices like the Rabbit R1, Humane Pin, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
+Our flagship operating system can power conversational devices made for the next era of computing, like the Rabbit R1, Humane Pin, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
 
-We intend to become the GNU/Linux of this space by committing to staying open, modular, and free.
+We are commiting to staying open, modular, and free. We intend to become the GNU/Linux of this space.
 
 <br>
 
@@ -61,9 +61,9 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 - The **01 Light** is an ESP32-based voice interface. Build instructions are here. It works in tandem with the **01 Server** running on your home computer.
 - **Mac OSX** and **Ubuntu** are supported by running `poetry run 01`. This uses your spacebar to simulate the 01 Light.
-- The **01 Heavy** is a device that runs everything locally.
+- The **01 Heavy** is a standalone device that runs everything locally.
 
-**We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
+**We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). <br> [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 
 <br>
 
@@ -79,7 +79,7 @@ Inspired in part by [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/stat
 
 <img width="100%" alt="LMC" src="https://github.com/OpenInterpreter/01/assets/63927363/52417006-a2ca-4379-b309-ffee3509f5d4"><br><br>
 
-This architecture fuses classical computers (powerful, deterministic) with language models (flexible, non-deterministic). We believe it inherits the best of both— unifying the unreasonable power of classical computers with the human-like usability of language models.
+This architecture fuses classical computers with language models; the powerful and deterministic with the flexible and ambiguous. We believe it inherits the best of both— unifying the untapped power of classical computers with the human-like natural usability of language models.
 
 ---
 ---
