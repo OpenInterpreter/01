@@ -122,9 +122,9 @@ To customize the behavior of the system, edit the [system message, model, skills
 sudo apt-get install portaudio19-dev ffmpeg cmake
 ```
 
-# Contributers
+# Contributors
 
-[![01 project contributers](https://contrib.rocks/image?repo=OpenInterpreter/01&max=2000)](https://github.com/OpenInterpreter/01/graphs/contributors)
+[![01 project contributors](https://contrib.rocks/image?repo=OpenInterpreter/01&max=2000)](https://github.com/OpenInterpreter/01/graphs/contributors)
 
 Please see our [contributing guidelines](docs/CONTRIBUTING.md) for more details on how to get involved.
 
