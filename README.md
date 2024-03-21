@@ -33,9 +33,9 @@ We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typef
 
 **The 01 Project** is building an open-source ecosystem for AI devices.
 
-Our flagship operating system can power conversational devices made for the next era of computing, like the Rabbit R1, Humane Pin, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
+Our flagship operating system can power conversational devices like the Rabbit R1, Humane Pin, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
 
-We are commiting to staying open, modular, and free. We intend to become the GNU/Linux of this space.
+We intend to become the GNU/Linux of this space by staying open, modular, and free.
 
 <br>
 
@@ -79,7 +79,9 @@ Inspired in part by [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/stat
 
 <img width="100%" alt="LMC" src="https://github.com/OpenInterpreter/01/assets/63927363/52417006-a2ca-4379-b309-ffee3509f5d4"><br><br>
 
-This architecture fuses classical computers with language models; the powerful and deterministic with the flexible and ambiguous. We believe it inherits the best of both— unifying the untapped power of classical computers with the human-like natural usability of language models.
+This architecture fuses **classical computers**— precise, powerful machines— with **language models**— imprecise, intelligent machines.
+
+We believe the 01 inherits the best of both, unifying the power and connectivity of classical computers with the natural, human-like usability of language models.
 
 ---
 ---
