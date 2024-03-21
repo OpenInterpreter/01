@@ -39,7 +39,7 @@ git clone https://github.com/OpenInterpreter/01 # Clone the repository
 cd software/source # CD into the source directory
 ```
 
-> Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup).
+<!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
 
 ```shell
 brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
