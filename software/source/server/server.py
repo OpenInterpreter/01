@@ -211,7 +211,7 @@ async def listener():
 
             if message["type"] == "audio" and message["format"].startswith("bytes"):
 
-                if "content" not in message or message["content"] == None: # If it was nothing / silence
+                if "content" not in message or message["content"] == None or message["content"] == "": # If it was nothing / silence / empty
                     continue
 
                 # Convert bytes to audio file
