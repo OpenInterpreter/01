@@ -64,7 +64,7 @@ export MODEL=ollama/mixtral:latest
 poetry run 01 --local
 ```
 
-Note, you should replace `ollama/mixtral:latest` with a model installed locally. For supported models, see Open Interpreter's [local providers](https://docs.openinterpreter.com/language-models/local-models/lm-studio) documentation.
+Note, you should replace `ollama/mixtral:latest` with a model installed locally. For supported models, see Open Interpreter's [local providers](https://docs.openinterpreter.com/language-models/local-models/ollama) documentation.
 
 <br>
 
