@@ -59,7 +59,7 @@ The `computer` module is ALREADY IMPORTED, and can be used for some tasks:
 
 ```python
 result_string = computer.browser.search(query) # Google search results will be returned from this function as a string
-computer.calendar.create_event(title="Meeting", start_date=datetime.datetime.now(), end=datetime.datetime.now() + datetime.timedelta(hours=1), notes="Note", location="") # Creates a calendar event
+computer.calendar.create_event(title="Meeting", start_date=datetime.datetime.now(), end_date=datetime.datetime.now() + datetime.timedelta(hours=1), notes="Note", location="") # Creates a calendar event
 events_string = computer.calendar.get_events(start_date=datetime.date.today(), end_date=None) # Get events between dates. If end_date is None, only gets events for start_date
 computer.calendar.delete_event(event_title="Meeting", start_date=datetime.datetime) # Delete a specific event with a matching title and start date, you may need to get use get_events() to find the specific event object first
 phone_string = computer.contacts.get_phone_number("John Doe")
@@ -182,7 +182,7 @@ Try multiple methods before saying the task is impossible. **You can do it!**
 
 
 def configure_interpreter(interpreter: OpenInterpreter):
-    
+
     ### SYSTEM MESSAGE
     interpreter.system_message = system_message
 
