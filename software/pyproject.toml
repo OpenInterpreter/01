@@ -1,8 +1,6 @@
 [tool.poetry]
 name = "01OS"
-packages = [
-    {include = "source"},
-]
+packages = [{ include = "source" }]
 include = ["start.py"]
 version = "0.0.13"
 description = "The open-source language model computer"
@@ -28,11 +26,13 @@ psutil = "^5.9.8"
 typer = "^0.9.0"
 platformdirs = "^4.2.0"
 rich = "^13.7.1"
-open-interpreter = {extras = ["os"], version = "^0.2.3"}
+open-interpreter = { extras = ["os"], version = "^0.2.3" }
 dateparser = "^1.2.0"
 pytimeparse = "^1.1.8"
 python-crontab = "^3.0.0"
 inquirer = "^3.2.4"
+pydantic = "^2.6.4"
+pydantic-settings = "^2.2.1"
 
 [build-system]
 requires = ["poetry-core"]
