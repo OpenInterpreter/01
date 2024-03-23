@@ -7,6 +7,7 @@ import os
 import importlib
 from source.server.tunnel import create_tunnel
 from source.server.server import main
+from source.server.utils.local_mode import select_local_model
 
 import signal
 app = typer.Typer()
@@ -93,6 +94,7 @@ def _run(
         tts_service = "piper"
         # llm_service = "llamafile"
         stt_service = "local-whisper"
+        select_local_model()
     
     if not server_url:
         server_url = f"{server_host}:{server_port}"
