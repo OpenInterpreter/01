@@ -1,0 +1,33 @@
+client:
+  enabled: false
+  url: null
+  platform: auto
+
+llm:
+  service: litellm
+  model: gpt-4
+  vision_enabled: false
+  functions_enabled: false
+  context_window: 2048
+  max_tokens: 4096
+  temperature: 0.8
+
+local:
+  enabled: true
+  tts_service: piper
+  stt_service: local-whisper
+
+server:
+  enabled: false
+  host: 0.0.0.0
+  port: 10001
+
+stt:
+  service: openai
+
+tts:
+  service: openai
+
+tunnel:
+  service: ngrok
+  exposed: false
