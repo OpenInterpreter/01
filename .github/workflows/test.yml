@@ -1,6 +1,7 @@
 name: Run Test
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
   # push: # Trigger the workflow on push events
@@ -16,7 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [macos-latest]
+        # os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11"]
 
     defaults:
@@ -58,4 +60,6 @@ jobs:
 
       # Run pytest
       - name: Run Pytest
-        run: poetry run pytest tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: poetry run pytest
