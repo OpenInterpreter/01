@@ -295,8 +295,6 @@ def configure_interpreter(interpreter: OpenInterpreter):
     #     if chunk.get("format") != "active_line":
     #         print(chunk.get("content"))
 
-    import os
-
     from platformdirs import user_data_dir
 
 
