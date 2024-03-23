@@ -2,15 +2,16 @@
 Application configuration models.
 """
 
+import os
+
 from pydantic import BaseModel
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
-    SettingsConfigDict,
     YamlConfigSettingsSource,
 )
 
-APP_PREFIX = "01_"
+APP_PREFIX: str = os.getenv("01_APP_PREFIX", "01_")
 
 
 class Client(BaseModel):
@@ -95,13 +96,6 @@ class Config(BaseSettings):
     tts: TTS = TTS()
     tunnel: Tunnel = Tunnel()
 
-    model_config = SettingsConfigDict(
-        env_prefix=APP_PREFIX,
-        env_file=".env",
-        env_file_encoding="utf-8",
-        yaml_file="config.yaml",
-    )
-
     @classmethod
     def settings_customise_sources(
         cls,
@@ -114,4 +108,9 @@ class Config(BaseSettings):
         """
         Modify the order of precedence for settings sources.
         """
-        return (YamlConfigSettingsSource(settings_cls),)
+        return (
+            YamlConfigSettingsSource(
+                settings_cls,
+                yaml_file=os.getenv(f"{APP_PREFIX}CONFIG_FILE", "config.yaml"),
+            ),
+        )
