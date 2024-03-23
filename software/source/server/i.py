@@ -357,7 +357,7 @@ def configure_interpreter(interpreter: OpenInterpreter):
     interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() in ["applescript", "shell", "zsh", "bash", "python"]]
     interpreter.force_task_completion = True
     # interpreter.offline = True
-    interpreter.id = 206 # Used to identify itself to other interpreters. This should be changed programatically so it's unique.
+    interpreter.id = 206 # Used to identify itself to other interpreters. This should be changed programmatically so it's unique.
 
     ### RESET conversations/user.json
     app_dir = user_data_dir('01')
