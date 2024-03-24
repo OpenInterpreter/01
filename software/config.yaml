@@ -1,7 +1,7 @@
 client:
   enabled: false
   url: null
-  platform: auto
+  platform: ''
 
 llm:
   service: litellm
@@ -13,7 +13,7 @@ llm:
   temperature: 0.8
 
 local:
-  enabled: true
+  enabled: false
   tts_service: piper
   stt_service: local-whisper
 

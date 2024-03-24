@@ -1,17 +1,8 @@
 """
-Application configuration models.
+Application models.
 """
 
-import os
-
 from pydantic import BaseModel
-from pydantic_settings import (
-    BaseSettings,
-    PydanticBaseSettingsSource,
-    YamlConfigSettingsSource,
-)
-
-APP_PREFIX: str = os.getenv("01_APP_PREFIX", "01_")
 
 
 class Client(BaseModel):
@@ -20,8 +11,8 @@ class Client(BaseModel):
     """
 
     enabled: bool = False
-    url: None | str = None
-    platform: str = "auto"
+    url: str | None = None
+    platform: str | None = None
 
 
 class LLM(BaseModel):
@@ -44,8 +35,6 @@ class Local(BaseModel):
     """
 
     enabled: bool = False
-    tts_service: str = "piper"
-    stt_service: str = "local-whisper"
 
 
 class Server(BaseModel):
@@ -81,36 +70,3 @@ class Tunnel(BaseModel):
 
     service: str = "ngrok"
     exposed: bool = False
-
-
-class Config(BaseSettings):
-    """
-    Base configuration model
-    """
-
-    client: Client = Client()
-    llm: LLM = LLM()
-    local: Local = Local()
-    server: Server = Server()
-    stt: STT = STT()
-    tts: TTS = TTS()
-    tunnel: Tunnel = Tunnel()
-
-    @classmethod
-    def settings_customise_sources(
-        cls,
-        settings_cls: type[BaseSettings],
-        init_settings: PydanticBaseSettingsSource,
-        env_settings: PydanticBaseSettingsSource,
-        dotenv_settings: PydanticBaseSettingsSource,
-        file_secret_settings: PydanticBaseSettingsSource,
-    ) -> tuple[PydanticBaseSettingsSource, ...]:
-        """
-        Modify the order of precedence for settings sources.
-        """
-        return (
-            YamlConfigSettingsSource(
-                settings_cls,
-                yaml_file=os.getenv(f"{APP_PREFIX}CONFIG_FILE", "config.yaml"),
-            ),
-        )

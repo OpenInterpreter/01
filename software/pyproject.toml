@@ -51,6 +51,7 @@ pytest = "^8.1.1"
 target-version = ['py311']
 
 [tool.isort]
-profile = "black"
-multi_line_output = 3
 include_trailing_comma = true
+known_first_party = ["source"]
+multi_line_output = 3
+profile = "black"
