@@ -42,7 +42,7 @@ build-backend = "poetry.core.masonry.api"
 01 = "start:app"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.10.1"
+black = "^24.3.0"
 isort = "^5.12.0"
 pre-commit = "^3.6.2"
 pytest = "^8.1.1"

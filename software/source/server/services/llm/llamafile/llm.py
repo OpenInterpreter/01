@@ -5,12 +5,12 @@ import time
 import wget
 import stat
 
+
 class Llm:
     def __init__(self, config):
-
         self.interpreter = config["interpreter"]
         config.pop("interpreter", None)
-        
+
         self.install(config["service_directory"])
 
         config.pop("service_directory", None)
@@ -20,8 +20,7 @@ class Llm:
         self.llm = self.interpreter.llm.completions
 
     def install(self, service_directory):
-
-        if platform.system() == "Darwin": # Check if the system is MacOS
+        if platform.system() == "Darwin":  # Check if the system is MacOS
             result = subprocess.run(
                 ["xcode-select", "-p"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
             )
@@ -30,7 +29,9 @@ class Llm:
                     "Llamafile requires Mac users to have Xcode installed. You can install Xcode from https://developer.apple.com/xcode/ .\n\nAlternatively, you can use `LM Studio`, `Jan.ai`, or `Ollama` to manage local language models. Learn more at https://docs.openinterpreter.com/guides/running-locally ."
                 )
                 time.sleep(3)
-                raise Exception("Xcode is not installed. Please install Xcode and try again.")
+                raise Exception(
+                    "Xcode is not installed. Please install Xcode and try again."
+                )
 
         # Define the path to the models directory
         models_dir = os.path.join(service_directory, "models")
@@ -48,11 +49,9 @@ class Llm:
                 "Attempting to download the `Phi-2` language model. This may take a few minutes."
             )
             time.sleep(3)
-            
+
             url = "https://huggingface.co/jartine/phi-2-llamafile/resolve/main/phi-2.Q4_K_M.llamafile"
             wget.download(url, llamafile_path)
-
-        
 
         # Make the new llamafile executable
         if platform.system() != "Windows":
@@ -63,11 +62,15 @@ class Llm:
         if os.path.exists(llamafile_path):
             try:
                 # Test if the llamafile is executable
-                subprocess.check_call([llamafile_path])
+                subprocess.check_call([f'"{llamafile_path}"'], shell=True)
             except subprocess.CalledProcessError:
-                print("The llamafile is not executable. Please check the file permissions.")
+                print(
+                    "The llamafile is not executable. Please check the file permissions."
+                )
                 raise
-            subprocess.Popen([llamafile_path, "-ngl", "9999"])
+                subprocess.Popen(
+                    f'"{llamafile_path}" ' + " ".join(["-ngl", "9999"]), shell=True
+                )
         else:
             error_message = "The llamafile does not exist or is corrupted. Please ensure it has been downloaded correctly or try again."
             print(error_message)

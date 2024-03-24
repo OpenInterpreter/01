@@ -2,7 +2,6 @@ import ffmpeg
 import tempfile
 import os
 import subprocess
-import tempfile
 import urllib.request
 import tarfile
 

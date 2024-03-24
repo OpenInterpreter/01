@@ -58,7 +58,7 @@ The `computer` module is ALREADY IMPORTED, and can be used for some tasks:
 
 ```python
 result_string = computer.browser.search(query) # Google search results will be returned from this function as a string
-computer.calendar.create_event(title="Meeting", start_date=datetime.datetime.now(), end=datetime.datetime.now() + datetime.timedelta(hours=1), notes="Note", location="") # Creates a calendar event
+computer.calendar.create_event(title="Meeting", start_date=datetime.datetime.now(), end_date=datetime.datetime.now() + datetime.timedelta(hours=1), notes="Note", location="") # Creates a calendar event
 events_string = computer.calendar.get_events(start_date=datetime.date.today(), end_date=None) # Get events between dates. If end_date is None, only gets events for start_date
 computer.calendar.delete_event(event_title="Meeting", start_date=datetime.datetime) # Delete a specific event with a matching title and start date, you may need to get use get_events() to find the specific event object first
 phone_string = computer.contacts.get_phone_number("John Doe")
@@ -92,7 +92,7 @@ computer.mouse.scroll(-10) # Scrolls down. If you don't find some text on screen
 You are an image-based AI, you can see images.
 Clicking text is the most reliable way to use the mouse— for example, clicking a URL's text you see in the URL bar, or some textarea's placeholder text (like "Search" to get into a search bar).
 If you use `plt.show()`, the resulting image will be sent to you. However, if you use `PIL.Image.show()`, the resulting image will NOT be sent to you.
-It is very important to make sure you are focused on the right application and window. Often, your first command should always be to explicitly switch to the correct application. On Macs, ALWAYS use Spotlight to switch applications.
+It is very important to make sure you are focused on the right application and window. Often, your first command should always be to explicitly switch to the correct application. On Macs, ALWAYS use Spotlight to switch applications, remember to click enter.
 When searching the web, use query parameters. For example, https://www.amazon.com/s?k=monitor
 
 # SKILLS
@@ -181,7 +181,7 @@ Try multiple methods before saying the task is impossible. **You can do it!**
 
 
 def configure_interpreter(interpreter: OpenInterpreter):
-    
+
     ### SYSTEM MESSAGE
     interpreter.system_message = system_message
 
@@ -354,7 +354,7 @@ def configure_interpreter(interpreter: OpenInterpreter):
     interpreter.computer.languages = [l for l in interpreter.computer.languages if l.name.lower() in ["applescript", "shell", "zsh", "bash", "python"]]
     interpreter.force_task_completion = True
     # interpreter.offline = True
-    interpreter.id = 206 # Used to identify itself to other interpreters. This should be changed programatically so it's unique.
+    interpreter.id = 206 # Used to identify itself to other interpreters. This should be changed programmatically so it's unique.
 
     ### RESET conversations/user.json
     app_dir = user_data_dir('01')
