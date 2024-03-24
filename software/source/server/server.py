@@ -7,7 +7,6 @@ import ast
 import json
 import queue
 import os
-import traceback
 import datetime
 from .utils.bytes_to_wav import bytes_to_wav
 import re
