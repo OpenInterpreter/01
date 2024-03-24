@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()  # take environment variables from .env.
-
 import traceback
 from platformdirs import user_data_dir
 import ast

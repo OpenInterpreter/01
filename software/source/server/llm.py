@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()  # take environment variables from .env.
-
 import os
 import subprocess
 from pathlib import Path
