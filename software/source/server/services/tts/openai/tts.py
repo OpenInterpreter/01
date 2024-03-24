@@ -14,7 +14,7 @@ class Tts:
     def tts(self, text):
             response = client.audio.speech.create(
                 model="tts-1",
-                voice="alloy",
+                voice=os.getenv('OPENAI_VOICE_NAME', 'alloy'),
                 input=text,
                 response_format="opus"
             )
