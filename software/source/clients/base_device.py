@@ -251,6 +251,7 @@ class Device:
             await asyncio.sleep(0.01)
 
     async def websocket_communication(self, WS_URL):
+        show_connection_log = True
         while True:
             try:
                 async with websockets.connect(WS_URL) as websocket:
@@ -306,7 +307,9 @@ class Device:
                                 send_queue.put(result)
             except:
                 logger.debug(traceback.format_exc())
-                logger.info(f"Connecting to `{WS_URL}`...")
+                if show_connection_log:
+                  logger.info(f"Connecting to `{WS_URL}`...")
+                  show_connection_log = False
                 await asyncio.sleep(2)
 
     async def start_async(self):
