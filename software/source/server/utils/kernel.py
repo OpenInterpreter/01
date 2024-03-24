@@ -45,15 +45,16 @@ last_messages = ""
 
 def check_filtered_kernel():
     messages = get_kernel_messages()
-    messages.replace(last_messages, "")
-    messages = messages.split("\n")
-    
-    filtered_messages = []
-    for message in messages:
-        if custom_filter(message):
-            filtered_messages.append(message)
-    
-    return "\n".join(filtered_messages)
+    if messages:
+        messages.replace(last_messages, "")
+        messages = messages.split("\n")
+        
+        filtered_messages = []
+        for message in messages:
+            if custom_filter(message):
+                filtered_messages.append(message)
+        
+        return "\n".join(filtered_messages)
 
 async def put_kernel_messages_into_queue(queue):
     while True:
