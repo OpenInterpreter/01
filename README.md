@@ -5,7 +5,7 @@
     <br>
     <br>
     <strong>The open-source language model computer.</strong><br>
-    <!-- <br><a href="https://openinterpreter.com">Preorder the Light</a>‎ ‎ |‎ ‎ <a href="https://openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://docs.openinterpreter.com/">Documentation</a><br> -->
+    <br><a href="https://openinterpreter.com/01">Preorder the Light</a>‎ ‎ |‎ ‎ <a href="https://changes.openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">Documentation</a><br>
 </p>
 
 <br>
@@ -95,7 +95,9 @@ The 01 wraps this in a voice interface:
 
 ## LMC Messages
 
-To communicate with different components of this system, we introduce [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) format, which extends OpenAI’s messages format to include a "computer" role.
+To communicate with different components of this system, we introduce [LMC Messages](https://docs.openinterpreter.com/protocols/lmc-messages) format, which extends OpenAI’s messages format to include a "computer" role:
+
+https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d64b9f2a5da9
 
 ## Dynamic System Messages
 
