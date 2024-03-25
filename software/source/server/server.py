@@ -411,7 +411,7 @@ async def main(server_host, server_port, llm_service, model, llm_supports_vision
             globals()[service] = getattr(service_instance, service)
 
         interpreter.llm.completions = llm
-        interpreter.llm.model = os.getenv('MODEL', model)
+        interpreter.llm.model = model
         
         # Start listening
         asyncio.create_task(listener())
