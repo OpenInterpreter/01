@@ -37,34 +37,33 @@ We intend to become the GNU/Linux of this space by staying open, modular, and fr
 ```shell
 git clone https://github.com/OpenInterpreter/01 # Clone the repository
 cd 01/software # CD into the source directory
-```
-
-<!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
-
-```shell
 brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
 poetry install # Install Python dependencies
-export OPENAI_API_KEY=sk... 
-poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 ```
 
-### Running locally
-To run locally, you can use command line arguments and environment variables.
+## Getting Started
 
-Using command line arguments:
+### Using OpenAI's API
+
+To use 01 with OpenAI's API, you need to first set your API key.
+
+1. Create a `.env` file in the `01/software` directory.
+2. Add `OPENAI_API_KEY=<your-api-key>` to the file.
+3. Run the following command:
 
 ```shell
-poetry run 01 --local --model ollama/mixtral:latest
+poetry run 01
 ```
 
-Using command line arguments and environment variables:
+> Alternatively, you can set the `OPENAI_API_KEY` environment variable in your shell with `export OPENI_API_KEY=<your-api-key>`.
+
+### Using a Local Model
+
+To use 01 with a local model, run the following command and follow the prompts:
 
 ```shell
-export MODEL=ollama/mixtral:latest
 poetry run 01 --local
 ```
-
-Note, you should replace `ollama/mixtral:latest` with a model installed locally. For supported models, see Open Interpreter's [local providers](https://docs.openinterpreter.com/language-models/local-models/ollama) documentation.
 
 <br>
 
@@ -132,7 +131,40 @@ If you want to run local speech-to-text using Whisper, you must install Rust. Fo
 
 ## Customizations
 
-To customize the behavior of the system, edit the [system message, model, skills library path,](https://docs.openinterpreter.com/settings/all-settings) etc. in `i.py`. This file sets up an interpreter, and is powered by Open Interpreter.
+O1 is highly customizable and comes with several ways to modify its behavior, including a `config.yaml` file, `.env` file, command-line arguments and the `i.py` file. Follow the steps below to use these customization options.
+
+#### 1. Use a `config.yaml` File
+
+To create a `config.yaml` file, copy the `config-template.yaml` file in the `software` directory.
+
+```shell
+cp config-template.yaml config.yaml
+```
+
+#### 2. Use a `.env` File
+
+To create a `.env` file, copy the `config-template.env` file in the `software` directory.
+
+```shell
+cp config-template.env .env
+```
+
+There are two important points to note when using the `.env` file:
+
+1. Values from the `.env` file automatically override values from the `config.yaml` file.
+2. 01-specific environment variables use the following pattern: `01_<SECTION>_<KEY>`. As an example, to override the `local.enabled` value from your `config.yaml` file, use the `01_LOCAL_ENABLED` environment variable.
+
+#### 3. Use Command-line Arguments
+
+01 comes with a number of command-line arguments. These simplify certain tasks and can also be used to override values from both the `config.yaml` and `.env` files. For a full list of command-line arguments, run the following command:
+
+```shell
+poetry run 01 --help
+```
+
+#### 4. Edit the `i.py` File
+
+In `i.py`, you can edit the [system message, model, skills library path](https://docs.openinterpreter.com/settings/all-settings) and more. This file sets up an interpreter, and is powered by Open Interpreter.
 
 ## Ubuntu Dependencies
 

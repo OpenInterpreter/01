@@ -7,7 +7,6 @@ from interpreter import OpenInterpreter
 import shutil
 
 from source import config
-from source.core.config import APP_PREFIX
 
 system_message = r"""
 

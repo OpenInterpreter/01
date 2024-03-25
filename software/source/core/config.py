@@ -13,10 +13,7 @@ from pydantic_settings import (
     SettingsConfigDict,
     YamlConfigSettingsSource,
 )
-
 from source.core.models import LLM, STT, TTS, Client, Local, Server, Tunnel
-
-APP_PREFIX: str = os.getenv("01_PREFIX", "01_")
 
 
 class Config(BaseSettings):
@@ -46,19 +43,28 @@ class Config(BaseSettings):
         """
         Modify the order of precedence for settings sources.
         """
-        return (
-            DotEnvSettingsSource(
-                settings_cls,
-                env_prefix=APP_PREFIX,
-                env_file=".env",
-                env_file_encoding="utf-8",
-                env_nested_delimiter="_",
+        files: list[Any] = [
+            (
+                os.path.exists(".env"),
+                DotEnvSettingsSource(
+                    settings_cls,
+                    env_prefix="01_",
+                    env_file=".env",
+                    env_file_encoding="utf-8",
+                    env_nested_delimiter="_",
+                ),
             ),
-            YamlConfigSettingsSource(
-                settings_cls,
-                yaml_file=os.getenv(f"{APP_PREFIX}CONFIG_FILE", "config.yaml"),
+            (
+                os.path.exists("config.yaml"),
+                YamlConfigSettingsSource(
+                    settings_cls,
+                    yaml_file="config.yaml",
+                ),
             ),
-        )
+        ]
+
+        sources: list[Any] = [source for exists, source in files if exists]
+        return tuple(sources)
 
     def apply_cli_args(self, args: dict) -> None:
         """

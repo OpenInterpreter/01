@@ -10,7 +10,6 @@ import signal
 import threading
 
 import typer
-
 from source import config
 from source.server.utils.local_mode import select_local_model
 from source.utils.system import handle_exit

@@ -2,11 +2,11 @@
 Tests for config.py module.
 """
 
+import os
 from typing import Any
 
 from dotenv import load_dotenv
-
-from source.core.config import APP_PREFIX, Config, get_config
+from source.core.config import Config, get_config
 
 
 def test_config_defaults() -> None:
@@ -32,11 +32,11 @@ def test_config_defaults() -> None:
 
 
 def test_config_from_dot_env(tmp_path, monkeypatch) -> None:
-    env_content = f"""
-    {APP_PREFIX}CLIENT_ENABLED=true
-    {APP_PREFIX}CLIENT_URL=http://localhost:8000
-    {APP_PREFIX}CLIENT_PLATFORM=mac
-    {APP_PREFIX}LOCAL_ENABLED=true
+    env_content: str = """
+    01_CLIENT_ENABLED=true
+    01_CLIENT_URL=http://localhost:8000
+    01_CLIENT_PLATFORM=mac
+    01_LOCAL_ENABLED=true
     """
     p: Any = tmp_path / ".env"
     p.write_text(env_content)
@@ -50,7 +50,26 @@ def test_config_from_dot_env(tmp_path, monkeypatch) -> None:
     assert config.local.enabled is True
 
 
-def test_config_sources_yaml(tmp_path, monkeypatch):
+def test_config_from_dot_env_override(tmp_path, monkeypatch) -> None:
+    get_config.cache_clear()
+    initial_config: Config = get_config()
+    assert initial_config.client.enabled is False
+
+    env_content = """
+    01_CLIENT_ENABLED=true
+    """
+    p: Any = tmp_path / ".env"
+    p.write_text(env_content)
+    monkeypatch.chdir(tmp_path)
+    load_dotenv(dotenv_path=str(p))
+
+    get_config.cache_clear()
+    updated_config: Config = get_config()
+    assert updated_config.client.enabled is True
+
+
+def test_config_sources_yaml(tmp_path, monkeypatch) -> None:
+    get_config.cache_clear()
     yaml_content = """
     llm:
         model: test
@@ -58,11 +77,12 @@ def test_config_sources_yaml(tmp_path, monkeypatch):
     server:
         port: 8080
     """
-    p: Any = tmp_path / "config.yaml"
-    p.write_text(yaml_content)
-    monkeypatch.setenv("01_CONFIG_FILE", str(p))
+    config_path: Any = tmp_path / "config.yaml"
+    config_path.write_text(yaml_content)
+    monkeypatch.chdir(tmp_path)
 
-    config = Config()
+    get_config.cache_clear()
+    config: Config = get_config()
     assert config.llm.model == "test"
     assert config.llm.temperature == 1.0
     assert config.server.port == 8080
