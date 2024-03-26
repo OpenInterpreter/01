@@ -258,7 +258,7 @@ class Device:
                     if CAMERA_ENABLED:
                         print("\nHold the spacebar to start recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
                     else:
-                        print("\Hold the spacebar to start recording. Press CTRL-C to exit.")
+                        print("\nHold the spacebar to start recording. Press CTRL-C to exit.")
                         
                     asyncio.create_task(self.message_sender(websocket))
 

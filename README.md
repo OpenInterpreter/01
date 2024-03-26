@@ -64,7 +64,7 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 The 01 exposes a speech-to-speech websocket at `localhost:10001`.
 
-If you stream raw audio bytes to `/` in [LMC format](https://docs.openinterpreter.com/protocols/lmc-messages), you will receive its response in the same format.
+If you stream raw audio bytes to `/` in [Streaming LMC format](https://docs.openinterpreter.com/guides/streaming-response), you will receive its response in the same format.
 
 Inspired in part by [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/status/1723140519554105733), we run a [code-interpreting language model](https://github.com/OpenInterpreter/open-interpreter), and call it when certain events occur at your computer's [kernel](https://github.com/OpenInterpreter/01/blob/main/software/source/server/utils/kernel.py).
 
