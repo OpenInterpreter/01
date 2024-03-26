@@ -4,6 +4,8 @@ import os
 import subprocess
 import urllib.request
 import tarfile
+import platform
+
 
 class Tts:
     def __init__(self, config):
@@ -30,17 +32,23 @@ class Tts:
     def install(self, service_directory):
         PIPER_FOLDER_PATH = service_directory
         self.piper_directory = os.path.join(PIPER_FOLDER_PATH, 'piper')
-        if not os.path.isdir(self.piper_directory): # Check if the Piper directory exists
+        if not os.path.isdir(self.piper_directory):  # Check if the Piper directory exists
             os.makedirs(PIPER_FOLDER_PATH, exist_ok=True)
 
             # Determine OS and architecture
-            OS = os.uname().sysname
-            ARCH = os.uname().machine
+            OS = platform.system()
+            ARCH = platform.machine()
             if OS == "Darwin":
                 OS = "macos"
                 if ARCH == "arm64":
                     ARCH = "aarch64"
                 elif ARCH == "x86_64":
+                    ARCH = "x64"
+                else:
+                    print("Piper: unsupported architecture")
+                    return
+            elif OS == "Windows":
+                if ARCH == "AMD64":
                     ARCH = "x64"
                 else:
                     print("Piper: unsupported architecture")
