@@ -8,6 +8,13 @@
     <br><a href="https://openinterpreter.com/01">Preorder the Light</a>‎ ‎ |‎ ‎ <a href="https://changes.openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">Documentation</a><br>
 </p>
 
+<div align="center">
+
+ | [日本語](docs/README_JP.md) | [English](README.md) |
+
+</div>
+
+
 <br>
 
 ![OI-O1-BannerDemo-2](https://www.openinterpreter.com/OI-O1-BannerDemo-3.jpg)
