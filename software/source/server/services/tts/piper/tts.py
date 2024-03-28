@@ -67,7 +67,7 @@ class Tts:
             urllib.request.urlretrieve(asset_url, os.path.join(PIPER_FOLDER_PATH, PIPER_ASSETNAME))
 
             # Extract the downloaded file
-            if OS == "Windows":
+            if OS == "windows":
                 import zipfile
                 with zipfile.ZipFile(os.path.join(PIPER_FOLDER_PATH, PIPER_ASSETNAME), 'r') as zip_ref:
                     zip_ref.extractall(path=PIPER_FOLDER_PATH)
