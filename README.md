@@ -44,9 +44,27 @@ cd 01/software # CD into the source directory
 ```shell
 brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
 poetry install # Install Python dependencies
-export OPENAI_API_KEY=sk... # OR run `poetry run 01 --local` to run everything locally
+export OPENAI_API_KEY=sk... 
 poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 ```
+
+### Running locally
+To run locally, you can use command line arguments and environment variables.
+
+Using command line arguments:
+
+```shell
+poetry run 01 --local --model ollama/mixtral:latest
+```
+
+Using command line arguments and environment variables:
+
+```shell
+export MODEL=ollama/mixtral:latest
+poetry run 01 --local
+```
+
+Note, you should replace `ollama/mixtral:latest` with a model installed locally. For supported models, see Open Interpreter's [local providers](https://docs.openinterpreter.com/language-models/local-models/ollama) documentation.
 
 <br>
 
