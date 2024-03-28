@@ -4,7 +4,7 @@
 
 To set up audio recording + playback on the ESP32 (M5 Atom), do the following:
 
-1. Open Arduino IDE, and open the client/client.ino file
+1. Open Arduino IDE, and open the [client.ino](https://github.com/OpenInterpreter/01/blob/main/software/source/clients/esp32/src/client/client.ino) file
 2. Go to Tools -> Board -> Boards Manager, search "esp32", then install the boards by Arduino and Espressif
 3. Go to Tools -> Manage Libraries, then install the following:
 
