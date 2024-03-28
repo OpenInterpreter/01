@@ -45,6 +45,10 @@ last_messages = ""
 
 def check_filtered_kernel():
     messages = get_kernel_messages()
+    if messages is None:
+        return ""  # Handle unsupported platform or error in fetching kernel messages
+
+    global last_messages
     messages.replace(last_messages, "")
     messages = messages.split("\n")
     
@@ -54,6 +58,7 @@ def check_filtered_kernel():
             filtered_messages.append(message)
     
     return "\n".join(filtered_messages)
+
 
 async def put_kernel_messages_into_queue(queue):
     while True:

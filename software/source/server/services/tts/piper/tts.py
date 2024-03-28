@@ -49,7 +49,7 @@ class Tts:
                     return
             elif OS == "windows":
                 if ARCH == "AMD64":
-                    ARCH = "x64"
+                    ARCH = "amd64"
                 else:
                     print("Piper: unsupported architecture")
                     return
@@ -60,13 +60,14 @@ class Tts:
             asset_url = f"{PIPER_URL}{PIPER_ASSETNAME}"
 
             if OS == "windows":
+
                 asset_url = asset_url.replace(".tar.gz", ".zip")
 
             # Download and extract Piper
             urllib.request.urlretrieve(asset_url, os.path.join(PIPER_FOLDER_PATH, PIPER_ASSETNAME))
 
             # Extract the downloaded file
-            if OS == "windows":
+            if OS == "Windows":
                 import zipfile
                 with zipfile.ZipFile(os.path.join(PIPER_FOLDER_PATH, PIPER_ASSETNAME), 'r') as zip_ref:
                     zip_ref.extractall(path=PIPER_FOLDER_PATH)
