@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()  # take environment variables from .env.
-
 import traceback
 from platformdirs import user_data_dir
 import ast
@@ -414,6 +411,7 @@ async def main(server_host, server_port, llm_service, model, llm_supports_vision
             globals()[service] = getattr(service_instance, service)
 
         interpreter.llm.completions = llm
+        interpreter.llm.model = model
         
         # Start listening
         asyncio.create_task(listener())

@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()  # take environment variables from .env.
-
 import os
 import glob
 import time
@@ -9,6 +6,7 @@ from pathlib import Path
 from interpreter import OpenInterpreter
 import shutil
 
+from source import config
 
 system_message = r"""
 
@@ -189,7 +187,7 @@ def configure_interpreter(interpreter: OpenInterpreter):
     interpreter.llm.supports_vision = True
     interpreter.shrink_images = True  # Faster but less accurate
 
-    interpreter.llm.model = "gpt-4"
+    interpreter.llm.model = config.llm.model
 
     interpreter.llm.supports_functions = False
     interpreter.llm.context_window = 110000
@@ -294,8 +292,6 @@ def configure_interpreter(interpreter: OpenInterpreter):
     # ):
     #     if chunk.get("format") != "active_line":
     #         print(chunk.get("content"))
-
-    import os
 
     from platformdirs import user_data_dir
 

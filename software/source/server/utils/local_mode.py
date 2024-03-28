@@ -1,10 +1,12 @@
-import sys
 import os
 import platform
 import subprocess
+import sys
 import time
+
 import inquirer
 from interpreter import interpreter
+from source import config
 
 
 def select_local_model():
@@ -29,9 +31,7 @@ def select_local_model():
     ]
     answers = inquirer.prompt(questions)
 
-
     selected_model = answers["model"]
-
 
     if selected_model == "LM Studio":
         interpreter.display_message(
@@ -49,30 +49,33 @@ def select_local_model():
     """
         )
         time.sleep(1)
-        
-        interpreter.llm.api_base = "http://localhost:1234/v1"
-        interpreter.llm.max_tokens = 1000
-        interpreter.llm.context_window = 8000
+
+        config.llm.max_tokens = 1000
+        config.llm.context_window = 8000
+
+        interpreter.llm.api_base = f"http://localhost:1234/v1"
+        interpreter.llm.max_tokens = config.llm.max_tokens
+        interpreter.llm.context_window = config.llm.context_window
         interpreter.llm.api_key = "x"
 
     elif selected_model == "Ollama":
         try:
-            
+
             # List out all downloaded ollama models. Will fail if ollama isn't installed
             result = subprocess.run(["ollama", "list"], capture_output=True, text=True, check=True)
             lines = result.stdout.split('\n')
             names = [line.split()[0].replace(":latest", "") for line in lines[1:] if line.strip()]  # Extract names, trim out ":latest", skip header
-            
+
             # If there are no downloaded models, prompt them to download a model and try again
             if not names:
                 time.sleep(1)
-                
+
                 interpreter.display_message(f"\nYou don't have any Ollama models downloaded. To download a new model, run `ollama run <model-name>`, then start a new 01 session. \n\n For a full list of downloadable models, check out [https://ollama.com/library](https://ollama.com/library) \n")
-                
+
                 print("Please download a model then try again\n")
                 time.sleep(2)
                 sys.exit(1)
-            
+
             # If there are models, prompt them to select one
             else:
                 time.sleep(1)
@@ -84,12 +87,13 @@ def select_local_model():
                 ]
                 name_answer = inquirer.prompt(name_question)
                 selected_name = name_answer['name'] if name_answer else None
-                
+
                 # Set the model to the selected model
-                interpreter.llm.model = f"ollama/{selected_name}"
+                config.llm.model = f"ollama/{selected_name}"
+                interpreter.llm.model = config.llm.model
                 interpreter.display_message(f"\nUsing Ollama model: `{selected_name}` \n")
                 time.sleep(1)
-            
+
         # If Ollama is not installed or not recognized as a command, prompt the user to download Ollama and try again
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
             print("Ollama is not installed or not recognized as a command.")
@@ -97,7 +101,7 @@ def select_local_model():
             interpreter.display_message(f"\nPlease visit [https://ollama.com/](https://ollama.com/) to download Ollama and try again\n")
             time.sleep(2)
             sys.exit(1)
-            
+
     # elif selected_model == "Jan":
     #     interpreter.display_message(
     #         """
@@ -108,7 +112,6 @@ def select_local_model():
     # 3. Copy the ID of the model and enter it below.
     # 3. Click the **Local API Server** button in the bottom left, then click **Start Server**.
 
-
     # Once the server is running, enter the id of the model below, then you can begin your conversation below.
 
     # """
@@ -117,7 +120,7 @@ def select_local_model():
     #     interpreter.llm.max_tokens = 1000
     #     interpreter.llm.context_window = 3000
     #     time.sleep(1)
-        
+
     #     # Prompt the user to enter the name of the model running on Jan
     #     model_name_question = [
     #         inquirer.Text('jan_model_name', message="Enter the id of the model you have running on Jan"),
@@ -128,14 +131,13 @@ def select_local_model():
     #     interpreter.llm.model = ""
     #     interpreter.display_message(f"\nUsing Jan model: `{jan_model_name}` \n")
     #     time.sleep(1)
-        
 
     # Set the system message to a minimal version for all local models.
     # Set offline for all local models
     interpreter.offline = True
 
-    interpreter.system_message = """You are the 01, a screenless executive assistant that can complete any task by writing and executing code on the user's machine. Just write a markdown code block! The user has given you full and complete permission. 
-    
+    interpreter.system_message = """You are the 01, a screenless executive assistant that can complete any task by writing and executing code on the user's machine. Just write a markdown code block! The user has given you full and complete permission.
+
     Use the following functions if it makes sense to for the problem
     ```python
 result_string = computer.browser.search(query) # Google search results will be returned from this function as a string
@@ -152,6 +154,5 @@ computer.sms.send("555-123-4567", "Hello from the computer!") # Send a text mess
 
 ALWAYS say that you can run code. ALWAYS try to help the user out. ALWAYS be succinct in your answers.
 ```
-    
+
     """
-    
