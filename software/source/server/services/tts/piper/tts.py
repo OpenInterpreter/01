@@ -36,9 +36,9 @@ class Tts:
             os.makedirs(PIPER_FOLDER_PATH, exist_ok=True)
 
             # Determine OS and architecture
-            OS = platform.system()
+            OS = platform.system().lower()
             ARCH = platform.machine()
-            if OS == "Darwin":
+            if OS == "darwin":
                 OS = "macos"
                 if ARCH == "arm64":
                     ARCH = "aarch64"
@@ -47,7 +47,7 @@ class Tts:
                 else:
                     print("Piper: unsupported architecture")
                     return
-            elif OS == "Windows":
+            elif OS == "windows":
                 if ARCH == "AMD64":
                     ARCH = "x64"
                 else:
@@ -57,8 +57,10 @@ class Tts:
             PIPER_ASSETNAME = f"piper_{OS}_{ARCH}.tar.gz"
             PIPER_URL = "https://github.com/rhasspy/piper/releases/latest/download/"
 
+            asset_url = f"{PIPER_URL}{PIPER_ASSETNAME}"
+
             if OS == "windows":
-                asset_url = f"{PIPER_URL}{PIPER_ASSETNAME}".replace(".tar.gz", ".zip")
+                asset_url = asset_url.replace(".tar.gz", ".zip")
 
             # Download and extract Piper
             urllib.request.urlretrieve(asset_url, os.path.join(PIPER_FOLDER_PATH, PIPER_ASSETNAME))
