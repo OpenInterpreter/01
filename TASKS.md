@@ -55,7 +55,7 @@
 - [ ] Can tapping the mic twice = trigger pressing the "button"? Simple sensing, just based on volume spikes?
 - [ ] Update Architecture
   - [ ] Base Devise Class
-  - [ ] Seperate folders for Rasberry Pi, Desktop, Droid, App, Web
+  - [ ] Separate folders for Rasberry Pi, Desktop, Droid, App, Web
   - [ ] device.py for each folder has input logic for that device
     - [ ] Add basic TUI to device.py. Just renders messages and lets you add messages. Can easily copy OI's TUI.
   - [ ] index.html for each folder has user interface for that device

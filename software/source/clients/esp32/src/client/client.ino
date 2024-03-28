@@ -668,7 +668,7 @@ void websocket_setup(String server_domain, int port)
         return;
     }
     Serial.println("connected to WiFi");
-    webSocket.begin(server_domain, 80, "/");
+    webSocket.begin(server_domain, port, "/");
     webSocket.onEvent(webSocketEvent);
     // webSocket.setAuthorization("user", "Password");
     webSocket.setReconnectInterval(5000);

@@ -59,6 +59,7 @@ def check_filtered_kernel():
     
     return "\n".join(filtered_messages)
 
+
 async def put_kernel_messages_into_queue(queue):
     while True:
         text = check_filtered_kernel()

@@ -5,7 +5,7 @@
     <br>
     <br>
     <strong>The open-source language model computer.（开源大语言模型计算机）</strong><br>
-    <!-- <br><a href="https://openinterpreter.com">Preorder the Light</a>‎ ‎ |‎ ‎ <a href="https://openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://docs.openinterpreter.com/">Documentation</a><br> -->
+    <br><a href="https://openinterpreter.com/01">预订 Light‎</a>‎ ‎ |‎ ‎ <a href="https://changes.openinterpreter.com">获取更新‎</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">文档</a><br>
 </p>
 
 <br>

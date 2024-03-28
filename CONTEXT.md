@@ -12,7 +12,7 @@ That should be compatible with other popular systems. For example, I think [LMC 
 
 We need to pick a niche. I wonder if startups is the right niche for us (use the 01 to build and sell your own Tab, Pin, Rabbit, etc) or if we should go with education, as the Raspberry Pi and Arduino did. Computer science departments is where UNIX took hold.
 
-4. **Be afforable.**
+4. **Be affordable.**
 
 The most hackable, most basic 01 MUST be under $100, ideally under $70.
 
