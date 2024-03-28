@@ -36,9 +36,9 @@ class Tts:
             os.makedirs(PIPER_FOLDER_PATH, exist_ok=True)
 
             # Determine OS and architecture
-            OS = platform.system()
+            OS = platform.system().lower()
             ARCH = platform.machine()
-            if OS == "Darwin":
+            if OS == "darwin":
                 OS = "macos"
                 if ARCH == "arm64":
                     ARCH = "aarch64"
@@ -47,7 +47,7 @@ class Tts:
                 else:
                     print("Piper: unsupported architecture")
                     return
-            elif OS == "Windows":
+            elif OS == "windows":
                 if ARCH == "AMD64":
                     ARCH = "x64"
                 else:
