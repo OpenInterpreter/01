@@ -43,7 +43,9 @@ def install(service_dir):
     # Check if whisper-rust executable exists before attempting to build
     if not os.path.isfile(os.path.join(WHISPER_RUST_PATH, "target/release/whisper-rust")):
         # Check if Rust is installed. Needed to build whisper executable
-        rustc_path = shutil.which('rustc')
+        
+        rustc_path = shutil.which("rustc")
+        
         if rustc_path is None:
             print("Rust is not installed or is not in system PATH. Please install Rust before proceeding.")
             exit(1)
