@@ -65,7 +65,7 @@ def run(
 def _run(
             server: bool = False,
             server_host: str = "0.0.0.0",
-            server_port: int = 10001,
+            server_port: int = 3000,
             
             tunnel_service: str = "bore",
             expose: bool = False,
@@ -123,6 +123,8 @@ def _run(
             system_type = platform.system()
             if system_type == "Darwin":  # Mac OS
                 client_type = "mac"
+            elif system_type == "Windows":  # Windows System
+                client_type = "windows"
             elif system_type == "Linux":  # Linux System
                 try:
                     with open('/proc/device-tree/model', 'r') as m:
