@@ -260,14 +260,31 @@ class Device:
         show_connection_log = True
         while True:
             try:
-                print("Attempting to connect to the WS server...")
+                # print("Attempting to connect to the WS server...")
+
+                # On some windows machines, the websocket server starts
+                # after the client, and the client fails to connect.
+                # Should be refactored to start with a fastAPI startup event.
+                if get_system_info().lower().startswith("windows"):
+                    time.sleep(5)
 
                 try:
                     ws = wsc.create_connection(WS_URL, timeout=5)
                 except wsc.WebSocketTimeoutException:
+                    # Using print here because logger is not properly configured yet
+                    # and we want to see this message on the console when troubleshooting
                     print("Timeout while trying to connect to the WebSocket server.")
                     continue
-                print("Connected to the WS server.")
+                except wsc.WebSocketConnectionClosedException:
+                    print("WebSocket connection closed unexpectedly.")
+                    if show_connection_log:
+                        logger.info(f"Reconnecting to `{WS_URL}`...")
+                        show_connection_log = False
+                    await asyncio.sleep(2)
+                except wsc.WebSocketAddressException:
+                    print(f"Invalid WebSocket URI: `{WS_URL}`. Please check the URI and try again.")
+                    break  # Exit the loop as the URI is invalid and retrying won't help
+                 # print("Connected to the WS server.")
 
                 if CAMERA_ENABLED:
                     print("\nHold the spacebar to start recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
@@ -314,19 +331,9 @@ class Device:
                             result = interpreter.computer.run(language, code)
                             send_queue.put(result)
 
-            except wsc.WebSocketConnectionClosedException:
-                print("WebSocket connection closed unexpectedly.")
-                if show_connection_log:
-                    logger.info(f"Reconnecting to `{WS_URL}`...")
-                    show_connection_log = False
-                await asyncio.sleep(2)
-            except wsc.WebSocketAddressException:
-                print(f"Invalid WebSocket URI: `{WS_URL}`. Please check the URI and try again.")
-                break  # Exit the loop as the URI is invalid and retrying won't help
             except Exception as e:
-                logger.debug(traceback.format_exc())
                 if show_connection_log:
-                    logger.info(f"Connecting to `{WS_URL}`...")
+                    print(f"Connecting to `{WS_URL}`...")
                     show_connection_log = False
                 await asyncio.sleep(2)
 
