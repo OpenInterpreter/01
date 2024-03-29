@@ -16,7 +16,7 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 from pathlib import Path
 import asyncio
 import urllib.parse
-from .utils.kernel import put_kernel_messages_into_queue
+from .utils.kernel import KernelChecker, put_kernel_messages_into_queue
 from .i import configure_interpreter
 from interpreter import interpreter
 from ..utils.accumulator import Accumulator
@@ -86,7 +86,7 @@ if os.getenv('CODE_RUNNER') == "device":
                 to_device.put({"role": "assistant", "type": "code", "format": "python", "start": True})
                 to_device.put(message)
                 to_device.put({"role": "assistant", "type": "code", "format": "python", "end": True})
-            
+
             # Stream the response
             logger.info("Waiting for the device to respond...")
             while True:
@@ -165,13 +165,13 @@ async def receive_messages(websocket: WebSocket):
                 return
             else:
                 raise
-        
+
 
 async def send_messages(websocket: WebSocket):
     while True:
         message = await to_device.get()
         #print(f"Sending to the device: {type(message)} {str(message)[:100]}")
-        
+
         try:
             if isinstance(message, dict):
                 await websocket.send_json(message)
@@ -197,7 +197,7 @@ async def listener():
                     break
                 await asyncio.sleep(1)
 
-            
+
 
             message = accumulator.accumulate(chunk)
             if message == None:
@@ -251,7 +251,7 @@ async def listener():
             if any([m["type"] == "image" for m in messages]) and interpreter.llm.model.startswith("gpt-"):
                 interpreter.llm.model = "gpt-4-vision-preview"
                 interpreter.llm.supports_vision = True
-            
+
             for chunk in interpreter.chat(messages, stream=True, display=True):
 
                 if any([m["type"] == "image" for m in interpreter.messages]):
@@ -263,18 +263,18 @@ async def listener():
                 await to_device.put(chunk)
                 # Yield to the event loop, so you actually send it out
                 await asyncio.sleep(0.01)
-                
+
                 if os.getenv('TTS_RUNNER') == "server":
                     # Speak full sentences out loud
                     if chunk["role"] == "assistant" and "content" in chunk and chunk["type"] == "message":
                         accumulated_text += chunk["content"]
                         sentences = split_into_sentences(accumulated_text)
-                        
+
                         # If we're going to speak, say we're going to stop sending text.
                         # This should be fixed probably, we should be able to do both in parallel, or only one.
                         if any(is_full_sentence(sentence) for sentence in sentences):
                             await to_device.put({"role": "assistant", "type": "message", "end": True})
-                        
+
                         if is_full_sentence(sentences[-1]):
                             for sentence in sentences:
                                 await stream_tts_to_device(sentence)
@@ -288,13 +288,13 @@ async def listener():
                         # This should be fixed probably, we should be able to do both in parallel, or only one.
                         if any(is_full_sentence(sentence) for sentence in sentences):
                             await to_device.put({"role": "assistant", "type": "message", "start": True})
-                    
+
                 # If we have a new message, save our progress and go back to the top
                 if not from_user.empty():
 
                     # Check if it's just an end flag. We ignore those.
                     temp_message = await from_user.get()
-                    
+
                     if type(temp_message) is dict and temp_message.get("role") == "user" and temp_message.get("end"):
                         # Yup. False alarm.
                         continue
@@ -311,7 +311,7 @@ async def listener():
 
                 # Also check if there's any new computer messages
                 if not from_computer.empty():
-                    
+
                     with open(conversation_history_path, 'w') as file:
                         json.dump(interpreter.messages, file, indent=4)
 
@@ -333,7 +333,7 @@ async def stream_tts_to_device(sentence):
         await to_device.put(chunk)
 
 def stream_tts(sentence):
-    
+
     audio_file = tts(sentence)
 
     with open(audio_file, "rb") as f:
@@ -382,13 +382,13 @@ async def main(server_host, server_port, llm_service, model, llm_supports_vision
         services_directory = os.path.join(application_directory, 'services')
 
         service_dict = {'llm': llm_service, 'tts': tts_service, 'stt': stt_service}
-        
+
         # Create a temp file with the session number
         session_file_path = os.path.join(user_data_dir('01'), '01-session.txt')
         with open(session_file_path, 'w') as session_file:
             session_id = int(datetime.datetime.now().timestamp() * 1000)
             session_file.write(str(session_id))
-            
+
         for service in service_dict:
 
             service_directory = os.path.join(services_directory, service, service_dict[service])
@@ -408,20 +408,21 @@ async def main(server_host, server_port, llm_service, model, llm_supports_vision
                 })
 
             module = import_module(f'.server.services.{service}.{service_dict[service]}.{service}', package='source')
-            
+
             ServiceClass = getattr(module, service.capitalize())
             service_instance = ServiceClass(config)
             globals()[service] = getattr(service_instance, service)
 
         interpreter.llm.completions = llm
-        
+
         # Start listening
         asyncio.create_task(listener())
 
         # Start watching the kernel if it's your job to do that
         if True: # in the future, code can run on device. for now, just server.
-            asyncio.create_task(put_kernel_messages_into_queue(from_computer))
-            
+            kernel_checker = KernelChecker()
+            asyncio.create_task(put_kernel_messages_into_queue(kernel_checker, from_computer))
+
         config = Config(app, host=server_host, port=int(server_port), lifespan='on')
         server = Server(config)
         await server.serve()

@@ -1,5 +1,8 @@
 from dotenv import load_dotenv
+from source.server.utils.logs import setup_logging, logger
+
 load_dotenv()  # take environment variables from .env.
+setup_logging()
 
 import os
 import asyncio
@@ -11,7 +14,7 @@ from queue import Queue
 from pynput import keyboard
 import json
 import traceback
-import websockets
+import websocket as wsc
 import queue
 import pydub
 import ast
@@ -26,7 +29,7 @@ import cv2
 import base64
 from interpreter import interpreter # Just for code execution. Maybe we should let people do from interpreter.computer import run?
 # In the future, I guess kernel watching code should be elsewhere? Somewhere server / client agnostic?
-from ..server.utils.kernel import put_kernel_messages_into_queue
+from ..server.utils.kernel import KernelChecker, put_kernel_messages_into_queue
 from ..server.utils.get_system_info import get_system_info
 from ..server.utils.process_utils import kill_process_tree
 
@@ -41,13 +44,11 @@ from ..utils.accumulator import Accumulator
 
 accumulator = Accumulator()
 
-# Configuration for Audio Recording
-CHUNK = 1024  # Record in chunks of 1024 samples
-FORMAT = pyaudio.paInt16  # 16 bits per sample
-CHANNELS = 1  # Mono
-RATE = 44100  # Sample rate
-RECORDING = False  # Flag to control recording state
-SPACEBAR_PRESSED = False  # Flag to track spacebar press state
+# AudioSegment configuration
+AUDIO_SAMPLE_WIDTH = 2
+AUDIO_FRAME_RATE = 16000
+AUDIO_MONO_CHANNEL = 1
+AUDIO_CODE_RUNNER_CLIENT = "client"
 
 # Camera configuration
 CAMERA_ENABLED = os.getenv('CAMERA_ENABLED', False)
@@ -70,6 +71,14 @@ class Device:
         self.captured_images = []
         self.audiosegments = []
         self.server_url = ""
+
+        # Configuration for Audio Recording
+        self.CHUNK = 1024  # Record in chunks of 1024 samples
+        self.FORMAT = pyaudio.paInt16  # 16 bits per sample
+        self.CHANNELS = 1  # Mono
+        self.RATE = 44100  # Sample rate
+        self.RECORDING = False  # Flag to control recording state
+        self.SPACEBAR_PRESSED = False  # Flag to track spacebar press state
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
         """Captures an image from the specified camera device and saves it to a temporary file. Adds the image to the captured_images list."""
@@ -98,7 +107,7 @@ class Device:
         cap.release()
 
         return image_path
-    
+
 
     def encode_image_to_base64(self, image_path):
         """Encodes an image file to a base64 string."""
@@ -124,7 +133,7 @@ class Device:
             self.add_image_to_send_queue(image_path)
         self.captured_images.clear()  # Clear the list after sending
 
-        
+
     async def play_audiosegments(self):
         """Plays them sequentially."""
         while True:
@@ -141,7 +150,6 @@ class Device:
 
 
     def record_audio(self):
-        
         if os.getenv('STT_RUNNER') == "server":
             # STT will happen on the server. we're sending audio.
             send_queue.put({"role": "user", "type": "audio", "format": "bytes.wav", "start": True})
@@ -152,20 +160,19 @@ class Device:
             raise Exception("STT_RUNNER must be set to either 'client' or 'server'.")
 
         """Record audio from the microphone and add it to the queue."""
-        stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
+        stream = p.open(format=self.FORMAT, channels=self.CHANNELS, rate=self.RATE, input=True, frames_per_buffer=self.CHUNK)
         print("Recording started...")
-        global RECORDING
 
         # Create a temporary WAV file to store the audio data
         temp_dir = tempfile.gettempdir()
         wav_path = os.path.join(temp_dir, f"audio_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
         wav_file = wave.open(wav_path, 'wb')
-        wav_file.setnchannels(CHANNELS)
-        wav_file.setsampwidth(p.get_sample_size(FORMAT))
-        wav_file.setframerate(RATE)
+        wav_file.setnchannels(self.CHANNELS)
+        wav_file.setsampwidth(p.get_sample_size(self.FORMAT))
+        wav_file.setframerate(self.RATE)
 
-        while RECORDING:
-            data = stream.read(CHUNK, exception_on_overflow=False)
+        while self.RECORDING:
+            data = stream.read(self.CHUNK, exception_on_overflow=False)
             wav_file.writeframes(data)
 
         wav_file.close()
@@ -173,7 +180,7 @@ class Device:
         stream.close()
         print("Recording stopped.")
 
-        duration = wav_file.getnframes() / RATE
+        duration = wav_file.getnframes() / self.RATE
         if duration < 0.3:
             # Just pressed it. Send stop message
             if os.getenv('STT_RUNNER') == "client":
@@ -198,10 +205,10 @@ class Device:
             else:
                 # Stream audio
                 with open(wav_path, 'rb') as audio_file:
-                    byte_data = audio_file.read(CHUNK)
+                    byte_data = audio_file.read(self.CHUNK)
                     while byte_data:
                         send_queue.put(byte_data)
-                        byte_data = audio_file.read(CHUNK)
+                        byte_data = audio_file.read(self.CHUNK)
                 send_queue.put({"role": "user", "type": "audio", "format": "bytes.wav", "end": True})
 
         if os.path.exists(wav_path):
@@ -209,15 +216,14 @@ class Device:
 
     def toggle_recording(self, state):
         """Toggle the recording state."""
-        global RECORDING, SPACEBAR_PRESSED
-        if state and not SPACEBAR_PRESSED:
-            SPACEBAR_PRESSED = True
-            if not RECORDING:
-                RECORDING = True
+        if state and not self.SPACEBAR_PRESSED:
+            self.SPACEBAR_PRESSED = True
+            if not self.RECORDING:
+                self.RECORDING = True
                 threading.Thread(target=self.record_audio).start()
-        elif not state and SPACEBAR_PRESSED:
-            SPACEBAR_PRESSED = False
-            RECORDING = False
+        elif not state and self.SPACEBAR_PRESSED:
+            self.SPACEBAR_PRESSED = False
+            self.RECORDING = False
 
     def on_press(self, key):
         """Detect spacebar press and Ctrl+C combination."""
@@ -239,7 +245,7 @@ class Device:
         elif CAMERA_ENABLED and key == keyboard.KeyCode.from_char('c'):
             self.fetch_image_from_camera()
 
-    
+
     async def message_sender(self, websocket):
         while True:
             message = await asyncio.get_event_loop().run_in_executor(None, send_queue.get)
@@ -254,62 +260,74 @@ class Device:
         show_connection_log = True
         while True:
             try:
-                async with websockets.connect(WS_URL) as websocket:
-                    if CAMERA_ENABLED:
-                        print("\nHold the spacebar to start recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
-                    else:
-                        print("\nHold the spacebar to start recording. Press CTRL-C to exit.")
-                        
-                    asyncio.create_task(self.message_sender(websocket))
+                print("Attempting to connect to the WS server...")
 
-                    while True:
-                        await asyncio.sleep(0.01)
-                        chunk = await websocket.recv()
+                try:
+                    ws = wsc.create_connection(WS_URL, timeout=5)
+                except wsc.WebSocketTimeoutException:
+                    print("Timeout while trying to connect to the WebSocket server.")
+                    continue
+                print("Connected to the WS server.")
 
-                        logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
+                if CAMERA_ENABLED:
+                    print("\nHold the spacebar to start recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
+                else:
+                    print("\nHold the spacebar to start recording. Press CTRL-C to exit.")
 
-                        if type(chunk) == str:
-                            chunk = json.loads(chunk)
+                asyncio.create_task(self.message_sender(ws))
 
-                        message = accumulator.accumulate(chunk)
-                        if message == None:
-                            # Will be None until we have a full message ready
-                            continue
+                while True:
+                    await asyncio.sleep(0.01)
+                    chunk = await ws.recv()
 
-                        # At this point, we have our message
+                    logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
 
-                        if message["type"] == "audio" and message["format"].startswith("bytes"):
+                    if isinstance(chunk, str):
+                        chunk = json.loads(chunk)
 
-                            # Convert bytes to audio file
+                    message = accumulator.accumulate(chunk)
+                    if message is None:
+                        # Will be None until we have a full message ready
+                        continue
 
-                            audio_bytes = message["content"]
+                    # At this point, we have our message
 
-                            # Create an AudioSegment instance with the raw data
-                            audio = AudioSegment(
-                                # raw audio data (bytes)
-                                data=audio_bytes,
-                                # signed 16-bit little-endian format
-                                sample_width=2,
-                                # 16,000 Hz frame rate
-                                frame_rate=16000,
-                                # mono sound
-                                channels=1
-                            )
+                    if message["type"] == "audio" and message["format"].startswith("bytes"):
+                        # Convert bytes to audio file
+                        audio_bytes = message["content"]
 
-                            self.audiosegments.append(audio)
+                        # Create an AudioSegment instance with the raw data
+                        audio = AudioSegment(
+                            data=audio_bytes,
+                            sample_width=AUDIO_SAMPLE_WIDTH,
+                            frame_rate=AUDIO_FRAME_RATE,
+                            channels=AUDIO_MONO_CHANNEL
+                        )
 
-                        # Run the code if that's the client's job
-                        if os.getenv('CODE_RUNNER') == "client":
-                            if message["type"] == "code" and "end" in message:
-                                language = message["format"]
-                                code = message["content"]
-                                result = interpreter.computer.run(language, code)
-                                send_queue.put(result)
-            except:
+                        self.audiosegments.append(audio)
+
+                    # Run the code if that's the client's job
+                    if os.getenv('CODE_RUNNER') == AUDIO_CODE_RUNNER_CLIENT:
+                        if message["type"] == "code" and "end" in message:
+                            language = message["format"]
+                            code = message["content"]
+                            result = interpreter.computer.run(language, code)
+                            send_queue.put(result)
+
+            except wsc.WebSocketConnectionClosedException:
+                print("WebSocket connection closed unexpectedly.")
+                if show_connection_log:
+                    logger.info(f"Reconnecting to `{WS_URL}`...")
+                    show_connection_log = False
+                await asyncio.sleep(2)
+            except wsc.WebSocketAddressException:
+                print(f"Invalid WebSocket URI: `{WS_URL}`. Please check the URI and try again.")
+                break  # Exit the loop as the URI is invalid and retrying won't help
+            except Exception as e:
                 logger.debug(traceback.format_exc())
                 if show_connection_log:
-                  logger.info(f"Connecting to `{WS_URL}`...")
-                  show_connection_log = False
+                    logger.info(f"Connecting to `{WS_URL}`...")
+                    show_connection_log = False
                 await asyncio.sleep(2)
 
     async def start_async(self):
@@ -320,13 +338,14 @@ class Device:
 
             # Start watching the kernel if it's your job to do that
             if os.getenv('CODE_RUNNER') == "client":
-                asyncio.create_task(put_kernel_messages_into_queue(send_queue))
+                kernel_checker = KernelChecker()
+                asyncio.create_task(put_kernel_messages_into_queue(kernel_checker, send_queue))
 
             asyncio.create_task(self.play_audiosegments())
-            
+
             # If Raspberry Pi, add the button listener, otherwise use the spacebar
             if current_platform.startswith("raspberry-pi"):
-                logger.info("Raspberry Pi detected, using button on GPIO pin 15")
+                print("Raspberry Pi detected, using button on GPIO pin 15")
                 # Use GPIO pin 15
                 pindef = ["gpiochip4", "15"] # gpiofind PIN15
                 print("PINDEF", pindef)
