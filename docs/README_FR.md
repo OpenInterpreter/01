@@ -18,7 +18,7 @@ Nous voulons vous aider à construire. [Postulez pour un support individuel.](ht
 
 ---
 
-⚠️ **ATTENTION** : Ce projet expérimental est en développement rapide et manque de protections de sécurité de base. Jusqu'à une version stable 1.0, ne faites fonctionner ce dépôt **seulement** sur des appareils sans informations sensibles ni accès à des services payants. ⚠️
+Jusqu'à l'atteinte d'une version stable 1.0, veuillez faire fonctionner ce dépôt uniquement sur des appareils ne contenant aucune information sensible et n'ayant pas accès à des services payants.
 
 ---
 
