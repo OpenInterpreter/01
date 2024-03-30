@@ -65,7 +65,7 @@ def run(
 def _run(
             server: bool = False,
             server_host: str = "0.0.0.0",
-            server_port: int = 3000,
+            server_port: int = 10001,
             
             tunnel_service: str = "bore",
             expose: bool = False,
