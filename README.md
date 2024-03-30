@@ -48,6 +48,15 @@ export OPENAI_API_KEY=sk... # OR run `poetry run 01 --local` to run everything l
 poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 ```
 
+```shell
+brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
+poetry install # Install Python dependencies
+export AZURE_API_KEY = # Azure Openai deployment key
+export AZURE_API_BASE = # Azure Openai deployment base url
+export AZURE_API_VERSION = # Azure Openai deployment api version Eg. 2024-02-15-preview
+export AZURE_DEPLOYMENT_ID = # Azure Openai deployment id
+poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
+```
 <br>
 
 # Hardware
