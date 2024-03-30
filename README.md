@@ -55,7 +55,7 @@ export AZURE_API_KEY = # Azure Openai deployment key
 export AZURE_API_BASE = # Azure Openai deployment base url
 export AZURE_API_VERSION = # Azure Openai deployment api version Eg. 2024-02-15-preview
 export AZURE_DEPLOYMENT_ID = # Azure Openai deployment id
-poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
+poetry run 01 --llm-service azure # Runs the 01 Light simulator (hold your spacebar, speak, release) with Azure
 ```
 <br>
 
