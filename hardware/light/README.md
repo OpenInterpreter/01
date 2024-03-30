@@ -10,6 +10,7 @@ To set up audio recording + playback on the ESP32 (M5 Atom), do the following:
 
 - M5Atom by M5Stack [Reference](https://www.arduino.cc/reference/en/libraries/m5atom/)
 - WebSockets by Markus Sattler [Reference](https://www.arduino.cc/reference/en/libraries/websockets/)
+- AsyncTCP by dvarrel [Reference](https://github.com/dvarrel/AsyncTCP)
 
 Finally, to flash the .ino to the board, connect the board to the USB port, select the port from the dropdown on the IDE, then select the M5Atom board (or M5Stack-ATOM if you have that). Click on upload to flash the board.
 
