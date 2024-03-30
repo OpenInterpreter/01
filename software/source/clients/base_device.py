@@ -24,6 +24,7 @@ import tempfile
 from datetime import datetime
 import cv2
 import base64
+import platform
 from interpreter import interpreter # Just for code execution. Maybe we should let people do from interpreter.computer import run?
 # In the future, I guess kernel watching code should be elsewhere? Somewhere server / client agnostic?
 from ..server.utils.kernel import put_kernel_messages_into_queue
@@ -58,6 +59,7 @@ CAMERA_WARMUP_SECONDS = float(os.getenv('CAMERA_WARMUP_SECONDS', 0))
 
 # Specify OS
 current_platform = get_system_info()
+is_win10 = lambda: platform.system() == "Windows" and "10" in platform.version()
 
 # Initialize PyAudio
 p = pyaudio.PyAudio()
@@ -98,7 +100,7 @@ class Device:
         cap.release()
 
         return image_path
-    
+
 
     def encode_image_to_base64(self, image_path):
         """Encodes an image file to a base64 string."""
@@ -124,7 +126,7 @@ class Device:
             self.add_image_to_send_queue(image_path)
         self.captured_images.clear()  # Clear the list after sending
 
-        
+
     async def play_audiosegments(self):
         """Plays them sequentially."""
         while True:
@@ -141,7 +143,7 @@ class Device:
 
 
     def record_audio(self):
-        
+
         if os.getenv('STT_RUNNER') == "server":
             # STT will happen on the server. we're sending audio.
             send_queue.put({"role": "user", "type": "audio", "format": "bytes.wav", "start": True})
@@ -239,7 +241,7 @@ class Device:
         elif CAMERA_ENABLED and key == keyboard.KeyCode.from_char('c'):
             self.fetch_image_from_camera()
 
-    
+
     async def message_sender(self, websocket):
         while True:
             message = await asyncio.get_event_loop().run_in_executor(None, send_queue.get)
@@ -252,65 +254,79 @@ class Device:
 
     async def websocket_communication(self, WS_URL):
         show_connection_log = True
-        while True:
+
+        async def exec_ws_communication(websocket):
+            if CAMERA_ENABLED:
+                print("\nHold the spacebar to start recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
+            else:
+                print("\nHold the spacebar to start recording. Press CTRL-C to exit.")
+
+            asyncio.create_task(self.message_sender(websocket))
+
+            while True:
+                await asyncio.sleep(0.01)
+                chunk = await websocket.recv()
+
+                logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
+
+                if type(chunk) == str:
+                    chunk = json.loads(chunk)
+
+                message = accumulator.accumulate(chunk)
+                if message == None:
+                    # Will be None until we have a full message ready
+                    continue
+
+                # At this point, we have our message
+
+                if message["type"] == "audio" and message["format"].startswith("bytes"):
+
+                    # Convert bytes to audio file
+
+                    audio_bytes = message["content"]
+
+                    # Create an AudioSegment instance with the raw data
+                    audio = AudioSegment(
+                        # raw audio data (bytes)
+                        data=audio_bytes,
+                        # signed 16-bit little-endian format
+                        sample_width=2,
+                        # 16,000 Hz frame rate
+                        frame_rate=16000,
+                        # mono sound
+                        channels=1
+                    )
+
+                    self.audiosegments.append(audio)
+
+                # Run the code if that's the client's job
+                if os.getenv('CODE_RUNNER') == "client":
+                    if message["type"] == "code" and "end" in message:
+                        language = message["format"]
+                        code = message["content"]
+                        result = interpreter.computer.run(language, code)
+                        send_queue.put(result)
+
+        if is_win10():
+            logger.info('Windows 10 detected')
+            # Workaround for Windows 10 not latching to the websocket server.
+            # See https://github.com/OpenInterpreter/01/issues/197
             try:
-                async with websockets.connect(WS_URL) as websocket:
-                    if CAMERA_ENABLED:
-                        print("\nHold the spacebar to start recording. Press 'c' to capture an image from the camera. Press CTRL-C to exit.")
-                    else:
-                        print("\nHold the spacebar to start recording. Press CTRL-C to exit.")
-                        
-                    asyncio.create_task(self.message_sender(websocket))
-
-                    while True:
-                        await asyncio.sleep(0.01)
-                        chunk = await websocket.recv()
-
-                        logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
-
-                        if type(chunk) == str:
-                            chunk = json.loads(chunk)
-
-                        message = accumulator.accumulate(chunk)
-                        if message == None:
-                            # Will be None until we have a full message ready
-                            continue
-
-                        # At this point, we have our message
-
-                        if message["type"] == "audio" and message["format"].startswith("bytes"):
-
-                            # Convert bytes to audio file
-
-                            audio_bytes = message["content"]
-
-                            # Create an AudioSegment instance with the raw data
-                            audio = AudioSegment(
-                                # raw audio data (bytes)
-                                data=audio_bytes,
-                                # signed 16-bit little-endian format
-                                sample_width=2,
-                                # 16,000 Hz frame rate
-                                frame_rate=16000,
-                                # mono sound
-                                channels=1
-                            )
-
-                            self.audiosegments.append(audio)
-
-                        # Run the code if that's the client's job
-                        if os.getenv('CODE_RUNNER') == "client":
-                            if message["type"] == "code" and "end" in message:
-                                language = message["format"]
-                                code = message["content"]
-                                result = interpreter.computer.run(language, code)
-                                send_queue.put(result)
-            except:
-                logger.debug(traceback.format_exc())
-                if show_connection_log:
-                  logger.info(f"Connecting to `{WS_URL}`...")
-                  show_connection_log = False
-                await asyncio.sleep(2)
+                ws = websockets.connect(WS_URL)
+                await exec_ws_communication(ws)
+            except Exception as e:
+                logger.error(f"Error while attempting to connect: {e}")
+        else:
+            while True:
+                try:
+                    async with websockets.connect(WS_URL) as websocket:
+                        await exec_ws_communication(websocket)
+                except:
+                    logger.debug(traceback.format_exc())
+                    if show_connection_log:
+                        logger.info(f"Connecting to `{WS_URL}`...")
+                        show_connection_log = False
+                        await asyncio.sleep(2)
 
     async def start_async(self):
             # Configuration for WebSocket
@@ -323,7 +339,7 @@ class Device:
                 asyncio.create_task(put_kernel_messages_into_queue(send_queue))
 
             asyncio.create_task(self.play_audiosegments())
-            
+
             # If Raspberry Pi, add the button listener, otherwise use the spacebar
             if current_platform.startswith("raspberry-pi"):
                 logger.info("Raspberry Pi detected, using button on GPIO pin 15")
