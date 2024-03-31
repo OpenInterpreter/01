@@ -1,6 +1,6 @@
 ---
-title: "Setup"
-description: "Get your 01 up and running"
+title: 'Setup'
+description: 'Get your 01 up and running'
 ---
 
 ## Captive portal
@@ -25,6 +25,24 @@ brew install portaudio ffmpeg cmake
 
 # Ubuntu
 sudo apt-get install portaudio19-dev ffmpeg cmake
+
+# Install poetry
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+#### Windows
+
+On Windows you will need to install the following:
+
+- [Git for Windows](https://git-scm.com/download/win).
+- [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html) or [MiniConda](https://docs.anaconda.com/free/miniconda/miniconda-install/) to manage virtual environments.
+- [Chocolatey](https://chocolatey.org/install#individual) to install the required packages.
+
+With these installed, you can run the following commands in a **PowerShell terminal as an administrator**:
+
+```powershell
+# Install the required packages
+choco install -y ffmpeg cmake
 ```
 
 ## Install 01
@@ -38,7 +56,7 @@ git clone https://github.com/OpenInterpreter/01.git
 
 ## Run the 01
 
-In order to run 01 on your computer, use [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer)
+In order to run 01 on your computer, use [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer).
 
 Navigate to the project's software directory:
 
@@ -64,8 +82,8 @@ You have the ability to set your <a href="/services/language-model">LLM</a>, <a 
 
 ## Server setup
 
-You are able to run just the <a href="/server/setup">server</a>
+You are able to run just the <a href="/server/setup">server</a>.
 
 ## Client setup
 
-You are able to run just the <a href="/client/setup">client</a>
+You are able to run just the <a href="/client/setup">client</a>.

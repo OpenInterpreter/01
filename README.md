@@ -48,6 +48,8 @@ export OPENAI_API_KEY=sk... # OR run `poetry run 01 --local` to run everything l
 poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 ```
 
+<!-- > For a Windows installation, read our [setup guide](https://docs.openinterpreter.com/getting-started/setup#windows). -->
+
 <br>
 
 # Hardware
