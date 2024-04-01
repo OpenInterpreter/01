@@ -31,7 +31,9 @@ import time
 
 interpreter.computer.browser.search(query)
 
-interpreter.computer.display.view() # Shows you what's on the screen, returns a `pil_image` `in case you need it (rarely). **You almost always want to do this first!**
+interpreter.computer.display.info() # Returns a list of connected monitors/Displays and their info (x and y cordinates, width, height, width_mm, height_mm, name). Use this to verify the monitors connected before using interpreter.computer.display.view() when neccessary
+interpreter.computer.display.view() # Shows you what's on the screen(primary display by default), returns a `pil_image` `in case you need it (rarely). To get a specific display, use the parameter screen=DISPLAY_NUMBER (0 for primary monitor 1 and above for secondary monitors). **You almost always want to do this first!**
+
 
 interpreter.computer.keyboard.hotkey(" ", "command") # Opens spotlight
 interpreter.computer.keyboard.write("hello")
