@@ -37,12 +37,16 @@ On Windows you will need to install the following:
 - [Git for Windows](https://git-scm.com/download/win).
 - [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html) or [MiniConda](https://docs.anaconda.com/free/miniconda/miniconda-install/) to manage virtual environments.
 - [Chocolatey](https://chocolatey.org/install#individual) to install the required packages.
+- [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools):
+  - Choose [**Download Build Tools**](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+  - Run the downloaded file **vs_BuildTools.exe**.
+  - In the installer, select **Workloads** > **Desktop & Mobile** > **Desktop Development with C++**.
 
 With these installed, you can run the following commands in a **PowerShell terminal as an administrator**:
 
 ```powershell
 # Install the required packages
-choco install -y ffmpeg cmake
+choco install -y ffmpeg
 ```
 
 ## Install 01
