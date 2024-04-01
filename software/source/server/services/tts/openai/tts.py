@@ -5,6 +5,18 @@ import os
 import subprocess
 import tempfile
 
+from source.server.utils.logs import logger
+from source.server.utils.logs import setup_logging
+setup_logging()
+
+# If this TTS service is used, the OPENAI_API_KEY environment variable must be set
+if not os.getenv('OPENAI_API_KEY'):
+    logger.error("")
+    logger.error(f"OpenAI API key not found. Please set the OPENAI_API_KEY environment variable, or run 01 with the --local option.")
+    logger.error("Aborting...")
+    logger.error("")
+    os._exit(1)
+
 client = OpenAI()
 
 class Tts:
