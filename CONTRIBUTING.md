@@ -55,14 +55,16 @@ Then run `poetry install` again. If this doesn't work, please join our [Discord 
 
 ## Code Formatting and Linting
 
-Our project uses `black` for code formatting and `isort` for import sorting. To ensure consistency across contributions, please adhere to the following guidelines:
+Our project uses `ruff` for code formatting and `isort` for import sorting. To ensure consistency across contributions, please adhere to the following guidelines:
 
 1. **Install Pre-commit Hooks**:
 
-   If you want to automatically format your code every time you make a commit, install the pre-commit hooks.
+   To automatically format your code every time you make a commit, install the pre-commit hooks.
 
    ```bash
-   pip install pre-commit
+   cd software # Change into `software` directory if not there already.
+   poetry shell # /!\ You MUST do it the virtual environment of your project
+   poetry add --dev pre-commit # Install pre-commit as a dev dependency
    pre-commit install
    ```
 
@@ -73,7 +75,7 @@ Our project uses `black` for code formatting and `isort` for import sorting. To 
    If you choose not to use the pre-commit hooks, you can manually format your code using:
 
    ```bash
-   black .
+   ruff .
    isort .
    ```
 
