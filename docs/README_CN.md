@@ -39,7 +39,7 @@ git clone https://github.com/OpenInterpreter/01 # Clone the repository
 cd 01/software # CD into the source directory
 ```
 
-<!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
+<!-- > 不起作用？阅读我们的[安装指南](https://docs.openinterpreter.com/getting-started/setup)。 -->
 
 ```shell
 brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
@@ -47,6 +47,8 @@ poetry install # Install Python dependencies
 export OPENAI_API_KEY=sk... # OR run `poetry run 01 --local` to run everything locally
 poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 ```
+
+<!-- > 对于Windows安装，请阅读我们的[专用安装指南](https://docs.openinterpreter.com/getting-started/setup#windows)。 -->
 
 <br>
 
