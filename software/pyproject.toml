@@ -33,6 +33,10 @@ dateparser = "^1.2.0"
 pytimeparse = "^1.1.8"
 python-crontab = "^3.0.0"
 inquirer = "^3.2.4"
+pyautogui = "^0.9.54"
+plyer = "^2.1.0"
+pyperclip = "^1.8.2"
+pywinctl = "^0.3"
 
 [build-system]
 requires = ["poetry-core"]
