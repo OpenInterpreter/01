@@ -80,7 +80,9 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 ## LMC 消息
 
-为了与系统的不同组件进行通信，我们引入了 [LMC 消息](https://docs.openinterpreter.com/protocols/lmc-messages) 格式，它扩展了 OpenAI 的消息格式以包含一个 "computer" 角色。
+为了与系统的不同组件进行通信，我们引入了 [LMC 消息](https://docs.openinterpreter.com/protocols/lmc-messages) 格式，它扩展了 OpenAI 的消息格式以包含一个 "computer" 角色：
+
+https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d64b9f2a5da9
 
 ## 动态系统消息
 
