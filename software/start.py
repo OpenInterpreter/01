@@ -39,6 +39,8 @@ def run(
             stt_service: str = typer.Option("openai", "--stt-service", help="Specify the STT service"),
 
             local: bool = typer.Option(False, "--local", help="Use recommended local services for LLM, STT, and TTS"),
+            
+            qr: bool = typer.Option(False, "--qr", help="Print the QR code for the server URL")
         ):
     
     _run(
@@ -59,7 +61,8 @@ def run(
         temperature=temperature,
         tts_service=tts_service,
         stt_service=stt_service,
-        local=local
+        local=local,
+        qr=qr
     )
 
 def _run(
@@ -87,7 +90,9 @@ def _run(
             
             stt_service: str = "openai",
 
-            local: bool = False
+            local: bool = False,
+            
+            qr: bool = False
         ):
     
     if local:
@@ -115,7 +120,7 @@ def _run(
         server_thread.start()
 
     if expose:
-        tunnel_thread = threading.Thread(target=create_tunnel, args=[tunnel_service, server_host, server_port])
+        tunnel_thread = threading.Thread(target=create_tunnel, args=[tunnel_service, server_host, server_port, qr])
         tunnel_thread.start()
 
     if client:
