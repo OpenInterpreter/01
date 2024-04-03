@@ -36,7 +36,7 @@
     - [ ] Sends to describe API
     - [ ] prints and returns description
   - [ ] Llamafile for phi-2 + moondream
-    - [ ] test on rPi + Jetson (+android mini phone?) 
+    - [ ] test on rPi + Jetson (+android mini phone?)
 
 **OS**
 
@@ -66,7 +66,7 @@
 
 **Hardware**
 
-- [ ] (Hardware and software) Get the 01OS working on the **Jetson** or Pi. Pick one to move forward with. 
+- [ ] (Hardware and software) Get the 01OS working on the **Jetson** or Pi. Pick one to move forward with.
 - [ ] Connect the Seeed Sense (ESP32 with Wifi, Bluetooth and a mic) to a small DAC + amplifier + speaker.
 - [ ] Connect the Seeed Sense to a battery.
 - [ ] Configure the ESP32 to be a wireless mic + speaker for the Jetson or Pi.

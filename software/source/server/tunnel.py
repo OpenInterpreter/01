@@ -1,12 +1,14 @@
 import subprocess
 import re
-import shutil
 import pyqrcode
 import time
 from ..utils.print_markdown import print_markdown
 
-def create_tunnel(tunnel_method='ngrok', server_host='localhost', server_port=10001, qr=False):
-    print_markdown(f"Exposing server to the internet...")
+
+def create_tunnel(
+    tunnel_method="ngrok", server_host="localhost", server_port=10001, qr=False
+):
+    print_markdown("Exposing server to the internet...")
 
     server_url = ""
     if tunnel_method == "bore":
@@ -35,9 +37,11 @@ def create_tunnel(tunnel_method='ngrok', server_host='localhost', server_port=10
             if not line:
                 break
             if "listening at bore.pub:" in line:
-                remote_port = re.search('bore.pub:([0-9]*)', line).group(1)
+                remote_port = re.search("bore.pub:([0-9]*)", line).group(1)
                 server_url = f"bore.pub:{remote_port}"
-                print_markdown(f"Your server is being hosted at the following URL: bore.pub:{remote_port}")
+                print_markdown(
+                    f"Your server is being hosted at the following URL: bore.pub:{remote_port}"
+                )
                 break
 
     elif tunnel_method == "localtunnel":
@@ -69,9 +73,11 @@ def create_tunnel(tunnel_method='ngrok', server_host='localhost', server_port=10
                 match = url_pattern.search(line)
                 if match:
                     found_url = True
-                    remote_url = match.group(0).replace('your url is: ', '')
+                    remote_url = match.group(0).replace("your url is: ", "")
                     server_url = remote_url
-                    print(f"\nYour server is being hosted at the following URL: {remote_url}")
+                    print(
+                        f"\nYour server is being hosted at the following URL: {remote_url}"
+                    )
                     break  # Exit the loop once the URL is found
 
             if not found_url:
@@ -93,7 +99,11 @@ def create_tunnel(tunnel_method='ngrok', server_host='localhost', server_port=10
 
         # If ngrok is installed, start it on the specified port
         # process = subprocess.Popen(f'ngrok http {server_port} --log=stdout', shell=True, stdout=subprocess.PIPE)
-        process = subprocess.Popen(f'ngrok http {server_port} --scheme http,https --domain=marten-advanced-dragon.ngrok-free.app --log=stdout', shell=True, stdout=subprocess.PIPE)
+        process = subprocess.Popen(
+            f"ngrok http {server_port} --scheme http,https --domain=marten-advanced-dragon.ngrok-free.app --log=stdout",
+            shell=True,
+            stdout=subprocess.PIPE,
+        )
 
         # Initially, no URL is found
         found_url = False
@@ -110,15 +120,18 @@ def create_tunnel(tunnel_method='ngrok', server_host='localhost', server_port=10
                 found_url = True
                 remote_url = match.group(0)
                 server_url = remote_url
-                print(f"\nYour server is being hosted at the following URL: {remote_url}")
+                print(
+                    f"\nYour server is being hosted at the following URL: {remote_url}"
+                )
                 break  # Exit the loop once the URL is found
 
         if not found_url:
-            print("Failed to extract the ngrok tunnel URL. Please check ngrok's output for details.")
+            print(
+                "Failed to extract the ngrok tunnel URL. Please check ngrok's output for details."
+            )
 
     if server_url and qr:
         text = pyqrcode.create(remote_url)
         print(text.terminal(quiet_zone=1))
 
     return server_url
-

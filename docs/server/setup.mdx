@@ -44,73 +44,73 @@ For more information, please read about <a href="/services/speech-to-text">speec
 
 ## CLI Flags
 
-- `--server`  
+- `--server`
   Run server.
 
-- `--server-host TEXT`  
-  Specify the server host where the server will deploy.  
+- `--server-host TEXT`
+  Specify the server host where the server will deploy.
   Default: `0.0.0.0`.
 
-- `--server-port INTEGER`  
-  Specify the server port where the server will deploy.  
+- `--server-port INTEGER`
+  Specify the server port where the server will deploy.
   Default: `10001`.
 
-- `--tunnel-service TEXT`  
-  Specify the tunnel service.  
+- `--tunnel-service TEXT`
+  Specify the tunnel service.
   Default: `ngrok`.
 
-- `--expose`  
+- `--expose`
   Expose server to internet.
 
-- `--server-url TEXT`  
-  Specify the server URL that the client should expect.  
-  Defaults to server-host and server-port.  
+- `--server-url TEXT`
+  Specify the server URL that the client should expect.
+  Defaults to server-host and server-port.
   Default: `None`.
 
-- `--llm-service TEXT`  
-  Specify the LLM service.  
+- `--llm-service TEXT`
+  Specify the LLM service.
   Default: `litellm`.
 
-- `--model TEXT`  
-  Specify the model.  
+- `--model TEXT`
+  Specify the model.
   Default: `gpt-4`.
 
-- `--llm-supports-vision`  
+- `--llm-supports-vision`
   Specify if the LLM service supports vision.
 
-- `--llm-supports-functions`  
+- `--llm-supports-functions`
   Specify if the LLM service supports functions.
 
-- `--context-window INTEGER`  
-  Specify the context window size.  
+- `--context-window INTEGER`
+  Specify the context window size.
   Default: `2048`.
 
-- `--max-tokens INTEGER`  
-  Specify the maximum number of tokens.  
+- `--max-tokens INTEGER`
+  Specify the maximum number of tokens.
   Default: `4096`.
 
-- `--temperature FLOAT`  
-  Specify the temperature for generation.  
+- `--temperature FLOAT`
+  Specify the temperature for generation.
   Default: `0.8`.
 
-- `--tts-service TEXT`  
-  Specify the TTS service.  
+- `--tts-service TEXT`
+  Specify the TTS service.
   Default: `openai`.
 
-- `--stt-service TEXT`  
-  Specify the STT service.  
+- `--stt-service TEXT`
+  Specify the STT service.
   Default: `openai`.
 
-- `--local`  
+- `--local`
   Use recommended local services for LLM, STT, and TTS.
 
-- `--install-completion [bash|zsh|fish|powershell|pwsh]`  
-  Install completion for the specified shell.  
+- `--install-completion [bash|zsh|fish|powershell|pwsh]`
+  Install completion for the specified shell.
   Default: `None`.
 
-- `--show-completion [bash|zsh|fish|powershell|pwsh]`  
-  Show completion for the specified shell, to copy it or customize the installation.  
+- `--show-completion [bash|zsh|fish|powershell|pwsh]`
+  Show completion for the specified shell, to copy it or customize the installation.
   Default: `None`.
 
-- `--help`  
+- `--help`
   Show this message and exit.

@@ -15,35 +15,64 @@ app = typer.Typer()
 
 @app.command()
 def run(
-            server: bool = typer.Option(False, "--server", help="Run server"),
-            server_host: str = typer.Option("0.0.0.0", "--server-host", help="Specify the server host where the server will deploy"),
-            server_port: int = typer.Option(10001, "--server-port", help="Specify the server port where the server will deploy"),
-
-            tunnel_service: str = typer.Option("ngrok", "--tunnel-service", help="Specify the tunnel service"),
-            expose: bool = typer.Option(False, "--expose", help="Expose server to internet"),
-
-            client: bool = typer.Option(False, "--client", help="Run client"),
-            server_url: str = typer.Option(None, "--server-url", help="Specify the server URL that the client should expect. Defaults to server-host and server-port"),
-            client_type: str = typer.Option("auto", "--client-type", help="Specify the client type"),
-
-            llm_service: str = typer.Option("litellm", "--llm-service", help="Specify the LLM service"),
-
-            model: str = typer.Option("gpt-4", "--model", help="Specify the model"),
-            llm_supports_vision: bool = typer.Option(False, "--llm-supports-vision", help="Specify if the LLM service supports vision"),
-            llm_supports_functions: bool = typer.Option(False, "--llm-supports-functions", help="Specify if the LLM service supports functions"),
-            context_window: int = typer.Option(2048, "--context-window", help="Specify the context window size"),
-            max_tokens: int = typer.Option(4096, "--max-tokens", help="Specify the maximum number of tokens"),
-            temperature: float = typer.Option(0.8, "--temperature", help="Specify the temperature for generation"),
-
-            tts_service: str = typer.Option("openai", "--tts-service", help="Specify the TTS service"),
-
-            stt_service: str = typer.Option("openai", "--stt-service", help="Specify the STT service"),
-
-            local: bool = typer.Option(False, "--local", help="Use recommended local services for LLM, STT, and TTS"),
-
-            qr: bool = typer.Option(False, "--qr", help="Print the QR code for the server URL")
-        ):
-
+    server: bool = typer.Option(False, "--server", help="Run server"),
+    server_host: str = typer.Option(
+        "0.0.0.0",
+        "--server-host",
+        help="Specify the server host where the server will deploy",
+    ),
+    server_port: int = typer.Option(
+        10001,
+        "--server-port",
+        help="Specify the server port where the server will deploy",
+    ),
+    tunnel_service: str = typer.Option(
+        "ngrok", "--tunnel-service", help="Specify the tunnel service"
+    ),
+    expose: bool = typer.Option(False, "--expose", help="Expose server to internet"),
+    client: bool = typer.Option(False, "--client", help="Run client"),
+    server_url: str = typer.Option(
+        None,
+        "--server-url",
+        help="Specify the server URL that the client should expect. Defaults to server-host and server-port",
+    ),
+    client_type: str = typer.Option(
+        "auto", "--client-type", help="Specify the client type"
+    ),
+    llm_service: str = typer.Option(
+        "litellm", "--llm-service", help="Specify the LLM service"
+    ),
+    model: str = typer.Option("gpt-4", "--model", help="Specify the model"),
+    llm_supports_vision: bool = typer.Option(
+        False,
+        "--llm-supports-vision",
+        help="Specify if the LLM service supports vision",
+    ),
+    llm_supports_functions: bool = typer.Option(
+        False,
+        "--llm-supports-functions",
+        help="Specify if the LLM service supports functions",
+    ),
+    context_window: int = typer.Option(
+        2048, "--context-window", help="Specify the context window size"
+    ),
+    max_tokens: int = typer.Option(
+        4096, "--max-tokens", help="Specify the maximum number of tokens"
+    ),
+    temperature: float = typer.Option(
+        0.8, "--temperature", help="Specify the temperature for generation"
+    ),
+    tts_service: str = typer.Option(
+        "openai", "--tts-service", help="Specify the TTS service"
+    ),
+    stt_service: str = typer.Option(
+        "openai", "--stt-service", help="Specify the STT service"
+    ),
+    local: bool = typer.Option(
+        False, "--local", help="Use recommended local services for LLM, STT, and TTS"
+    ),
+    qr: bool = typer.Option(False, "--qr", help="Print the QR code for the server URL"),
+):
     _run(
         server=server,
         server_host=server_host,
@@ -63,7 +92,7 @@ def run(
         tts_service=tts_service,
         stt_service=stt_service,
         local=local,
-        qr=qr
+        qr=qr,
     )
 
 
@@ -86,7 +115,7 @@ def _run(
     tts_service: str = "openai",
     stt_service: str = "openai",
     local: bool = False,
-    qr: bool = False
+    qr: bool = False,
 ):
     if local:
         tts_service = "piper"
@@ -130,7 +159,9 @@ def _run(
         server_thread.start()
 
     if expose:
-        tunnel_thread = threading.Thread(target=create_tunnel, args=[tunnel_service, server_host, server_port, qr])
+        tunnel_thread = threading.Thread(
+            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr]
+        )
         tunnel_thread.start()
 
     if client:

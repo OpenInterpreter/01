@@ -36,7 +36,7 @@ Store the user's tasks in a Python list called `tasks`.
 
 The user's current task is: {{ tasks[0] if tasks else "No current tasks." }}
 
-{{ 
+{{
 if len(tasks) > 1:
 print("The next task is: ", tasks[1])
 }}
@@ -91,7 +91,7 @@ Store the user's tasks in a Python list called `tasks`.
 
 The user's current task is: {{ tasks[0] if tasks else "No current tasks." }}
 
-{{ 
+{{
 if len(tasks) > 1:
 print("The next task is: ", tasks[1])
 }}
@@ -184,7 +184,7 @@ except:
 finally:
     sys.stdout = original_stdout
     sys.stderr = original_stderr
-    
+
 }}
 
 # SKILLS

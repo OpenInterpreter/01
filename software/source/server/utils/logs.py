@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 load_dotenv()  # take environment variables from .env.
 
 import os
@@ -9,9 +10,7 @@ root_logger: logging.Logger = logging.getLogger()
 
 
 def _basic_config() -> None:
-    logging.basicConfig(
-        format="%(message)s"
-    )
+    logging.basicConfig(format="%(message)s")
 
 
 def setup_logging() -> None:

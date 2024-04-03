@@ -1,6 +1,5 @@
 class Llm:
     def __init__(self, config):
-
         # Litellm is used by OI by default, so we just modify OI
 
         interpreter = config["interpreter"]
@@ -10,6 +9,3 @@ class Llm:
             setattr(interpreter, key.replace("-", "_"), value)
 
         self.llm = interpreter.llm.completions
-
-        
-

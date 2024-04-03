@@ -1,12 +1,11 @@
 class Accumulator:
     def __init__(self):
-        self.template = {"role": None, "type": None, "format": None, "content": None} 
+        self.template = {"role": None, "type": None, "format": None, "content": None}
         self.message = self.template
 
     def accumulate(self, chunk):
-        #print(str(chunk)[:100])
+        # print(str(chunk)[:100])
         if type(chunk) == dict:
-
             if "format" in chunk and chunk["format"] == "active_line":
                 # We don't do anything with these
                 return None
@@ -17,15 +16,20 @@ class Accumulator:
                 return None
 
             if "content" in chunk:
-
-                if any(self.message[key] != chunk[key] for key in self.message if key != "content"):
+                if any(
+                    self.message[key] != chunk[key]
+                    for key in self.message
+                    if key != "content"
+                ):
                     self.message = chunk
                 if "content" not in self.message:
                     self.message["content"] = chunk["content"]
                 else:
                     if type(chunk["content"]) == dict:
                         # dict concatenation cannot happen, so we see if chunk is a dict
-                        self.message["content"]["content"] += chunk["content"]["content"]
+                        self.message["content"]["content"] += chunk["content"][
+                            "content"
+                        ]
                     else:
                         self.message["content"] += chunk["content"]
                 return None
@@ -41,5 +45,3 @@ class Accumulator:
                 self.message["content"] = b""
             self.message["content"] += chunk
             return None
-
-        
