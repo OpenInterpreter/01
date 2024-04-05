@@ -18,7 +18,8 @@ We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typef
 
 ---
 
-⚠️ **WARNING:** This experimental project is under rapid development and lacks basic safeguards. Until a stable `1.0` release, **ONLY** run this repository on devices without sensitive information or access to paid services. ⚠️
+> [!WARNING]
+> This experimental project is under rapid development and lacks basic safeguards. Until a stable `1.0` release, only run this repository on devices without sensitive information or access to paid services.
 
 ---
 
