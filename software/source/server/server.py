@@ -58,7 +58,9 @@ def split_into_sentences(text):
 
 
 # Queues
-from_computer = queue.Queue()  # Just for computer messages from the device. Sync queue because interpreter.run is synchronous
+from_computer = (
+    queue.Queue()
+)  # Just for computer messages from the device. Sync queue because interpreter.run is synchronous
 from_user = asyncio.Queue()  # Just for user messages from the device.
 to_device = asyncio.Queue()  # For messages we send.
 

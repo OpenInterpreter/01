@@ -237,4 +237,6 @@ For example:
 
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user **VERY short.**
 
-""".strip().replace("OI_SKILLS_DIR", os.path.join(os.path.dirname(__file__), "skills"))
+""".strip().replace(
+    "OI_SKILLS_DIR", os.path.join(os.path.dirname(__file__), "skills")
+)
