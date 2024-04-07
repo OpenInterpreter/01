@@ -1,10 +1,9 @@
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.2.2"
+  - repo: https://github.com/psf/black
+    rev: 24.3.0  # Use the latest revision of Black
     hooks:
-      - id: ruff
-        args: ["--fix"]
-      - id: ruff-format
+      - id: black
+        language_version: python3
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
