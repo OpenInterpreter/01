@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 load_dotenv()  # take environment variables from .env.
 
 import os
@@ -8,7 +9,7 @@ from pathlib import Path
 ### LLM SETUP
 
 # Define the path to a llamafile
-llamafile_path = Path(__file__).parent / 'model.llamafile'
+llamafile_path = Path(__file__).parent / "model.llamafile"
 
 # Check if the new llamafile exists, if not download it
 if not os.path.exists(llamafile_path):

@@ -19,11 +19,10 @@ Please install first [PlatformIO](http://platformio.org/) open source ecosystem 
 
 ```bash
 cd client/
-``` 
+```
 
 And build and upload the firmware with a simple command:
 
 ```bash
 pio run --target upload
-``` 
-
+```

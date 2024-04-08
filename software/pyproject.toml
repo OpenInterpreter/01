@@ -33,6 +33,7 @@ dateparser = "^1.2.0"
 pytimeparse = "^1.1.8"
 python-crontab = "^3.0.0"
 inquirer = "^3.2.4"
+pyqrcode = "^1.2.1"
 
 [build-system]
 requires = ["poetry-core"]

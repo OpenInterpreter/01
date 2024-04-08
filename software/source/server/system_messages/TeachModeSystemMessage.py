@@ -96,7 +96,7 @@ except:
 finally:
     sys.stdout = original_stdout
     sys.stderr = original_stderr
-    
+
 }}
 
 # SKILLS LIBRARY
@@ -131,4 +131,6 @@ print(output)
 
 Remember: You can run Python code outside a function only to run a Python function; all other code must go in a in Python function if you first write a Python function. ALL imports must go inside the function.
 
-""".strip().replace("OI_SKILLS_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "skills")))
+""".strip().replace(
+    "OI_SKILLS_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "skills"))
+)

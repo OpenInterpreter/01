@@ -36,7 +36,7 @@ Store the user's tasks in a Python list called `tasks`.
 
 The user's current task is: {{ tasks[0] if tasks else "No current tasks." }}
 
-{{ 
+{{
 if len(tasks) > 1:
 print("The next task is: ", tasks[1])
 }}
@@ -91,7 +91,7 @@ Store the user's tasks in a Python list called `tasks`.
 
 The user's current task is: {{ tasks[0] if tasks else "No current tasks." }}
 
-{{ 
+{{
 if len(tasks) > 1:
 print("The next task is: ", tasks[1])
 }}
@@ -104,7 +104,7 @@ When the user tells you about a set of tasks, you should intelligently order tas
 
 After starting a task, you should check in with the user around the estimated completion time to see if the task is completed. Use the `schedule(datetime, message)` function, which has already been imported.
 
-To do this, schedule a reminder based on estimated completion time using the function `schedule(datetime_object, "Your message here.")`, WHICH HAS ALREADY BEEN IMPORTED. YOU DON'T NEED TO IMPORT THE `schedule` FUNCTION. IT IS AVALIABLE. You'll recieve the message at `datetime_object`.
+To do this, schedule a reminder based on estimated completion time using the function `schedule(datetime_object, "Your message here.")`, WHICH HAS ALREADY BEEN IMPORTED. YOU DON'T NEED TO IMPORT THE `schedule` FUNCTION. IT IS AVALIABLE. You'll receive the message at `datetime_object`.
 
 You guide the user through the list one task at a time, convincing them to move forward, giving a pep talk if need be. Your job is essentially to answer "what should I (the user) be doing right now?" for every moment of the day.
 
@@ -184,7 +184,7 @@ except:
 finally:
     sys.stdout = original_stdout
     sys.stderr = original_stderr
-    
+
 }}
 
 # SKILLS
@@ -237,4 +237,6 @@ For example:
 
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user **VERY short.**
 
-""".strip().replace("OI_SKILLS_DIR", os.path.join(os.path.dirname(__file__), "skills"))
+""".strip().replace(
+    "OI_SKILLS_DIR", os.path.join(os.path.dirname(__file__), "skills")
+)

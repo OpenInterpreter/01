@@ -3,8 +3,8 @@ from datetime import datetime
 from pytimeparse import parse
 from crontab import CronTab
 from uuid import uuid4
-from datetime import datetime
 from platformdirs import user_data_dir
+
 
 def schedule(message="", start=None, interval=None) -> None:
     """
@@ -12,25 +12,24 @@ def schedule(message="", start=None, interval=None) -> None:
     """
     if start and interval:
         raise ValueError("Cannot specify both start time and interval.")
-    
+
     if not start and not interval:
         raise ValueError("Either start time or interval must be specified.")
-    
+
     # Read the temp file to see what the current session is
-    session_file_path = os.path.join(user_data_dir('01'), '01-session.txt')
-    
-    with open(session_file_path, 'r') as session_file:
+    session_file_path = os.path.join(user_data_dir("01"), "01-session.txt")
+
+    with open(session_file_path, "r") as session_file:
         file_session_value = session_file.read().strip()
 
-
     prefixed_message = "AUTOMATED MESSAGE FROM SCHEDULER: " + message
-    
+
     # Escape the message and the json, cron is funky with quotes
     escaped_question = prefixed_message.replace('"', '\\"')
-    json_data = f"{{\\\"text\\\": \\\"{escaped_question}\\\"}}"
+    json_data = f'{{\\"text\\": \\"{escaped_question}\\"}}'
 
-    command = f'''bash -c 'if [ "$(cat "{session_file_path}")" == "{file_session_value}" ]; then /usr/bin/curl -X POST -H "Content-Type: application/json" -d "{json_data}" http://localhost:10001/; fi' '''
-    
+    command = f"""bash -c 'if [ "$(cat "{session_file_path}")" == "{file_session_value}" ]; then /usr/bin/curl -X POST -H "Content-Type: application/json" -d "{json_data}" http://localhost:10001/; fi' """
+
     cron = CronTab(user=True)
     job = cron.new(command=command)
     # Prefix with 01 dev preview so we can delete them all in the future
@@ -61,6 +60,5 @@ def schedule(message="", start=None, interval=None) -> None:
             days = max(int(seconds / 86400), 1)
             job.day.every(days)
             print(f"Task scheduled every {days} day(s)")
-        
-    cron.write()
 
+    cron.write()

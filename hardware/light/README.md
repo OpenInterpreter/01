@@ -22,13 +22,13 @@ Please install first [PlatformIO](http://platformio.org/) open source ecosystem 
 
 ```bash
 cd software/source/clients/esp32/src/client/
-``` 
+```
 
 And build and upload the firmware with a simple command:
 
 ```bash
 pio run --target upload
-``` 
+```
 
 ## Wifi
 

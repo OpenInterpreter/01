@@ -11,6 +11,9 @@
 #include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
 #include <WebSocketsClient.h>
+#include <Preferences.h>
+
+Preferences preferences;
 
 String server_domain = "";
 int server_port = 10001;
@@ -36,6 +39,7 @@ const String localIPURL = "http://4.3.2.1";   // a string version of the local I
 const int kNetworkTimeout = 30 * 1000;
 // Number of milliseconds to wait if no data is available before trying again
 const int kNetworkDelay = 1000;
+
 
 String generateHTMLWithSSIDs()
 {
@@ -74,11 +78,11 @@ const char post_connected_html[] PROGMEM = R"=====(
 <head>
   <title>01OS Setup</title>
   <style>
-  
+
   * {
       box-sizing: border-box;
     }
-    
+
     body {
       background-color: #fff;
       margin: 0;
@@ -118,15 +122,15 @@ const char post_connected_html[] PROGMEM = R"=====(
     input[type="submit"]:hover {
       background-color: #333;
     }
-    
+
 
 
     #error_message {
     color: red;
     font-weight: bold;
-    text-align: center; 
+    text-align: center;
     width: 100%;
-    margin-top: 20px; 
+    margin-top: 20px;
     max-width: 300px;
 }
   </style>
@@ -140,7 +144,7 @@ const char post_connected_html[] PROGMEM = R"=====(
       <input type="text" id="server_address" name="server_address"><br><br>
     </div>
 
-   
+
 
     <input type="submit" value="Connect"/>
      <p id="error_message"></p>
@@ -215,25 +219,25 @@ void startSoftAccessPoint(const char *ssid, const char *password, const IPAddres
     vTaskDelay(100 / portTICK_PERIOD_MS); // Add a small delay
 }
 
-void connectToWifi(String ssid, String password)
-{
+void connectToWifi(String ssid, String password) {
     WiFi.begin(ssid.c_str(), password.c_str());
 
-    // Wait for connection to establish
     int attempts = 0;
-    while (WiFi.status() != WL_CONNECTED && attempts < 20)
-    {
+    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
         delay(1000);
         Serial.print(".");
         attempts++;
     }
 
-    if (WiFi.status() == WL_CONNECTED)
-    {
+    if (WiFi.status() == WL_CONNECTED) {
         Serial.println("Connected to Wi-Fi");
-    }
-    else
-    {
+
+        // Store credentials on successful connection
+        preferences.begin("wifi", false); // Open Preferences with my-app namespace. RW-mode is false by default.
+        preferences.putString("ssid", ssid); // Put your SSID.
+        preferences.putString("password", password); // Put your PASSWORD.
+        preferences.end(); // Close the Preferences.
+    } else {
         Serial.println("Failed to connect to Wi-Fi. Check credentials.");
     }
 }
@@ -266,7 +270,7 @@ bool connectTo01OS(String server_address)
         portStr = server_address.substring(colonIndex + 1);
     } else {
         domain = server_address;
-        portStr = ""; 
+        portStr = "";
     }
 
     WiFiClient c;
@@ -277,7 +281,7 @@ bool connectTo01OS(String server_address)
         port = portStr.toInt();
     }
 
-    HttpClient http(c, domain.c_str(), port); 
+    HttpClient http(c, domain.c_str(), port);
     Serial.println("Connecting to 01OS at " + domain + ":" + port + "/ping");
 
     if (domain.indexOf("ngrok") != -1) {
@@ -302,6 +306,9 @@ bool connectTo01OS(String server_address)
                 server_domain = domain;
                 server_port = port;
                 connectionSuccess = true;
+                preferences.begin("network", false); // Use a different namespace for network settings
+                preferences.putString("server_url", server_address); // Store the server URL
+                preferences.end(); // Close the Preferences
             }
 
             err = http.skipResponseHeaders();
@@ -356,6 +363,7 @@ bool connectTo01OS(String server_address)
         Serial.print("Connection failed: ");
         Serial.println(err);
     }
+
   return connectionSuccess;
 }
 
@@ -428,7 +436,7 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
               {
     String ssid;
     String password;
-    
+
     // Check if SSID parameter exists and assign it
     if(request->hasParam("ssid", true)) {
         ssid = request->getParam("ssid", true)->value();
@@ -438,7 +446,7 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
             Serial.println("OTHER SSID SELECTED: " + ssid);
         }
     }
-    
+
     // Check if Password parameter exists and assign it
     if(request->hasParam("password", true)) {
         password = request->getParam("password", true)->value();
@@ -447,7 +455,10 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     // Serial.println(password);
 
     // Attempt to connect to the Wi-Fi network with these credentials
-    connectToWifi(ssid, password);
+    if(request->hasParam("password", true) && request->hasParam("ssid", true)) {
+      connectToWifi(ssid, password);
+    }
+
 
     // Redirect user or send a response back
     if (WiFi.status() == WL_CONNECTED) {
@@ -455,7 +466,7 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
       AsyncWebServerResponse *response = request->beginResponse(200, "text/html", htmlContent);
       response->addHeader("Cache-Control", "public,max-age=31536000");  // save this file to cache for 1 year (unless you refresh)
       request->send(response);
-      Serial.println("Served Post connection HTML Page"); 
+      Serial.println("Served Post connection HTML Page");
     } else {
       request->send(200, "text/plain", "Failed to connect to " + ssid);
     } });
@@ -463,7 +474,7 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     server.on("/submit_01os", HTTP_POST, [](AsyncWebServerRequest *request)
               {
     String server_address;
-    
+
     // Check if SSID parameter exists and assign it
     if(request->hasParam("server_address", true)) {
         server_address = request->getParam("server_address", true)->value();
@@ -479,7 +490,7 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     {
         AsyncWebServerResponse *response = request->beginResponse(200, "text/html", successHtml);
         response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");  // Prevent caching of this page
-        request->send(response);     
+        request->send(response);
         Serial.println(" ");
         Serial.println("Connected to 01 websocket!");
         Serial.println(" ");
@@ -491,7 +502,7 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
         String htmlContent = String(post_connected_html); // Load your HTML template
         // Inject the error message
         htmlContent.replace("<p id=\"error_message\"></p>", "<p id=\"error_message\" style=\"color: red;\">Error connecting, please try again.</p>");
-        
+
         AsyncWebServerResponse *response = request->beginResponse(200, "text/html", htmlContent);
         response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");  // Prevent caching of this page
         request->send(response);
@@ -499,7 +510,54 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     }
     });
 }
+void tryReconnectWiFi() {
+    Serial.println("Checking for stored WiFi credentials...");
+    preferences.begin("wifi", true); // Open Preferences with my-app namespace in ReadOnly mode
+    String ssid = preferences.getString("ssid", ""); // Get stored SSID, if any
+    String password = preferences.getString("password", ""); // Get stored password, if any
+    preferences.end(); // Close the Preferences
 
+    if (ssid != "") { // Check if we have stored credentials
+        Serial.println("Trying to connect to WiFi with stored credentials.");
+        WiFi.begin(ssid.c_str(), password.c_str());
+
+        int attempts = 0;
+        while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+            delay(500);
+            Serial.print(".");
+            attempts++;
+        }
+
+        if (WiFi.status() == WL_CONNECTED) {
+            Serial.println("Connected to Wi-Fi using stored credentials.");
+            tryReconnectToServer();
+            return;
+        } else {
+            Serial.println("Failed to connect to Wi-Fi. Starting captive portal.");
+        }
+    } else {
+        Serial.println("No stored WiFi credentials. Starting captive portal.");
+    }
+}
+void tryReconnectToServer() {
+    preferences.begin("network", true); // Open Preferences with the "network" namespace in ReadOnly mode
+    String serverURL = preferences.getString("server_url", ""); // Get stored server URL, if any
+    preferences.end(); // Close the Preferences
+
+    if (!serverURL.isEmpty()) {
+        Serial.println("Trying to reconnect to server with stored URL: " + serverURL);
+        // Attempt to connect to the server using the stored URL
+        if (connectTo01OS(serverURL)) {
+            Serial.println("Reconnected to server using stored URL.");
+        } else {
+            Serial.println("Failed to reconnect to server. Proceeding with normal startup.");
+            // Proceed with your normal startup routine, possibly involving user input to get a new URL
+        }
+    } else {
+        Serial.println("No stored server URL. Proceeding with normal startup.");
+        // Normal startup routine
+    }
+}
 // ----------------------- END OF WIFI CAPTIVE PORTAL -------------------
 
 // ----------------------- START OF PLAYBACK -------------------
@@ -564,7 +622,7 @@ void InitI2SSpeakerOrMic(int mode)
 #if ESP_IDF_VERSION > ESP_IDF_VERSION_VAL(4, 1, 0)
         .communication_format =
             I2S_COMM_FORMAT_STAND_I2S, // Set the format of the communication.
-#else                                 
+#else
         .communication_format = I2S_COMM_FORMAT_I2S,
 #endif
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
@@ -711,42 +769,51 @@ void audio_recording_task(void *arg) {
 // ----------------------- END OF PLAYBACK -------------------
 
 bool hasSetupWebsocket = false;
+bool isServerURLStored() {
+    preferences.begin("network", true); // Open Preferences with the "network" namespace in ReadOnly mode
+    String serverURL = preferences.getString("server_url", ""); // Get stored server URL, if any
+    preferences.end(); // Close the Preferences
+    return !serverURL.isEmpty();
+}
+void setup() {
+    Serial.begin(115200); // Initialize serial communication at 115200 baud rate.
+     // Attempt to reconnect to WiFi using stored credentials.
+    // Check if WiFi is connected but the server URL isn't stored
 
-void setup()
-{
-    // Set the transmit buffer size for the Serial object and start it with a baud rate of 115200.
-    Serial.setTxBufferSize(1024);
-    Serial.begin(115200);
+    Serial.setTxBufferSize(1024); // Set the transmit buffer size for the Serial object.
 
-    // Wait for the Serial object to become available.
-    while (!Serial)
-        ;
+    WiFi.mode(WIFI_AP_STA); // Set WiFi mode to both AP and STA.
 
-    WiFi.mode(WIFI_AP_STA);
-
-    // Print a welcome message to the Serial port.
-    Serial.println("\n\nCaptive Test, V0.5.0 compiled " __DATE__ " " __TIME__ " by CD_FER"); //__DATE__ is provided by the platformio ide
-    Serial.printf("%s-%d\n\r", ESP.getChipModel(), ESP.getChipRevision());
-
+    // delay(100); // Short delay to ensure mode change takes effect
+    // WiFi.softAPConfig(localIP, gatewayIP, subnetMask);
+    // WiFi.softAP(ssid, password);
     startSoftAccessPoint(ssid, password, localIP, gatewayIP);
-
     setUpDNSServer(dnsServer, localIP);
 
-    WiFi.scanNetworks(true);
-
     setUpWebserver(server, localIP);
-    server.begin();
+    tryReconnectWiFi();
+    // Print a welcome message to the Serial port.
+    Serial.println("\n\nCaptive Test, V0.5.0 compiled " __DATE__ " " __TIME__ " by CD_FER");
+    Serial.printf("%s-%d\n\r", ESP.getChipModel(), ESP.getChipRevision());
 
-    Serial.print("\n");
-    Serial.print("Startup Time:"); // should be somewhere between 270-350 for Generic ESP32 (D0WDQ6 chip, can have a higher startup time on first boot)
+    // If WiFi reconnect fails, start the soft access point for the captive portal.
+    if (WiFi.status() != WL_CONNECTED) {
+        startSoftAccessPoint(ssid, password, localIP, gatewayIP);
+        setUpDNSServer(dnsServer, localIP);
+        WiFi.scanNetworks(true); // Start scanning for networks in preparation for the captive portal.
+        setUpWebserver(server, localIP); // Set up the web server for the captive portal.
+    }
+
+    server.begin(); // Begin the web server.
+
+    Serial.print("\nStartup Time:");
     Serial.println(millis());
     Serial.print("\n");
 
-    M5.begin(true, false, true);
-    M5.dis.drawpix(0, CRGB(255, 0, 50));
+    M5.begin(true, false, true); // Initialize M5Stack Atom board.
+    M5.dis.drawpix(0, CRGB(255, 0, 50)); // Set the display color.
 
-    /* Create task for I2S */
-    xTaskCreate(audio_recording_task, "AUDIO", 4096, NULL, 4, NULL);
+    xTaskCreate(audio_recording_task, "AUDIO", 4096, NULL, 4, NULL); // Create a task for audio recording.
 }
 
 void loop()
@@ -756,7 +823,7 @@ void loop()
     if ((millis() - last_dns_ms) > DNS_INTERVAL) {
         last_dns_ms = millis();            // seems to help with stability, if you are doing other things in the loop this may not be needed
         dnsServer.processNextRequest();    // I call this atleast every 10ms in my other projects (can be higher but I haven't tested it for stability)
-    }         
+    }
 
     // Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED && !hasSetupWebsocket)

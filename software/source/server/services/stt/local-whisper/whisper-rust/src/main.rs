@@ -10,7 +10,7 @@ struct Args {
     /// This is the model for Whisper STT
     #[arg(short, long, value_parser, required = true)]
     model_path: PathBuf,
-    
+
     /// This is the wav audio file that will be converted from speech to text
     #[arg(short, long, value_parser, required = true)]
     file_path: Option<PathBuf>,
