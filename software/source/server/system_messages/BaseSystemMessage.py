@@ -36,7 +36,7 @@ Store the user's tasks in a Python list called `tasks`.
 
 The user's current task is: {{ tasks[0] if tasks else "No current tasks." }}
 
-{{ 
+{{
 if len(tasks) > 1:
 print("The next task is: ", tasks[1])
 }}
@@ -91,7 +91,7 @@ Store the user's tasks in a Python list called `tasks`.
 
 The user's current task is: {{ tasks[0] if tasks else "No current tasks." }}
 
-{{ 
+{{
 if len(tasks) > 1:
 print("The next task is: ", tasks[1])
 }}
@@ -184,7 +184,7 @@ except:
 finally:
     sys.stdout = original_stdout
     sys.stderr = original_stderr
-    
+
 }}
 
 # SKILLS
@@ -237,4 +237,6 @@ For example:
 
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user **VERY short.**
 
-""".strip().replace("OI_SKILLS_DIR", os.path.join(os.path.dirname(__file__), "skills"))
+""".strip().replace(
+    "OI_SKILLS_DIR", os.path.join(os.path.dirname(__file__), "skills")
+)

@@ -1,11 +1,5 @@
 # test_main.py
-import subprocess
-import uuid
 import pytest
-from source.server.i import configure_interpreter
-from unittest.mock import Mock
-from fastapi.testclient import TestClient
-
 
 
 @pytest.mark.asyncio
