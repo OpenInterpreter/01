@@ -59,10 +59,12 @@ Our project uses `black` for code formatting and `isort` for import sorting. To 
 
 1. **Install Pre-commit Hooks**:
 
-   If you want to automatically format your code every time you make a commit, install the pre-commit hooks.
+   To automatically format your code every time you make a commit, install the pre-commit hooks.
 
    ```bash
-   pip install pre-commit
+   cd software # Change into `software` directory if not there already.
+   poetry shell # It's better to do it within the virtual environment of your project
+   poetry add --dev pre-commit # Install pre-commit as a dev dependency
    pre-commit install
    ```
 
