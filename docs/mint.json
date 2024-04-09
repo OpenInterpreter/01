@@ -55,6 +55,10 @@
     {
       "group": "Bodies",
       "pages": ["bodies/01-light", "bodies/01-heavy"]
+    },
+    {
+      "group": "Legal",
+      "pages": ["legal/fulfillment-policy"]
     }
   ],
   "feedback": {
