@@ -72,6 +72,7 @@ class Device:
         self.captured_images = []
         self.audiosegments = []
         self.server_url = ""
+        self.ctrl_pressed = False
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
         """Captures an image from the specified camera device and saves it to a temporary file. Adds the image to the captured_images list."""
@@ -256,23 +257,39 @@ class Device:
     def on_press(self, key):
         """Detect spacebar press and Ctrl+C combination."""
         self.pressed_keys.add(key)  # Add the pressed key to the set
+        
 
         if keyboard.Key.space in self.pressed_keys:
             self.toggle_recording(True)
-        elif {keyboard.Key.ctrl, keyboard.KeyCode.from_char("c")} <= self.pressed_keys:
+        elif {keyboard.Key.ctrl, keyboard.KeyCode.from_char('c')} <= self.pressed_keys:
             logger.info("Ctrl+C pressed. Exiting...")
             kill_process_tree()
             os._exit(0)
+        
+        # Windows alternative to the above
+        if key == keyboard.Key.ctrl_l:
+            self.ctrl_pressed = True
+            
+        try:
+            if key.vk == 67 and self.ctrl_pressed:
+                logger.info("Ctrl+C pressed. Exiting...")
+                kill_process_tree()
+                os._exit(0)
+        # For non-character keys
+        except:
+            pass
+
+
 
     def on_release(self, key):
         """Detect spacebar release and 'c' key press for camera, and handle key release."""
-        self.pressed_keys.discard(
-            key
-        )  # Remove the released key from the key press tracking set
+        self.pressed_keys.discard(key)  # Remove the released key from the key press tracking set
 
+        if key == keyboard.Key.ctrl_l:
+            self.ctrl_pressed = False
         if key == keyboard.Key.space:
             self.toggle_recording(False)
-        elif CAMERA_ENABLED and key == keyboard.KeyCode.from_char("c"):
+        elif CAMERA_ENABLED and key == keyboard.KeyCode.from_char('c'):
             self.fetch_image_from_camera()
 
     async def message_sender(self, websocket):
