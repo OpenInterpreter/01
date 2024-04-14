@@ -69,7 +69,6 @@ def is_win10():
     except:
         return False
 
-print(platform.system(), platform.version())
 
 # Initialize PyAudio
 p = pyaudio.PyAudio()
