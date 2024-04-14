@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
 import os
+import sys
 import asyncio
 import threading
 import pyaudio
@@ -58,7 +59,17 @@ CAMERA_WARMUP_SECONDS = float(os.getenv("CAMERA_WARMUP_SECONDS", 0))
 
 # Specify OS
 current_platform = get_system_info()
-is_win10 = lambda: platform.system() == "Windows" and "10" in platform.version()
+
+def is_win11():
+    return sys.getwindowsversion().build >= 22000
+
+def is_win10():
+    try:
+        return platform.system() == "Windows" and "10" in platform.version() and not is_win11()
+    except:
+        return False
+
+print(platform.system(), platform.version())
 
 # Initialize PyAudio
 p = pyaudio.PyAudio()
@@ -359,7 +370,7 @@ class Device:
                         code = message["content"]
                         result = interpreter.computer.run(language, code)
                         send_queue.put(result)
-
+                        
         if is_win10():
             logger.info("Windows 10 detected")
             # Workaround for Windows 10 not latching to the websocket server.

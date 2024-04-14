@@ -122,6 +122,10 @@ def _run(
         # llm_service = "llamafile"
         stt_service = "local-whisper"
         select_local_model()
+        
+    system_type = platform.system()
+    if system_type == "Windows":
+        server_host = "localhost"
 
     if not server_url:
         server_url = f"{server_host}:{server_port}"
@@ -129,6 +133,8 @@ def _run(
     if not server and not client:
         server = True
         client = True
+        
+    
 
     def handle_exit(signum, frame):
         os._exit(0)
