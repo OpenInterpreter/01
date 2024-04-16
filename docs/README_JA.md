@@ -130,7 +130,7 @@ sudo apt-get install portaudio19-dev ffmpeg cmake
 
 [![01 project contributors](https://contrib.rocks/image?repo=OpenInterpreter/01&max=2000)](https://github.com/OpenInterpreter/01/graphs/contributors)
 
-参加方法の詳細については、[コントリビューションガイド](CONTRIBUTING.md)をご覧ください。
+参加方法の詳細については、[コントリビューションガイド](/CONTRIBUTING.md)をご覧ください。
 
 <br>
 
