@@ -25,7 +25,7 @@ We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typef
 
 **The 01 Project** is building an open-source ecosystem for AI devices.
 
-Our flagship operating system can power conversational devices like the Rabbit R1, Humane Pin, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
+Our flagship operating system can power conversational devices like the Rabbit R1, Humane Pin, Limitless Pendant, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
 
 We intend to become the GNU/Linux of this space by staying open, modular, and free.
 
