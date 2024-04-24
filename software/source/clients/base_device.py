@@ -169,7 +169,7 @@ class Device:
         global RECORDING
 
         # Create a temporary WAV file to store the audio data
-        temp_dir = tempfile.gettempdir()
+        temp_dir = tempfile.mkdtemp(prefix="audio_")
         wav_path = os.path.join(
             temp_dir, f"audio_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav"
         )
@@ -237,9 +237,8 @@ class Device:
                         "end": True,
                     }
                 )
-
-        if os.path.exists(wav_path):
-            os.remove(wav_path)
+        # Remove the temporary directory and its contents
+        shutil.rmtree(temp_dir)
 
     def toggle_recording(self, state):
         """Toggle the recording state."""
