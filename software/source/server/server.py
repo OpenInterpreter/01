@@ -20,6 +20,7 @@ from interpreter import interpreter
 from ..utils.accumulator import Accumulator
 from .utils.logs import setup_logging
 from .utils.logs import logger
+import base64
 
 from ..utils.print_markdown import print_markdown
 
@@ -194,13 +195,24 @@ async def receive_messages(websocket: WebSocket):
 async def send_messages(websocket: WebSocket):
     while True:
         message = await to_device.get()
-        # print(f"Sending to the device: {type(message)} {str(message)[:100]}")
 
         try:
             if isinstance(message, dict):
+                print(f"Sending to the device: {type(message)} {str(message)[:100]}")
                 await websocket.send_json(message)
             elif isinstance(message, bytes):
-                await websocket.send_bytes(message)
+                message = base64.b64encode(message)
+                str_bytes = str(message)
+                json_bytes = {
+                    "role": "assistant",
+                    "type": "audio",
+                    "format": "message",
+                    "content": str_bytes,
+                }
+                print(
+                    f"Sending to the device: {type(json_bytes)} {str(json_bytes)[:100]}"
+                )
+                await websocket.send_json(json_bytes)
             else:
                 raise TypeError("Message must be a dict or bytes")
         except:
@@ -286,7 +298,7 @@ async def listener():
                 logger.debug("Got chunk:", chunk)
 
                 # Send it to the user
-                await to_device.put(chunk)
+                # await to_device.put(chunk)
                 # Yield to the event loop, so you actually send it out
                 await asyncio.sleep(0.01)
 

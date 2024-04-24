@@ -44,4 +44,6 @@ class Accumulator:
             if "content" not in self.message or type(self.message["content"]) != bytes:
                 self.message["content"] = b""
             self.message["content"] += chunk
-            return None
+            self.message["type"] = "audio"
+            self.message["format"] = "bytes.wav"
+            return self.message

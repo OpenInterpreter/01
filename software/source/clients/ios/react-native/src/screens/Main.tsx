@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Audio } from "expo-av";
+import * as FileSystem from 'expo-file-system';
+import { AVPlaybackStatus, Audio } from "expo-av";
+import { Buffer } from "buffer";
+import base64 from 'react-native-base64';
 
 interface MainProps {
   route: {
@@ -18,39 +21,83 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [audioQueue, setAudioQueue] = useState<string[]>([]);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const Buffer = require('buffer/').Buffer;
+
+  const constructTempFilePath = async (buffer: Buffer) => {
+    const tempFilePath = `${FileSystem.cacheDirectory}${Date.now()}` + "speech.mp3";
+    await FileSystem.writeAsStringAsync(
+      tempFilePath,
+      buffer.toString("base64"),
+      {
+        encoding: FileSystem.EncodingType.Base64,
+      }
+    );
+
+    return tempFilePath;
+  };
+
+  const playNextAudio = async () => {
+    console.log("in playNextAudio audioQueue is", audioQueue);
+    console.log("isPlaying is", isPlaying);
+
+    if (audioQueue.length > 0) {
+      const uri = audioQueue.shift() as string;
+      console.log("load audio from", uri);
+      setIsPlaying(true);
+
+      try {
+        const { sound } = await Audio.Sound.createAsync({ uri });
+        await sound.playAsync();
+        console.log("playing audio from", uri);
+
+        sound.setOnPlaybackStatusUpdate(_onPlaybackStatusUpdate);
+      } catch (error){
+        console.log("Error playing audio", error);
+        setIsPlaying(false);
+        playNextAudio();
+      }
+
+    }
+  };
+
+  const _onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded && status.didJustFinish) {
+      setIsPlaying(false);
+      playNextAudio();
+    }
+  };
 
   useEffect(() => {
-    const playNextAudio = async () => {
-      if (audioQueue.length > 0) {
-        const uri = audioQueue.shift();
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: uri! },
-          { shouldPlay: true }
-        );
-        sound.setOnPlaybackStatusUpdate(async (status) => {
-          if (status.didJustFinish && !status.isLooping) {
-            await sound.unloadAsync();
-            playNextAudio();
-          }
-        });
-      }
-    };
-
     let websocket: WebSocket;
     try {
       console.log("Connecting to WebSocket at " + scannedData);
       websocket = new WebSocket(scannedData);
+      websocket.binaryType = "blob";
 
       websocket.onopen = () => {
         setConnectionStatus(`Connected to ${scannedData}`);
         console.log("WebSocket connected");
       };
+
       websocket.onmessage = async (e) => {
-        console.log("Received message: ", e.data);
-        setAudioQueue((prevQueue) => [...prevQueue, e.data]);
-        if (audioQueue.length === 1) {
+        const message = JSON.parse(e.data);
+
+        if (message.content) {
+
+          const parsedMessage = message.content.replace(/^b'|['"]|['"]$/g, "");
+          const buffer = Buffer.from(parsedMessage, 'base64')
+          console.log("parsed message", buffer.toString());
+
+          const uri = await constructTempFilePath(buffer);
+          setAudioQueue((prevQueue) => [...prevQueue, uri]);
+        }
+
+        if (message.format === "bytes.raw" && message.end) {
+          console.log("calling playNextAudio");
           playNextAudio();
         }
+
       };
 
       websocket.onerror = (error) => {
@@ -74,7 +121,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
         websocket.close();
       }
     };
-  }, [scannedData, audioQueue]);
+  }, [scannedData]);
 
   const startRecording = async () => {
     if (recording) {
@@ -108,7 +155,17 @@ const Main: React.FC<MainProps> = ({ route }) => {
       const uri = recording.getURI();
       console.log("Recording stopped and stored at", uri);
       if (ws && uri) {
-        ws.send(uri);
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(blob);
+        reader.onloadend = () => {
+          const audioBytes = reader.result;
+          if (audioBytes) {
+            ws.send(audioBytes);
+            console.log("sent audio bytes to WebSocket");
+          }
+        };
       }
     }
   };
