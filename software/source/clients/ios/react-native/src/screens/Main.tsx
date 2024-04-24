@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as FileSystem from 'expo-file-system';
-import { AVPlaybackStatus, Audio } from "expo-av";
-import { Buffer } from "buffer";
-import base64 from 'react-native-base64';
+import { Audio } from "expo-av";
 
 interface MainProps {
   route: {
@@ -15,58 +13,58 @@ interface MainProps {
 
 const Main: React.FC<MainProps> = ({ route }) => {
   const { scannedData } = route.params;
-
-  const [connectionStatus, setConnectionStatus] =
-    useState<string>("Connecting...");
+  const [connectionStatus, setConnectionStatus] = useState<string>("Connecting...");
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [audioQueue, setAudioQueue] = useState<string[]>([]);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const Buffer = require('buffer/').Buffer;
+  const [sound, setSound] = useState<Audio.Sound | null>();
+  const audioDir = FileSystem.documentDirectory + '01/audio/';
 
-  const constructTempFilePath = async (buffer: Buffer) => {
-    const tempFilePath = `${FileSystem.cacheDirectory}${Date.now()}` + "speech.mp3";
-    await FileSystem.writeAsStringAsync(
-      tempFilePath,
-      buffer.toString("base64"),
-      {
-        encoding: FileSystem.EncodingType.Base64,
-      }
-    );
 
-    return tempFilePath;
-  };
+  async function dirExists() {
+    /**
+     * Checks if audio directory exists in device storage, if not creates it.
+     */
+    const dirInfo = await FileSystem.getInfoAsync(audioDir);
+    if (!dirInfo.exists) {
+      console.log("audio directory doesn't exist, creating...");
+      await FileSystem.makeDirectoryAsync(audioDir, { intermediates: true });
+    }
+  }
 
   const playNextAudio = async () => {
-    console.log("in playNextAudio audioQueue is", audioQueue);
-    console.log("isPlaying is", isPlaying);
+    await dirExists();
+    console.log("in playNextAudio audioQueue is", audioQueue.length);
 
     if (audioQueue.length > 0) {
       const uri = audioQueue.shift() as string;
       console.log("load audio from", uri);
-      setIsPlaying(true);
 
       try {
         const { sound } = await Audio.Sound.createAsync({ uri });
-        await sound.playAsync();
-        console.log("playing audio from", uri);
+        setSound(sound);
 
-        sound.setOnPlaybackStatusUpdate(_onPlaybackStatusUpdate);
+        console.log("playing audio from", uri);
+        await sound?.playAsync();
       } catch (error){
         console.log("Error playing audio", error);
-        setIsPlaying(false);
         playNextAudio();
       }
 
     }
   };
 
-  const _onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (status.isLoaded && status.didJustFinish) {
-      setIsPlaying(false);
-      playNextAudio();
-    }
-  };
+  useEffect(() => {
+    return sound
+      ? () => {
+        console.log('Unloading Sound');
+        sound.unloadAsync();
+        setSound(null);
+        playNextAudio();
+      }
+      : undefined;
+  }, [sound]);
+
 
   useEffect(() => {
     let websocket: WebSocket;
@@ -84,13 +82,21 @@ const Main: React.FC<MainProps> = ({ route }) => {
         const message = JSON.parse(e.data);
 
         if (message.content) {
-
           const parsedMessage = message.content.replace(/^b'|['"]|['"]$/g, "");
-          const buffer = Buffer.from(parsedMessage, 'base64')
-          console.log("parsed message", buffer.toString());
+          console.log("parsedMessage", parsedMessage.slice(0, 30));
 
-          const uri = await constructTempFilePath(buffer);
-          setAudioQueue((prevQueue) => [...prevQueue, uri]);
+          const filePath = `${audioDir}${Date.now()}.mp3`;
+          await FileSystem.writeAsStringAsync(
+            filePath,
+            parsedMessage,
+            {
+              encoding: FileSystem.EncodingType.Base64,
+            }
+          );
+
+          console.log("audio file written to", filePath);
+
+          setAudioQueue((prevQueue) => [...prevQueue, filePath]);
         }
 
         if (message.format === "bytes.raw" && message.end) {
@@ -138,7 +144,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
       });
       console.log("Starting recording..");
       const { recording: newRecording } = await Audio.Recording.createAsync(
-        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
       setRecording(newRecording);
       console.log("Recording started");
@@ -152,8 +158,12 @@ const Main: React.FC<MainProps> = ({ route }) => {
     setRecording(null);
     if (recording) {
       await recording.stopAndUnloadAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+      });
       const uri = recording.getURI();
       console.log("Recording stopped and stored at", uri);
+
       if (ws && uri) {
         const response = await fetch(uri);
         const blob = await response.blob();
@@ -191,14 +201,15 @@ const Main: React.FC<MainProps> = ({ route }) => {
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: '#ecf0f1',
+    padding: 10,
   },
   circle: {
     width: 100,
