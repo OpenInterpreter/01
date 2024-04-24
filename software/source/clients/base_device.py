@@ -291,18 +291,18 @@ class Device:
             # Receive authentication request from the server
             auth_request = await websocket.recv()
             auth_data = json.loads(auth_request)
-
+    
             if auth_data["type"] == "auth_request":
                 # Send authentication response with the token
                 token = os.getenv("WS_TOKEN")
                 if token:
                     auth_response = {"token": token}
                     await websocket.send(json.dumps(auth_response))
-
+    
                     # Receive authentication result from the server
                     auth_result = await websocket.recv()
                     result_data = json.loads(auth_result)
-
+    
                     if result_data["type"] == "auth_success":
                         # Authentication successful
                         return True
