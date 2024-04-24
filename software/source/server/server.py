@@ -147,15 +147,8 @@ async def authenticate(websocket: WebSocket):
 
     # Verify the provided token
     token = auth_response.get("token")
-    if not token:
-        await websocket.send_json({"type": "auth_failure"})
-        await websocket.close()
-        return False
-
-    try:
-        # Use the OAuth2PasswordBearer scheme to validate the token
-        token = await oauth2_scheme(token)
-    except Exception:
+    expected_token = os.getenv("WS_TOKEN")
+    if token != expected_token:
         await websocket.send_json({"type": "auth_failure"})
         await websocket.close()
         return False
