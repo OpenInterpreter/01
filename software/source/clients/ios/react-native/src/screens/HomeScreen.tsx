@@ -7,7 +7,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.circle} />
+      {/* <View style={styles.circle} /> */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate("Camera")}
