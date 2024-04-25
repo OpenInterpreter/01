@@ -20,8 +20,10 @@
     "react": "18.2.0",
     "react-native": "0.73.4",
     "react-native-base64": "^0.2.1",
+    "react-native-polyfill-globals": "^3.1.0",
     "react-native-safe-area-context": "4.8.2",
-    "react-native-screens": "~3.29.0"
+    "react-native-screens": "~3.29.0",
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

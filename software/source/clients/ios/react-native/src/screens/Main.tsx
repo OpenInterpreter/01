@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as FileSystem from 'expo-file-system';
 import { AVPlaybackStatus, AVPlaybackStatusSuccess, Audio } from "expo-av";
+import { polyfill as polyfillEncoding } from 'react-native-polyfill-globals/src/encoding';
 
 interface MainProps {
   route: {
@@ -19,18 +20,23 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const [audioQueue, setAudioQueue] = useState<string[]>([]);
   const [sound, setSound] = useState<Audio.Sound | null>();
   const audioDir = FileSystem.documentDirectory + '01/audio/';
+  const [permissionResponse, requestPermission] = Audio.usePermissions();
+  polyfillEncoding();
+  const reader = new FileReader();
 
     const constructTempFilePath = async (buffer: string) => {
       await dirExists();
-
       const tempFilePath = `${audioDir}${Date.now()}.wav`;
-      await FileSystem.writeAsStringAsync(
-        tempFilePath,
-        buffer,
-        {
-          encoding: FileSystem.EncodingType.Base64,
-        }
-      );
+
+
+        await FileSystem.writeAsStringAsync(
+          tempFilePath,
+          buffer,
+          {
+            encoding: FileSystem.EncodingType.Base64,
+          }
+        );
+
 
       return tempFilePath;
     };
@@ -111,9 +117,9 @@ const Main: React.FC<MainProps> = ({ route }) => {
       websocket.onmessage = async (e) => {
 
         const message = JSON.parse(e.data);
-        console.log(message.content);
+        console.log(message.content.slice(0, 50));
 
-        const buffer = await message.content;
+        const buffer = await message.content as string;
         const filePath = await constructTempFilePath(buffer);
         setAudioQueue((prevQueue) => [...prevQueue, filePath]);
         console.log("audio file written to", filePath);
@@ -122,26 +128,6 @@ const Main: React.FC<MainProps> = ({ route }) => {
           console.log("calling playNextAudio");
           playNextAudio();
         }
-
-        /**
-        const message = JSON.parse(e.data);
-
-        if (message.content) {
-          const parsedMessage = message.content.replace(/^b'|['"]|['"]$/g, "");
-          console.log("parsedMessage", parsedMessage.slice(0, 30));
-
-          const filePath = await constructFilePath(parsedMessage);
-          setAudioQueue((prevQueue) => [...prevQueue, filePath]);
-          console.log("audio file written to", filePath);
-        }
-
-        if (message.format === "bytes.raw" && message.end && audioQueue.length > 1) {
-          console.log("calling playNextAudio");
-          playNextAudio();
-        }
-
-         */
-
       };
 
       websocket.onerror = (error) => {
@@ -167,56 +153,76 @@ const Main: React.FC<MainProps> = ({ route }) => {
     };
   }, [scannedData]);
 
-  const startRecording = async () => {
+  const startRecording = useCallback(async () => {
     if (recording) {
       console.log("A recording is already in progress.");
       return;
     }
 
     try {
-      console.log("Requesting permissions..");
-      await Audio.requestPermissionsAsync();
+      if (permissionResponse !== null && permissionResponse.status !== `granted`) {
+        console.log("Requesting permission..");
+        await requestPermission();
+      }
+
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       });
+
       console.log("Starting recording..");
-      const { recording: newRecording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
+      const newRecording = new Audio.Recording();
+      await newRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      await newRecording.startAsync();
+
       setRecording(newRecording);
-      console.log("Recording started");
     } catch (err) {
       console.error("Failed to start recording", err);
     }
-  };
+  }, []);
 
-  const stopRecording = async () => {
+  const stopRecording = useCallback(async () => {
     console.log("Stopping recording..");
-    setRecording(null);
+
     if (recording) {
       await recording.stopAndUnloadAsync();
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
       });
       const uri = recording.getURI();
-      console.log("Recording stopped and stored at", uri);
+      console.log("recording uri at ", uri);
+      setRecording(null);
+
+      // sanity check play the audio recording locally
+      // recording is working fine; is the server caching the audio file somewhere?
+      /**
+      if (uri) {
+        const { sound } = await Audio.Sound.createAsync({ uri });
+        sound.playAsync();
+        console.log("playing audio recording from", uri);
+      }
+       */
+
 
       if (ws && uri) {
         const response = await fetch(uri);
+        console.log("fetched audio file", response);
         const blob = await response.blob();
-        const reader = new FileReader();
+
         reader.readAsArrayBuffer(blob);
         reader.onloadend = () => {
           const audioBytes = reader.result;
           if (audioBytes) {
             ws.send(audioBytes);
-            console.log("sent audio bytes to WebSocket");
+            const audioArray = new Uint8Array(audioBytes as ArrayBuffer);
+            const decoder = new TextDecoder("utf-8");
+            console.log("sent audio bytes to WebSocket", decoder.decode(audioArray).slice(0, 50));
           }
         };
       }
+
     }
-  };
+  }, [recording]);
 
   return (
     <View style={styles.container}>

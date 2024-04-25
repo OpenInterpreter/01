@@ -39,8 +39,6 @@ print("")
 
 setup_logging()
 
-accumulator = Accumulator()
-
 app = FastAPI()
 
 app_dir = user_data_dir("01")
@@ -229,6 +227,8 @@ async def send_messages(websocket: WebSocket):
 async def listener():
     while True:
         try:
+            accumulator = Accumulator()
+
             while True:
                 if not from_user.empty():
                     chunk = await from_user.get()
@@ -258,6 +258,7 @@ async def listener():
                 # Convert bytes to audio file
                 # Format will be bytes.wav or bytes.opus
                 mime_type = "audio/" + message["format"].split(".")[1]
+                print("input audio file content", message["content"][:100])
                 audio_file_path = bytes_to_wav(message["content"], mime_type)
                 print("Audio file path:", audio_file_path)
 
