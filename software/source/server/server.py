@@ -21,6 +21,7 @@ from ..utils.accumulator import Accumulator
 from .utils.logs import setup_logging
 from .utils.logs import logger
 import base64
+from google.cloud import storage
 
 from ..utils.print_markdown import print_markdown
 
@@ -202,6 +203,10 @@ async def send_messages(websocket: WebSocket):
                 await websocket.send_json(message)
             elif isinstance(message, bytes):
                 message = base64.b64encode(message)
+                print(f"Sending to the device: {type(message)} {str(message)[:100]}")
+                await websocket.send_bytes(message)
+
+                """
                 str_bytes = str(message)
                 json_bytes = {
                     "role": "assistant",
@@ -213,6 +218,7 @@ async def send_messages(websocket: WebSocket):
                     f"Sending to the device: {type(json_bytes)} {str(json_bytes)[:100]}"
                 )
                 await websocket.send_json(json_bytes)
+                """
             else:
                 raise TypeError("Message must be a dict or bytes")
         except:
@@ -254,6 +260,7 @@ async def listener():
                 # Format will be bytes.wav or bytes.opus
                 mime_type = "audio/" + message["format"].split(".")[1]
                 audio_file_path = bytes_to_wav(message["content"], mime_type)
+                print("Audio file path:", audio_file_path)
 
                 # For microphone debugging:
                 if False:
@@ -387,6 +394,19 @@ def stream_tts(sentence):
 
     with open(audio_file, "rb") as f:
         audio_bytes = f.read()
+
+    storage_client = storage.Client(project="react-native-421323")
+    bucket = storage_client.bucket("01-audio")
+    blob = bucket.blob(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
+    generation_match_precondition = 0
+
+    blob.upload_from_filename(
+        audio_file, if_generation_match=generation_match_precondition
+    )
+    print(
+        f"Audio file {audio_file} uploaded to {datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav"
+    )
+
     os.remove(audio_file)
 
     file_type = "bytes.raw"

@@ -19,6 +19,37 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const [audioQueue, setAudioQueue] = useState<string[]>([]);
   const [sound, setSound] = useState<Audio.Sound | null>();
   const audioDir = FileSystem.documentDirectory + '01/audio/';
+  const Buffer = require('buffer').Buffer;
+
+  const toBuffer = async (blob: Blob) => {
+
+    const uri = await toDataURI(blob);
+    const base64 = uri.replace(/^.*,/g, "");
+    return Buffer.from(base64, "base64");
+  };
+
+  const toDataURI = (blob: Blob) =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const uri = reader.result?.toString();
+        resolve(uri);
+      };
+    });
+
+    const constructTempFilePath = async (buffer: Buffer) => {
+      const tempFilePath = `${audioDir}${Date.now()}.wav`;
+      await FileSystem.writeAsStringAsync(
+        tempFilePath,
+        buffer.toString(),
+        {
+          encoding: FileSystem.EncodingType.Base64,
+        }
+      );
+
+      return tempFilePath;
+    };
 
 
   async function dirExists() {
@@ -33,7 +64,6 @@ const Main: React.FC<MainProps> = ({ route }) => {
   }
 
   const playNextAudio = async () => {
-    await dirExists();
     console.log("in playNextAudio audioQueue is", audioQueue.length);
 
     if (audioQueue.length > 0) {
@@ -65,6 +95,12 @@ const Main: React.FC<MainProps> = ({ route }) => {
       : undefined;
   }, [sound]);
 
+  useEffect(() => {
+    console.log("audioQueue has been updated:", audioQueue.length);
+    if (audioQueue.length == 1) {
+      playNextAudio();
+    }
+  }, [audioQueue]);
 
   useEffect(() => {
     let websocket: WebSocket;
@@ -79,30 +115,37 @@ const Main: React.FC<MainProps> = ({ route }) => {
       };
 
       websocket.onmessage = async (e) => {
+        console.log("Received message from WebSocket", e.data);
+
+        const blob = await e.data;
+        const buffer = await toBuffer(blob);
+        const filePath = await constructTempFilePath(buffer);
+        setAudioQueue((prevQueue) => [...prevQueue, filePath]);
+        console.log("audio file written to", filePath);
+
+        if (e.data.format === "bytes.raw" && e.data.end && audioQueue.length > 1) {
+          console.log("calling playNextAudio");
+          playNextAudio();
+        }
+
+        /**
         const message = JSON.parse(e.data);
 
         if (message.content) {
           const parsedMessage = message.content.replace(/^b'|['"]|['"]$/g, "");
           console.log("parsedMessage", parsedMessage.slice(0, 30));
 
-          const filePath = `${audioDir}${Date.now()}.mp3`;
-          await FileSystem.writeAsStringAsync(
-            filePath,
-            parsedMessage,
-            {
-              encoding: FileSystem.EncodingType.Base64,
-            }
-          );
-
-          console.log("audio file written to", filePath);
-
+          const filePath = await constructFilePath(parsedMessage);
           setAudioQueue((prevQueue) => [...prevQueue, filePath]);
+          console.log("audio file written to", filePath);
         }
 
-        if (message.format === "bytes.raw" && message.end) {
+        if (message.format === "bytes.raw" && message.end && audioQueue.length > 1) {
           console.log("calling playNextAudio");
           playNextAudio();
         }
+
+         */
 
       };
 
