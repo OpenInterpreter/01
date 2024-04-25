@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as FileSystem from 'expo-file-system';
-import { Audio } from "expo-av";
+import { AVPlaybackStatus, AVPlaybackStatusSuccess, Audio } from "expo-av";
 
 interface MainProps {
   route: {
@@ -19,30 +19,14 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const [audioQueue, setAudioQueue] = useState<string[]>([]);
   const [sound, setSound] = useState<Audio.Sound | null>();
   const audioDir = FileSystem.documentDirectory + '01/audio/';
-  const Buffer = require('buffer').Buffer;
 
-  const toBuffer = async (blob: Blob) => {
+    const constructTempFilePath = async (buffer: string) => {
+      await dirExists();
 
-    const uri = await toDataURI(blob);
-    const base64 = uri.replace(/^.*,/g, "");
-    return Buffer.from(base64, "base64");
-  };
-
-  const toDataURI = (blob: Blob) =>
-    new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = () => {
-        const uri = reader.result?.toString();
-        resolve(uri);
-      };
-    });
-
-    const constructTempFilePath = async (buffer: Buffer) => {
       const tempFilePath = `${audioDir}${Date.now()}.wav`;
       await FileSystem.writeAsStringAsync(
         tempFilePath,
-        buffer.toString(),
+        buffer,
         {
           encoding: FileSystem.EncodingType.Base64,
         }
@@ -66,6 +50,12 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const playNextAudio = async () => {
     console.log("in playNextAudio audioQueue is", audioQueue.length);
 
+    if (sound != null){
+      console.log('Unloading Sound');
+      await sound.unloadAsync();
+      setSound(null);
+    }
+
     if (audioQueue.length > 0) {
       const uri = audioQueue.shift() as string;
       console.log("load audio from", uri);
@@ -76,6 +66,9 @@ const Main: React.FC<MainProps> = ({ route }) => {
 
         console.log("playing audio from", uri);
         await sound?.playAsync();
+
+        sound.setOnPlaybackStatusUpdate(_onPlayBackStatusUpdate);
+
       } catch (error){
         console.log("Error playing audio", error);
         playNextAudio();
@@ -84,16 +77,17 @@ const Main: React.FC<MainProps> = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    return sound
-      ? () => {
-        console.log('Unloading Sound');
-        sound.unloadAsync();
-        setSound(null);
-        playNextAudio();
-      }
-      : undefined;
-  }, [sound]);
+  const isAVPlaybackStatusSuccess = (
+    status: AVPlaybackStatus
+  ): status is AVPlaybackStatusSuccess => {
+    return (status as AVPlaybackStatusSuccess).isLoaded !== undefined;
+  };
+
+  const _onPlayBackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (isAVPlaybackStatusSuccess(status) && status.didJustFinish){
+      playNextAudio();
+    }
+  }
 
   useEffect(() => {
     console.log("audioQueue has been updated:", audioQueue.length);
@@ -115,15 +109,16 @@ const Main: React.FC<MainProps> = ({ route }) => {
       };
 
       websocket.onmessage = async (e) => {
-        console.log("Received message from WebSocket", e.data);
 
-        const blob = await e.data;
-        const buffer = await toBuffer(blob);
+        const message = JSON.parse(e.data);
+        console.log(message.content);
+
+        const buffer = await message.content;
         const filePath = await constructTempFilePath(buffer);
         setAudioQueue((prevQueue) => [...prevQueue, filePath]);
         console.log("audio file written to", filePath);
 
-        if (e.data.format === "bytes.raw" && e.data.end && audioQueue.length > 1) {
+        if (message.format === "bytes.raw" && message.end && audioQueue.length >= 1) {
           console.log("calling playNextAudio");
           playNextAudio();
         }

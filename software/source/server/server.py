@@ -393,8 +393,10 @@ def stream_tts(sentence):
 
     with open(audio_file, "rb") as f:
         audio_bytes = f.read()
-    desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
-    desktop_audio_file = os.path.join(desktop_path, os.path.basename(audio_file))
+    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    desktop_audio_file = os.path.join(
+        desktop_path, f"{datetime.datetime.now()}" + os.path.basename(audio_file)
+    )
     shutil.copy(audio_file, desktop_audio_file)
     print(f"Audio file saved to Desktop: {desktop_audio_file}")
     # storage_client = storage.Client(project="react-native-421323")
@@ -409,15 +411,23 @@ def stream_tts(sentence):
     #     f"Audio file {audio_file} uploaded to {datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav"
     # )
 
-    os.remove(audio_file)
-
     file_type = "audio/wav"
     # Read the entire WAV file
     with open(audio_file, "rb") as f:
         audio_bytes = f.read()
 
+    os.remove(audio_file)
+
     # Stream the audio as a single message
-    yield {"role": "assistant", "type": "audio", "format": file_type, "content": base64.b64encode(audio_bytes).decode('utf-8'), "start": True, "end": True}
+    yield {
+        "role": "assistant",
+        "type": "audio",
+        "format": file_type,
+        "content": base64.b64encode(audio_bytes).decode("utf-8"),
+        "start": True,
+        "end": True,
+    }
+
 
 from uvicorn import Config, Server
 import os
