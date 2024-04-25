@@ -4,11 +4,11 @@ import * as FileSystem from "expo-file-system";
 import { AVPlaybackStatus, AVPlaybackStatusSuccess, Audio } from "expo-av";
 import { polyfill as polyfillEncoding } from "react-native-polyfill-globals/src/encoding";
 import { create } from "zustand";
-import useStore from "../lib/state";
+import useStore from "../utils/state";
 import { Animated } from "react-native";
 import * as Haptics from "expo-haptics";
-import useSoundEffect from "../lib/useSoundEffect";
-import IconImage from "../../assets/qr.png";
+import useSoundEffect from "../utils/useSoundEffect";
+// import IconImage from "../../assets/qr.png";
 import { useNavigation } from "@react-navigation/native";
 
 interface MainProps {
@@ -132,7 +132,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
   }, [audioQueue, sound, soundUriMap]);
 
   const _onPlayBackStatusUpdate = useCallback(
-    async (status) => {
+    async (status: any) => {
       if (status.didJustFinish) {
         await sound?.unloadAsync();
         soundUriMap.delete(sound);
@@ -232,6 +232,14 @@ const Main: React.FC<MainProps> = ({ route }) => {
     };
   }, [scannedData]);
 
+  useEffect(() => {
+    console.log("Permission Response:", permissionResponse);
+    if (permissionResponse?.status !== "granted") {
+      console.log("Requesting permission..");
+      requestPermission();
+    }
+  }, []);
+
   const startRecording = useCallback(async () => {
     if (recording) {
       console.log("A recording is already in progress.");
@@ -239,6 +247,10 @@ const Main: React.FC<MainProps> = ({ route }) => {
     }
 
     try {
+      console.log("🌶️🌶️🌶️🌶️🌶️🌶️🌶️🌶️🌶️🌶️");
+
+      console.log(permissionResponse);
+
       if (
         permissionResponse !== null &&
         permissionResponse.status !== `granted`
