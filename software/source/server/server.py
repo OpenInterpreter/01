@@ -21,8 +21,7 @@ from ..utils.accumulator import Accumulator
 from .utils.logs import setup_logging
 from .utils.logs import logger
 import base64
-from google.cloud import storage
-
+import shutil
 from ..utils.print_markdown import print_markdown
 
 os.environ["STT_RUNNER"] = "server"
@@ -394,31 +393,31 @@ def stream_tts(sentence):
 
     with open(audio_file, "rb") as f:
         audio_bytes = f.read()
+    desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
+    desktop_audio_file = os.path.join(desktop_path, os.path.basename(audio_file))
+    shutil.copy(audio_file, desktop_audio_file)
+    print(f"Audio file saved to Desktop: {desktop_audio_file}")
+    # storage_client = storage.Client(project="react-native-421323")
+    # bucket = storage_client.bucket("01-audio")
+    # blob = bucket.blob(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
+    # generation_match_precondition = 0
 
-    storage_client = storage.Client(project="react-native-421323")
-    bucket = storage_client.bucket("01-audio")
-    blob = bucket.blob(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
-    generation_match_precondition = 0
-
-    blob.upload_from_filename(
-        audio_file, if_generation_match=generation_match_precondition
-    )
-    print(
-        f"Audio file {audio_file} uploaded to {datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav"
-    )
+    # blob.upload_from_filename(
+    #     audio_file, if_generation_match=generation_match_precondition
+    # )
+    # print(
+    #     f"Audio file {audio_file} uploaded to {datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav"
+    # )
 
     os.remove(audio_file)
 
-    file_type = "bytes.raw"
-    chunk_size = 1024
+    file_type = "audio/wav"
+    # Read the entire WAV file
+    with open(audio_file, "rb") as f:
+        audio_bytes = f.read()
 
-    # Stream the audio
-    yield {"role": "assistant", "type": "audio", "format": file_type, "start": True}
-    for i in range(0, len(audio_bytes), chunk_size):
-        chunk = audio_bytes[i : i + chunk_size]
-        yield chunk
-    yield {"role": "assistant", "type": "audio", "format": file_type, "end": True}
-
+    # Stream the audio as a single message
+    yield {"role": "assistant", "type": "audio", "format": file_type, "content": base64.b64encode(audio_bytes).decode('utf-8'), "start": True, "end": True}
 
 from uvicorn import Config, Server
 import os

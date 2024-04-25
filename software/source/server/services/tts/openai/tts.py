@@ -36,9 +36,9 @@ class Tts:
             response.stream_to_file(temp_file.name)
 
             # TODO: hack to format audio correctly for device
-            outfile = tempfile.gettempdir() + "/" + "raw.dat"
+            outfile = tempfile.gettempdir() + "/" + "output.wav"
             ffmpeg.input(temp_file.name).output(
-                outfile, f="s16le", ar="16000", ac="1", loglevel="panic"
+                outfile, f="wav", ar="16000", ac="1", loglevel="panic"
             ).run()
 
             return outfile
