@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import * as FileSystem from "expo-file-system";
 import { AVPlaybackStatus, AVPlaybackStatusSuccess, Audio } from "expo-av";
 import { polyfill as polyfillEncoding } from "react-native-polyfill-globals/src/encoding";
@@ -7,6 +7,9 @@ import { create } from "zustand";
 import useStore from "../lib/state";
 import { Animated } from "react-native";
 import * as Haptics from "expo-haptics";
+import useSoundEffect from "../lib/useSoundEffect";
+import IconImage from "../../assets/qr.png";
+import { useNavigation } from "@react-navigation/native";
 
 interface MainProps {
   route: {
@@ -56,7 +59,9 @@ const Main: React.FC<MainProps> = ({ route }) => {
   polyfillEncoding();
   const backgroundColorAnim = useRef(new Animated.Value(0)).current;
   const buttonBackgroundColorAnim = useRef(new Animated.Value(0)).current;
-
+  const playPip = useSoundEffect(require("../../assets/pip.mp3"));
+  const playPop = useSoundEffect(require("../../assets/pop.mp3"));
+  const navigation = useNavigation();
   const backgroundColor = backgroundColorAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ["black", "white"], // Change as needed
@@ -168,7 +173,8 @@ const Main: React.FC<MainProps> = ({ route }) => {
       websocket.binaryType = "blob";
 
       websocket.onopen = () => {
-        setConnectionStatus(`Connected to ${scannedData}`);
+        setConnectionStatus(`Connected`);
+        // setConnectionStatus(`Connected to ${scannedData}`);
         console.log("WebSocket connected");
       };
 
@@ -318,47 +324,69 @@ const Main: React.FC<MainProps> = ({ route }) => {
   };
   return (
     <Animated.View style={[styles.container, { backgroundColor }]}>
-      <Text
-        style={[
-          styles.statusText,
-          { color: connectionStatus.startsWith("Connected") ? "green" : "red" },
-        ]}
-      >
-        {connectionStatus}
-      </Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPressIn={() => {
-          setIsPressed(true);
-          toggleRecording(true); // Pass true when pressed
-          startRecording();
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        }}
-        onPressOut={() => {
-          setIsPressed(false);
-          toggleRecording(false); // Pass false when released
-          stopRecording();
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      {/* <TouchableOpacity
+        onPress={() => {
+          console.log("hi!");
+
+          navigation.navigate("Camera");
         }}
       >
-        <Animated.View
-          style={[styles.circle, { backgroundColor: buttonBackgroundColor }]}
-        >
-          {/* <Text
-            style={
-              recording ? styles.buttonTextRecording : styles.buttonTextDefault
-            }
-          >
-            Record
-          </Text> */}
+        <Animated.View style={styles.qr}>
+          <Image source={IconImage} style={styles.icon} />
         </Animated.View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      {/* <View style={styles.topBar}></View> */}
+      <View style={styles.middle}>
+        <Text
+          style={[
+            styles.statusText,
+            {
+              color: connectionStatus.startsWith("Connected") ? "green" : "red",
+            },
+          ]}
+        >
+          {connectionStatus}
+        </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPressIn={() => {
+            playPip();
+            setIsPressed(true);
+            toggleRecording(true); // Pass true when pressed
+            startRecording();
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          }}
+          onPressOut={() => {
+            playPop();
+            setIsPressed(false);
+            toggleRecording(false); // Pass false when released
+            stopRecording();
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          }}
+        >
+          <Animated.View
+            style={[styles.circle, { backgroundColor: buttonBackgroundColor }]}
+          >
+            {/* <Text
+              style={
+                recording ? styles.buttonTextRecording : styles.buttonTextDefault
+              }
+            >
+              Record
+            </Text> */}
+          </Animated.View>
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    position: "relative",
+  },
+  middle: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -372,6 +400,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  qr: {
+    position: "absolute",
+    top: 30,
+    left: 10,
+    padding: 10,
+    zIndex: 100,
+  },
+  icon: {
+    height: 40,
+    width: 40,
+  },
+  topBar: {
+    height: 40,
+    backgroundColor: "#000",
+    paddingTop: 50,
+  },
+
   button: {
     width: 100,
     height: 100,
@@ -389,7 +434,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     position: "absolute",
-    bottom: 10,
+    bottom: 20,
     alignSelf: "center",
     fontSize: 12,
     fontWeight: "bold",

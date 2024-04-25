@@ -196,11 +196,11 @@ async def send_messages(websocket: WebSocket):
 
         try:
             if isinstance(message, dict):
-                print(f"Sending to the device: {type(message)} {str(message)[:100]}")
+                # print(f"Sending to the device: {type(message)} {str(message)[:100]}")
                 await websocket.send_json(message)
             elif isinstance(message, bytes):
                 message = base64.b64encode(message)
-                print(f"Sending to the device: {type(message)} {str(message)[:100]}")
+                # print(f"Sending to the device: {type(message)} {str(message)[:100]}")
                 await websocket.send_bytes(message)
 
                 """
