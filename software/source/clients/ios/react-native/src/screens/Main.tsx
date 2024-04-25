@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as FileSystem from 'expo-file-system';
 import { AVPlaybackStatus, AVPlaybackStatusSuccess, Audio } from "expo-av";
 import { polyfill as polyfillEncoding } from 'react-native-polyfill-globals/src/encoding';
+import { create } from 'zustand';
 
 interface MainProps {
   route: {
@@ -12,22 +13,42 @@ interface MainProps {
   };
 }
 
+interface AudioQueueState {
+  audioQueue: string[]; // Define the audio queue type
+  addToQueue: (uri: string) => void; // Function to set audio queue
+}
+
+const useAudioQueueStore = create<AudioQueueState>((set) => ({
+  audioQueue: [], // initial state
+  addToQueue: (uri) => set((state) => ({ audioQueue: [...state.audioQueue, uri] })), // action to set audio queue
+}));
+
+interface SoundState {
+  sound: Audio.Sound | null; // Define the sound type
+  setSound: (newSound: Audio.Sound | null) => void; // Function to set sound
+}
+
+const useSoundStore = create<SoundState>((set) => ({
+  sound: null, // initial state
+  setSound: (newSound) => set({ sound: newSound }), // action to set sound
+}));
+
 const Main: React.FC<MainProps> = ({ route }) => {
   const { scannedData } = route.params;
   const [connectionStatus, setConnectionStatus] = useState<string>("Connecting...");
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [audioQueue, setAudioQueue] = useState<string[]>([]);
-  const [sound, setSound] = useState<Audio.Sound | null>();
+  const addToQueue = useAudioQueueStore((state) => state.addToQueue);
+  const audioQueue = useAudioQueueStore((state) => state.audioQueue);
+  const setSound = useSoundStore((state) => state.setSound);
+  const sound = useSoundStore((state) => state.sound);
   const audioDir = FileSystem.documentDirectory + '01/audio/';
   const [permissionResponse, requestPermission] = Audio.usePermissions();
   polyfillEncoding();
-  const reader = new FileReader();
 
     const constructTempFilePath = async (buffer: string) => {
       await dirExists();
       const tempFilePath = `${audioDir}${Date.now()}.wav`;
-
 
         await FileSystem.writeAsStringAsync(
           tempFilePath,
@@ -36,7 +57,6 @@ const Main: React.FC<MainProps> = ({ route }) => {
             encoding: FileSystem.EncodingType.Base64,
           }
         );
-
 
       return tempFilePath;
     };
@@ -54,15 +74,10 @@ const Main: React.FC<MainProps> = ({ route }) => {
   }
 
   const playNextAudio = async () => {
-    console.log("in playNextAudio audioQueue is", audioQueue.length);
+    console.log(`in playNextAudio audioQueue is ${audioQueue.length} and sound is ${sound}`);
 
-    if (sound != null){
-      console.log('Unloading Sound');
-      await sound.unloadAsync();
-      setSound(null);
-    }
 
-    if (audioQueue.length > 0) {
+    if (audioQueue.length > 0 && sound == null) {
       const uri = audioQueue.shift() as string;
       console.log("load audio from", uri);
 
@@ -80,8 +95,25 @@ const Main: React.FC<MainProps> = ({ route }) => {
         playNextAudio();
       }
 
+    } else {
+      console.log("audioQueue is empty or sound is not null");
+      return;
     }
   };
+
+  const _onPlayBackStatusUpdate = async (status: AVPlaybackStatus) => {
+    if (isAVPlaybackStatusSuccess(status) && status.didJustFinish === true){
+      console.log("on playback status update sound is ", sound);
+      if (sound != null){
+        console.log('Unloading Sound');
+        await sound.unloadAsync();
+      }
+      setSound(null);
+      console.log("audio has finished playing, playing next audio");
+      console.log(audioQueue);
+      playNextAudio();
+    }
+  }
 
   const isAVPlaybackStatusSuccess = (
     status: AVPlaybackStatus
@@ -89,18 +121,16 @@ const Main: React.FC<MainProps> = ({ route }) => {
     return (status as AVPlaybackStatusSuccess).isLoaded !== undefined;
   };
 
-  const _onPlayBackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (isAVPlaybackStatusSuccess(status) && status.didJustFinish){
-      playNextAudio();
-    }
-  }
-
   useEffect(() => {
     console.log("audioQueue has been updated:", audioQueue.length);
     if (audioQueue.length == 1) {
       playNextAudio();
     }
   }, [audioQueue]);
+
+  useEffect(() => {
+    console.log("sound has been updated:", sound);
+  }, [sound]);
 
   useEffect(() => {
     let websocket: WebSocket;
@@ -121,13 +151,8 @@ const Main: React.FC<MainProps> = ({ route }) => {
 
         const buffer = await message.content as string;
         const filePath = await constructTempFilePath(buffer);
-        setAudioQueue((prevQueue) => [...prevQueue, filePath]);
+        addToQueue(filePath);
         console.log("audio file written to", filePath);
-
-        if (message.format === "bytes.raw" && message.end && audioQueue.length >= 1) {
-          console.log("calling playNextAudio");
-          playNextAudio();
-        }
       };
 
       websocket.onerror = (error) => {
@@ -209,6 +234,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
         console.log("fetched audio file", response);
         const blob = await response.blob();
 
+        const reader = new FileReader();
         reader.readAsArrayBuffer(blob);
         reader.onloadend = () => {
           const audioBytes = reader.result;
