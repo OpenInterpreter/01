@@ -343,7 +343,7 @@ async def listener():
                         json.dump(interpreter.messages, file, indent=4)
 
                     # TODO: is triggering seemingly randomly
-                    # logger.info("New user message recieved. Breaking.")
+                    # logger.info("New user message received. Breaking.")
                     # break
 
                 # Also check if there's any new computer messages
@@ -351,7 +351,7 @@ async def listener():
                     with open(conversation_history_path, "w") as file:
                         json.dump(interpreter.messages, file, indent=4)
 
-                    logger.info("New computer message recieved. Breaking.")
+                    logger.info("New computer message received. Breaking.")
                     break
         except:
             traceback.print_exc()
