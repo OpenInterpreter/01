@@ -19,7 +19,7 @@ We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typef
 > [!IMPORTANT]
 > This experimental project is under rapid development and lacks basic safeguards. Until a stable `1.0` release, only run this repository on devices without sensitive information or access to paid services.
 >
-> **A substantial rewrite to address these concerns and more is occurring [here](https://github.com/KillianLucas/01-rewrite/tree/main).**
+> **A substantial rewrite to address these concerns and more, including the addition of [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) and [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT), is occurring [here](https://github.com/KillianLucas/01-rewrite/tree/main).**
 
 <br>
 
