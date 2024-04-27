@@ -51,6 +51,8 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 <br>
 
+**The [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) and [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT) libraries in the incoming 01-rewrite are thanks to the state-of-the-art voice interface work of [Kolja Beigel](https://github.com/KoljaB). Please star those repos and consider contributing to / utilizing those projects!**
+
 # Hardware
 
 - The **01 Light** is an ESP32-based voice interface. Build instructions are [here](https://github.com/OpenInterpreter/01/tree/main/hardware/light). A list of what to buy [here](https://github.com/OpenInterpreter/01/blob/main/hardware/light/BOM.md).
