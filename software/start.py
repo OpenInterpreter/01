@@ -72,13 +72,16 @@ def run(
         False, "--local", help="Use recommended local services for LLM, STT, and TTS"
     ),
     qr: bool = typer.Option(False, "--qr", help="Print the QR code for the server URL"),
+    mobile: bool = typer.Option(
+        False, "--mobile", help="Toggle server to support mobile app"
+    ),
 ):
     _run(
-        server=server,
+        server=server or mobile,
         server_host=server_host,
         server_port=server_port,
         tunnel_service=tunnel_service,
-        expose=expose,
+        expose=expose or mobile,
         client=client,
         server_url=server_url,
         client_type=client_type,
@@ -92,7 +95,8 @@ def run(
         tts_service=tts_service,
         stt_service=stt_service,
         local=local,
-        qr=qr,
+        qr=qr or mobile,
+        mobile=mobile,
     )
 
 
@@ -116,6 +120,7 @@ def _run(
     stt_service: str = "openai",
     local: bool = False,
     qr: bool = False,
+    mobile: bool = False,
 ):
     if local:
         tts_service = "piper"
@@ -136,6 +141,7 @@ def _run(
     signal.signal(signal.SIGINT, handle_exit)
 
     if server:
+        print(f"Starting server with mobile = {mobile}")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         server_thread = threading.Thread(
@@ -153,6 +159,7 @@ def _run(
                     temperature,
                     tts_service,
                     stt_service,
+                    mobile,
                 ),
             ),
         )

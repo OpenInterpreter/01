@@ -3,7 +3,7 @@ class Accumulator:
         self.template = {"role": None, "type": None, "format": None, "content": None}
         self.message = self.template
 
-    def accumulate(self, chunk):
+    def accumulate(self, chunk, mobile):
         # print(str(chunk)[:100])
         if type(chunk) == dict:
             if "format" in chunk and chunk["format"] == "active_line":
@@ -44,6 +44,10 @@ class Accumulator:
             if "content" not in self.message or type(self.message["content"]) != bytes:
                 self.message["content"] = b""
             self.message["content"] += chunk
-            self.message["type"] = "audio"
-            self.message["format"] = "bytes.wav"
-            return self.message
+
+            if mobile:
+                self.message["type"] = "audio"
+                self.message["format"] = "bytes.wav"
+                return self.message
+            else:
+                return None

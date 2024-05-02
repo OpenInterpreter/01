@@ -39,6 +39,8 @@ print("")
 
 setup_logging()
 
+accumulator_global = Accumulator()
+
 app = FastAPI()
 
 app_dir = user_data_dir("01")
@@ -196,26 +198,11 @@ async def send_messages(websocket: WebSocket):
 
         try:
             if isinstance(message, dict):
-                # print(f"Sending to the device: {type(message)} {str(message)[:100]}")
+                print(f"Sending to the device: {type(message)} {str(message)[:100]}")
                 await websocket.send_json(message)
             elif isinstance(message, bytes):
-                message = base64.b64encode(message)
-                # print(f"Sending to the device: {type(message)} {str(message)[:100]}")
+                print(f"Sending to the device: {type(message)} {str(message)[:100]}")
                 await websocket.send_bytes(message)
-
-                """
-                str_bytes = str(message)
-                json_bytes = {
-                    "role": "assistant",
-                    "type": "audio",
-                    "format": "message",
-                    "content": str_bytes,
-                }
-                print(
-                    f"Sending to the device: {type(json_bytes)} {str(json_bytes)[:100]}"
-                )
-                await websocket.send_json(json_bytes)
-                """
             else:
                 raise TypeError("Message must be a dict or bytes")
         except:
@@ -224,10 +211,11 @@ async def send_messages(websocket: WebSocket):
             raise
 
 
-async def listener():
+async def listener(mobile: bool):
     while True:
         try:
-            accumulator = Accumulator()
+            if mobile:
+                accumulator_mobile = Accumulator()
 
             while True:
                 if not from_user.empty():
@@ -238,7 +226,11 @@ async def listener():
                     break
                 await asyncio.sleep(1)
 
-            message = accumulator.accumulate(chunk)
+            if mobile:
+                message = accumulator_mobile.accumulate(chunk, mobile)
+            else:
+                message = accumulator_global.accumulate(chunk, mobile)
+
             if message == None:
                 # Will be None until we have a full message ready
                 continue
@@ -305,8 +297,9 @@ async def listener():
                 logger.debug("Got chunk:", chunk)
 
                 # Send it to the user
-                # await to_device.put(chunk)
-                # Yield to the event loop, so you actually send it out
+                await to_device.put(chunk)
+
+                # Yield to the event loop, so you actxually send it out
                 await asyncio.sleep(0.01)
 
                 if os.getenv("TTS_RUNNER") == "server":
@@ -328,11 +321,11 @@ async def listener():
 
                         if is_full_sentence(sentences[-1]):
                             for sentence in sentences:
-                                await stream_tts_to_device(sentence)
+                                await stream_tts_to_device(sentence, mobile)
                             accumulated_text = ""
                         else:
                             for sentence in sentences[:-1]:
-                                await stream_tts_to_device(sentence)
+                                await stream_tts_to_device(sentence, mobile)
                             accumulated_text = sentences[-1]
 
                         # If we're going to speak, say we're going to stop sending text.
@@ -376,7 +369,7 @@ async def listener():
             traceback.print_exc()
 
 
-async def stream_tts_to_device(sentence):
+async def stream_tts_to_device(sentence, mobile: bool):
     force_task_completion_responses = [
         "the task is done",
         "the task is impossible",
@@ -385,49 +378,44 @@ async def stream_tts_to_device(sentence):
     if sentence.lower().strip().strip(".!?").strip() in force_task_completion_responses:
         return
 
-    for chunk in stream_tts(sentence):
+    for chunk in stream_tts(sentence, mobile):
         await to_device.put(chunk)
 
 
-def stream_tts(sentence):
-    audio_file = tts(sentence)
+def stream_tts(sentence, mobile: bool):
+    audio_file = tts(sentence, mobile)
 
-    with open(audio_file, "rb") as f:
-        audio_bytes = f.read()
-    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-    desktop_audio_file = os.path.join(
-        desktop_path, f"{datetime.datetime.now()}" + os.path.basename(audio_file)
-    )
-    shutil.copy(audio_file, desktop_audio_file)
-    print(f"Audio file saved to Desktop: {desktop_audio_file}")
-    # storage_client = storage.Client(project="react-native-421323")
-    # bucket = storage_client.bucket("01-audio")
-    # blob = bucket.blob(f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav")
-    # generation_match_precondition = 0
-
-    # blob.upload_from_filename(
-    #     audio_file, if_generation_match=generation_match_precondition
-    # )
-    # print(
-    #     f"Audio file {audio_file} uploaded to {datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav"
-    # )
-
-    file_type = "audio/wav"
     # Read the entire WAV file
     with open(audio_file, "rb") as f:
         audio_bytes = f.read()
 
-    os.remove(audio_file)
+    if mobile:
+        file_type = "audio/wav"
 
-    # Stream the audio as a single message
-    yield {
-        "role": "assistant",
-        "type": "audio",
-        "format": file_type,
-        "content": base64.b64encode(audio_bytes).decode("utf-8"),
-        "start": True,
-        "end": True,
-    }
+        os.remove(audio_file)
+
+        # stream the audio as a single sentence
+        yield {
+            "role": "assistant",
+            "type": "audio",
+            "format": file_type,
+            "content": base64.b64encode(audio_bytes).decode("utf-8"),
+            "start": True,
+            "end": True,
+        }
+
+    else:
+        # stream the audio in chunk sizes
+        os.remove(audio_file)
+
+        file_type = "bytes.raw"
+        chunk_size = 1024
+
+        yield {"role": "assistant", "type": "audio", "format": file_type, "start": True}
+        for i in range(0, len(audio_bytes), chunk_size):
+            chunk = audio_bytes[i : i + chunk_size]
+            yield chunk
+        yield {"role": "assistant", "type": "audio", "format": file_type, "end": True}
 
 
 from uvicorn import Config, Server
@@ -464,6 +452,7 @@ async def main(
     temperature,
     tts_service,
     stt_service,
+    mobile,
 ):
     global HOST
     global PORT
@@ -515,7 +504,7 @@ async def main(
     interpreter.llm.completions = llm
 
     # Start listening
-    asyncio.create_task(listener())
+    asyncio.create_task(listener(mobile))
 
     # Start watching the kernel if it's your job to do that
     if True:  # in the future, code can run on device. for now, just server.

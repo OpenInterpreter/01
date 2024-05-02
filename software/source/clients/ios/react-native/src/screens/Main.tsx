@@ -182,7 +182,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
         try {
           const message = JSON.parse(e.data);
 
-          if (message.content && typeof message.content === "string") {
+          if (message.content && message.type === "audio") {
             console.log("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Audio message");
 
             const buffer = message.content;
