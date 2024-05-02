@@ -8,7 +8,7 @@ import useStore from "../utils/state";
 import { Animated } from "react-native";
 import * as Haptics from "expo-haptics";
 import useSoundEffect from "../utils/useSoundEffect";
-// import IconImage from "../../assets/qr.png";
+import RecordButton from "../utils/RecordButton";
 import { useNavigation } from "@react-navigation/native";
 
 interface MainProps {
@@ -331,6 +331,16 @@ const Main: React.FC<MainProps> = ({ route }) => {
         >
           {connectionStatus}
         </Text>
+        <RecordButton
+          playPip={playPip}
+          playPop={playPop}
+          recording={recording}
+          setRecording={setRecording}
+          ws={ws}
+          backgroundColorAnim={backgroundColorAnim}
+          buttonBackgroundColorAnim={buttonBackgroundColorAnim}
+          setIsPressed={setIsPressed}
+        />
         <TouchableOpacity
           style={styles.button}
           onPressIn={() => {
