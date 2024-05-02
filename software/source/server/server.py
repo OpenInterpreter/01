@@ -198,10 +198,10 @@ async def send_messages(websocket: WebSocket):
 
         try:
             if isinstance(message, dict):
-                print(f"Sending to the device: {type(message)} {str(message)[:100]}")
+                # print(f"Sending to the device: {type(message)} {str(message)[:100]}")
                 await websocket.send_json(message)
             elif isinstance(message, bytes):
-                print(f"Sending to the device: {type(message)} {str(message)[:100]}")
+                # print(f"Sending to the device: {type(message)} {str(message)[:100]}")
                 await websocket.send_bytes(message)
             else:
                 raise TypeError("Message must be a dict or bytes")
@@ -235,7 +235,7 @@ async def listener(mobile: bool):
                 # Will be None until we have a full message ready
                 continue
 
-            print(str(message)[:1000])
+            # print(str(message)[:1000])
 
             # At this point, we have our message
 
@@ -250,9 +250,9 @@ async def listener(mobile: bool):
                 # Convert bytes to audio file
                 # Format will be bytes.wav or bytes.opus
                 mime_type = "audio/" + message["format"].split(".")[1]
-                print("input audio file content", message["content"][:100])
+                # print("input audio file content", message["content"][:100])
                 audio_file_path = bytes_to_wav(message["content"], mime_type)
-                print("Audio file path:", audio_file_path)
+                # print("Audio file path:", audio_file_path)
 
                 # For microphone debugging:
                 if False:
@@ -299,7 +299,7 @@ async def listener(mobile: bool):
                 # Send it to the user
                 await to_device.put(chunk)
 
-                # Yield to the event loop, so you actxually send it out
+                # Yield to the event loop, so you actually send it out
                 await asyncio.sleep(0.01)
 
                 if os.getenv("TTS_RUNNER") == "server":

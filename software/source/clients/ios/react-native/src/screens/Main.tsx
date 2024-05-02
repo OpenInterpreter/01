@@ -107,13 +107,13 @@ const Main: React.FC<MainProps> = ({ route }) => {
   }
 
   const playNextAudio = useCallback(async () => {
-    console.log(
-      `in playNextAudio audioQueue is ${audioQueue.length} and sound is ${sound}`
-    );
+    // console.log(
+    //  `in playNextAudio audioQueue is ${audioQueue.length} and sound is ${sound}`
+    //);
 
     if (audioQueue.length > 0 && sound == null) {
       const uri = audioQueue.shift() as string;
-      console.log("load audio from", uri);
+      // console.log("load audio from", uri);
 
       try {
         const { sound: newSound } = await Audio.Sound.createAsync({ uri });
@@ -126,7 +126,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
         playNextAudio();
       }
     } else {
-      console.log("audioQueue is empty or sound is not null");
+      // console.log("audioQueue is empty or sound is not null");
       return;
     }
   }, [audioQueue, sound, soundUriMap]);
@@ -144,26 +144,13 @@ const Main: React.FC<MainProps> = ({ route }) => {
     [sound, soundUriMap, playNextAudio]
   );
 
-  const isAVPlaybackStatusSuccess = (
-    status: AVPlaybackStatus
-  ): status is AVPlaybackStatusSuccess => {
-    return (status as AVPlaybackStatusSuccess).isLoaded !== undefined;
-  };
-
-  // useEffect(() => {
-  //   console.log("audioQueue has been updated:", audioQueue.length);
-  //   if (audioQueue.length == 1) {
-  //     playNextAudio();
-  //   }
-  // }, [audioQueue]);
   useEffect(() => {
     if (audioQueue.length > 0 && !sound) {
       playNextAudio();
     }
   }, [audioQueue, sound, playNextAudio]);
-  useEffect(() => {
-    console.log("sound has been updated:", sound);
-  }, [sound]);
+
+  useEffect(() => {}, [sound]);
 
   useEffect(() => {
     let websocket: WebSocket;
@@ -182,27 +169,22 @@ const Main: React.FC<MainProps> = ({ route }) => {
         try {
           const message = JSON.parse(e.data);
 
-          if (message.content && message.type === "audio") {
+          if (message.content && message.type == "audio") {
             console.log("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Audio message");
 
             const buffer = message.content;
-            console.log(buffer.length);
+            // console.log(buffer.length);
             if (buffer && buffer.length > 0) {
               const filePath = await constructTempFilePath(buffer);
               if (filePath !== null) {
                 addToQueue(filePath);
-                console.log("audio file written to", filePath);
+                // console.log("audio file written to", filePath);
               } else {
                 console.error("Failed to create file path");
               }
             } else {
               console.error("Received message is empty or undefined");
             }
-          } else {
-            // console.log(typeof message);
-            // console.log(typeof message.content);
-            console.log("Received message content is not a string.");
-            console.log(message);
           }
         } catch (error) {
           console.error("Error handling WebSocket message:", error);
@@ -286,18 +268,8 @@ const Main: React.FC<MainProps> = ({ route }) => {
         allowsRecordingIOS: false,
       });
       const uri = recording.getURI();
-      console.log("recording uri at ", uri);
+      // console.log("recording uri at ", uri);
       setRecording(null);
-
-      // sanity check play the audio recording locally
-      // recording is working fine; is the server caching the audio file somewhere?
-      /**
-      if (uri) {
-        const { sound } = await Audio.Sound.createAsync({ uri });
-        sound.playAsync();
-        console.log("playing audio recording from", uri);
-      }
-       */
 
       if (ws && uri) {
         const response = await fetch(uri);
@@ -312,10 +284,10 @@ const Main: React.FC<MainProps> = ({ route }) => {
             ws.send(audioBytes);
             const audioArray = new Uint8Array(audioBytes as ArrayBuffer);
             const decoder = new TextDecoder("utf-8");
-            console.log(
-              "sent audio bytes to WebSocket",
-              decoder.decode(audioArray).slice(0, 50)
-            );
+            // console.log(
+            //   "sent audio bytes to WebSocket",
+            //   decoder.decode(audioArray).slice(0, 50)
+            // );
           }
         };
       }
