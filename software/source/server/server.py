@@ -227,15 +227,15 @@ async def listener(mobile: bool):
                 await asyncio.sleep(1)
 
             if mobile:
-                message = accumulator_mobile.accumulate(chunk, mobile)
+                message = accumulator_mobile.accumulate_mobile(chunk)
             else:
-                message = accumulator_global.accumulate(chunk, mobile)
+                message = accumulator_global.accumulate(chunk)
 
             if message == None:
                 # Will be None until we have a full message ready
                 continue
 
-            # print(str(message)[:1000])
+            print(str(message)[:1000])
 
             # At this point, we have our message
 
