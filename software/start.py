@@ -141,7 +141,7 @@ def _run(
     signal.signal(signal.SIGINT, handle_exit)
 
     if server:
-        print(f"Starting server with mobile = {mobile}")
+        # print(f"Starting server with mobile = {mobile}")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         server_thread = threading.Thread(
