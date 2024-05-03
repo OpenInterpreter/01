@@ -9,7 +9,6 @@ import {
 import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import { polyfill as polyfillEncoding } from "react-native-polyfill-globals/src/encoding";
-import { create } from "zustand";
 import { Animated } from "react-native";
 import useSoundEffect from "../utils/useSoundEffect";
 import RecordButton from "../utils/RecordButton";
@@ -23,27 +22,6 @@ interface MainProps {
   };
 }
 
-interface AudioQueueState {
-  audioQueue: string[]; // Define the audio queue type
-  addToQueue: (uri: string) => void; // Function to set audio queue
-}
-
-const useAudioQueueStore = create<AudioQueueState>((set) => ({
-  audioQueue: [], // initial state
-  addToQueue: (uri) =>
-    set((state) => ({ audioQueue: [...state.audioQueue, uri] })), // action to set audio queue
-}));
-
-interface SoundState {
-  sound: Audio.Sound | null; // Define the sound type
-  setSound: (newSound: Audio.Sound | null) => void; // Function to set sound
-}
-
-const useSoundStore = create<SoundState>((set) => ({
-  sound: null, // initial state
-  setSound: (newSound) => set({ sound: newSound }), // action to set sound
-}));
-
 const Main: React.FC<MainProps> = ({ route }) => {
   const { scannedData } = route.params;
   const [connectionStatus, setConnectionStatus] =
@@ -53,10 +31,8 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const [rescan, setRescan] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const addToQueue = useAudioQueueStore((state) => state.addToQueue);
-  const audioQueue = useAudioQueueStore((state) => state.audioQueue);
-  const setSound = useSoundStore((state) => state.setSound);
-  const sound = useSoundStore((state) => state.sound);
+  const audioQueueRef = useRef<String[]>([]);
+  const soundRef = useRef<Audio.Sound | null>(null);
   const [soundUriMap, setSoundUriMap] = useState<Map<Audio.Sound, string>>(
     new Map()
   );
@@ -76,6 +52,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
     inputRange: [0, 1],
     outputRange: ["white", "black"],
   });
+
   const constructTempFilePath = async (buffer: string) => {
     try {
       await dirExists();
@@ -112,37 +89,37 @@ const Main: React.FC<MainProps> = ({ route }) => {
   }
 
   const playNextAudio = useCallback(async () => {
-    if (audioQueue.length > 0 && sound == null) {
-      const uri = audioQueue.shift() as string;
+    if (audioQueueRef.current.length > 0 && soundRef.current == null) {
+      const uri = audioQueueRef.current.at(0) as string;
 
       try {
         const { sound: newSound } = await Audio.Sound.createAsync({ uri });
-        setSound(newSound);
+        soundRef.current = newSound;
         setSoundUriMap(new Map(soundUriMap.set(newSound, uri)));
         await newSound.playAsync();
         newSound.setOnPlaybackStatusUpdate(_onPlayBackStatusUpdate);
       } catch (error) {
         console.log("Error playing audio", error);
-        playNextAudio();
       }
     } else {
       // audioQueue is empty or sound is not null
       return;
     }
-  }, [audioQueue, sound, soundUriMap]);
+  },[]);
 
   const _onPlayBackStatusUpdate = useCallback(
     async (status: any) => {
       if (status.didJustFinish) {
-        await sound?.unloadAsync();
-        soundUriMap.delete(sound);
-        setSoundUriMap(new Map(soundUriMap));
-        setSound(null);
+        audioQueueRef.current.shift();
+        await soundRef.current?.unloadAsync();
+        if (soundRef.current) {
+          soundUriMap.delete(soundRef.current);
+          setSoundUriMap(new Map(soundUriMap));
+        }
+        soundRef.current = null;
         playNextAudio();
       }
-    },
-    [sound, soundUriMap, playNextAudio]
-  );
+    },[]);
 
   useEffect(() => {
     const backAction = () => {
@@ -158,14 +135,6 @@ const Main: React.FC<MainProps> = ({ route }) => {
 
     return () => backHandler.remove();
   }, [navigation]);
-
-  useEffect(() => {
-    if (audioQueue.length > 0 && !sound) {
-      playNextAudio();
-    }
-  }, [audioQueue, sound, playNextAudio]);
-
-  useEffect(() => {}, [sound]);
 
   useEffect(() => {
     let websocket: WebSocket;
@@ -188,7 +157,11 @@ const Main: React.FC<MainProps> = ({ route }) => {
             if (buffer && buffer.length > 0) {
               const filePath = await constructTempFilePath(buffer);
               if (filePath !== null) {
-                addToQueue(filePath);
+                audioQueueRef.current.push(filePath);
+
+                if (audioQueueRef.current.length == 1) {
+                  playNextAudio();
+                }
               } else {
                 console.error("Failed to create file path");
               }
