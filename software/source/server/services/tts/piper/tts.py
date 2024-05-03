@@ -12,7 +12,7 @@ class Tts:
         self.piper_directory = ""
         self.install(config["service_directory"])
 
-    def tts(self, text):
+    def tts(self, text, mobile):
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
             output_file = temp_file.name
             piper_dir = self.piper_directory
@@ -34,10 +34,16 @@ class Tts:
             )
 
             # TODO: hack to format audio correctly for device
-            outfile = tempfile.gettempdir() + "/" + "raw.dat"
-            ffmpeg.input(temp_file.name).output(
-                outfile, f="s16le", ar="16000", ac="1", loglevel="panic"
-            ).run()
+            if mobile:
+                outfile = tempfile.gettempdir() + "/" + "output.wav"
+                ffmpeg.input(temp_file.name).output(
+                    outfile, f="wav", ar="16000", ac="1", loglevel="panic"
+                ).run()
+            else:
+                outfile = tempfile.gettempdir() + "/" + "raw.dat"
+                ffmpeg.input(temp_file.name).output(
+                    outfile, f="s16le", ar="16000", ac="1", loglevel="panic"
+                ).run()
 
             return outfile
 
