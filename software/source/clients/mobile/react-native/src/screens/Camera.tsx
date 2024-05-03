@@ -3,9 +3,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Camera } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
 import { BarCodeScanner } from "expo-barcode-scanner";
+// import useSoundEffect from "../lib/useSoundEffect";
 
 export default function CameraScreen() {
   const [permission, requestPermission] = Camera.useCameraPermissions();
+  // const playYay = useSoundEffect(require("../../assets/yay.wav"));
 
   const [scanned, setScanned] = useState(false);
   const navigation = useNavigation();
@@ -31,18 +33,20 @@ export default function CameraScreen() {
   //   setFacing((current) => (current === "back" ? "front" : "back"));
   // }
 
-  const handleBarCodeScanned = ({
+  const handleBarCodeScanned = async ({
     type,
     data,
   }: {
     type: string;
     data: string;
   }) => {
+    // await playYay();
     setScanned(true);
     console.log(
       `Bar code with type ${type} and data ${data} has been scanned!`
     );
-    alert(`Scanned URL: ${data}`);
+    // alert(`Scanned URL: ${data}`);
+
     navigation.navigate("Main", { scannedData: data });
   };
   return (
@@ -64,7 +68,9 @@ export default function CameraScreen() {
               onPress={() => setScanned(false)}
               style={styles.button}
             >
-              <Text style={styles.text}>Scan Again</Text>
+              <Text numberOfLines={1} style={styles.text}>
+                Scan Again
+              </Text>
             </TouchableOpacity>
           )}
         </View>
@@ -78,6 +84,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     justifyContent: "flex-end",
+    position: "relative",
   },
   camera: {
     flex: 1,
@@ -85,18 +92,22 @@ const styles = StyleSheet.create({
   buttonContainer: {
     backgroundColor: "transparent",
     flexDirection: "row",
-    margin: 20,
+    margin: 2,
   },
   button: {
+    position: "absolute",
+    top: 44,
+    left: 4,
     flex: 0.1,
     alignSelf: "flex-end",
     alignItems: "center",
     backgroundColor: "#000",
     borderRadius: 10,
-    padding: 15,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
   text: {
-    fontSize: 18,
+    fontSize: 14,
     color: "white",
   },
 });

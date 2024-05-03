@@ -36,7 +36,7 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
     output_path = os.path.join(
         temp_dir, f"output_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav"
     )
-    print(mime_type, input_path, output_path)
+    # print(mime_type, input_path, output_path)
     if mime_type == "audio/raw":
         ffmpeg.input(
             input_path,

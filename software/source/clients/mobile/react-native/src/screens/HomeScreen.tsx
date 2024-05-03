@@ -7,7 +7,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.circle} />
+      {/* <View style={styles.circle} /> */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate("Camera")}
@@ -23,23 +23,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
   },
   circle: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "black",
+    backgroundColor: "#fff",
     marginBottom: 20,
   },
   button: {
-    backgroundColor: "black",
+    backgroundColor: "#fff",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
   },
   buttonText: {
-    color: "white",
+    color: "#000",
     fontSize: 16,
   },
 });

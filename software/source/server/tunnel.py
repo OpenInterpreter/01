@@ -100,7 +100,7 @@ def create_tunnel(
         # If ngrok is installed, start it on the specified port
         # process = subprocess.Popen(f'ngrok http {server_port} --log=stdout', shell=True, stdout=subprocess.PIPE)
         process = subprocess.Popen(
-            f"ngrok http {server_port} --scheme http,https --domain=marten-advanced-dragon.ngrok-free.app --log=stdout",
+            f"ngrok http {server_port} --scheme http,https  --log=stdout",
             shell=True,
             stdout=subprocess.PIPE,
         )
