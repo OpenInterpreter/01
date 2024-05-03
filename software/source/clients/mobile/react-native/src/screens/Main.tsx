@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   BackHandler,
+  ScrollView,
 } from "react-native";
 import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
@@ -52,6 +53,8 @@ const Main: React.FC<MainProps> = ({ route }) => {
     inputRange: [0, 1],
     outputRange: ["white", "black"],
   });
+  const [accumulatedMessage, setAccumulatedMessage] = useState<string>("");
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const constructTempFilePath = async (buffer: string) => {
     try {
@@ -151,6 +154,10 @@ const Main: React.FC<MainProps> = ({ route }) => {
       websocket.onmessage = async (e) => {
         try {
           const message = JSON.parse(e.data);
+          if (message.content && message.type == "message" && message.role == "assistant"){
+            setAccumulatedMessage((prevMessage) => prevMessage + message.content);
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+          }
 
           if (message.content && message.type == "audio") {
             const buffer = message.content;
@@ -198,7 +205,18 @@ const Main: React.FC<MainProps> = ({ route }) => {
 
   return (
     <Animated.View style={[styles.container, { backgroundColor }]}>
-      <View style={styles.middle}>
+      <View style={{flex: 6, alignItems: "center", justifyContent: "center",}}>
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollViewContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.accumulatedMessage}>
+            {accumulatedMessage}
+          </Text>
+        </ScrollView>
+      </View>
+      <View style={{flex: 2, justifyContent: "center", alignItems: "center",}}>
         <RecordButton
           playPip={playPip}
           playPop={playPop}
@@ -211,6 +229,8 @@ const Main: React.FC<MainProps> = ({ route }) => {
           buttonBackgroundColor={buttonBackgroundColor}
           setIsPressed={setIsPressed}
         />
+      </View>
+      <View style={{flex: 1}}>
         <TouchableOpacity
           style={styles.statusButton}
           onPress={() => {
@@ -238,39 +258,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: "relative",
   },
-  middle: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
-    position: "relative",
-  },
-  circle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  qr: {
-    position: "absolute",
-    top: 30,
-    left: 10,
-    padding: 10,
-    zIndex: 100,
-  },
-  icon: {
-    height: 40,
-    width: 40,
-  },
-  topBar: {
-    height: 40,
-    backgroundColor: "#000",
-    paddingTop: 50,
-  },
-
   statusText: {
     fontSize: 12,
     fontWeight: "bold",
@@ -279,6 +267,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     alignSelf: "center",
+  },
+  accumulatedMessage: {
+    margin: 20,
+    fontSize: 16,
+    textAlign: "left",
+    color: "white",
+    paddingBottom: 30,
+  },
+  scrollViewContent: {
+    padding: 25,
+    width: "90%",
+    maxHeight: "80%",
+    borderWidth: 5,
+    borderColor: "white",
+    borderRadius: 10,
   },
 });
 
