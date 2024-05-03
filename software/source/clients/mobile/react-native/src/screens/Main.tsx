@@ -270,10 +270,11 @@ const styles = StyleSheet.create({
   },
   accumulatedMessage: {
     margin: 20,
-    fontSize: 16,
+    fontSize: 15,
     textAlign: "left",
     color: "white",
     paddingBottom: 30,
+    fontFamily: "monospace",
   },
   scrollViewContent: {
     padding: 25,
