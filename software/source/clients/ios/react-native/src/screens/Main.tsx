@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  BackHandler,
+} from "react-native";
 import * as FileSystem from "expo-file-system";
-import { AVPlaybackStatus, AVPlaybackStatusSuccess, Audio } from "expo-av";
+import { Audio } from "expo-av";
 import { polyfill as polyfillEncoding } from "react-native-polyfill-globals/src/encoding";
 import { create } from "zustand";
-import useStore from "../utils/state";
 import { Animated } from "react-native";
-import * as Haptics from "expo-haptics";
 import useSoundEffect from "../utils/useSoundEffect";
 import RecordButton from "../utils/RecordButton";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/core";
 
 interface MainProps {
   route: {
@@ -45,6 +49,8 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const [connectionStatus, setConnectionStatus] =
     useState<string>("Connecting...");
   const [ws, setWs] = useState<WebSocket | null>(null);
+  const [wsUrl, setWsUrl] = useState("");
+  const [rescan, setRescan] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const addToQueue = useAudioQueueStore((state) => state.addToQueue);
@@ -64,13 +70,12 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const navigation = useNavigation();
   const backgroundColor = backgroundColorAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ["black", "white"], // Change as needed
+    outputRange: ["black", "white"],
   });
   const buttonBackgroundColor = backgroundColorAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ["white", "black"], // Inverse of the container
+    outputRange: ["white", "black"],
   });
-
   const constructTempFilePath = async (buffer: string) => {
     try {
       await dirExists();
@@ -107,13 +112,8 @@ const Main: React.FC<MainProps> = ({ route }) => {
   }
 
   const playNextAudio = useCallback(async () => {
-    // console.log(
-    //  `in playNextAudio audioQueue is ${audioQueue.length} and sound is ${sound}`
-    //);
-
     if (audioQueue.length > 0 && sound == null) {
       const uri = audioQueue.shift() as string;
-      // console.log("load audio from", uri);
 
       try {
         const { sound: newSound } = await Audio.Sound.createAsync({ uri });
@@ -126,7 +126,7 @@ const Main: React.FC<MainProps> = ({ route }) => {
         playNextAudio();
       }
     } else {
-      // console.log("audioQueue is empty or sound is not null");
+      // audioQueue is empty or sound is not null
       return;
     }
   }, [audioQueue, sound, soundUriMap]);
@@ -145,6 +145,21 @@ const Main: React.FC<MainProps> = ({ route }) => {
   );
 
   useEffect(() => {
+    const backAction = () => {
+      navigation.navigate("Home"); // Always navigate back to Home
+      return true; // Prevent default action
+    };
+
+    // Add event listener for hardware back button on Android
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
+
+  useEffect(() => {
     if (audioQueue.length > 0 && !sound) {
       playNextAudio();
     }
@@ -155,14 +170,13 @@ const Main: React.FC<MainProps> = ({ route }) => {
   useEffect(() => {
     let websocket: WebSocket;
     try {
-      console.log("Connecting to WebSocket at " + scannedData);
+      // console.log("Connecting to WebSocket at " + scannedData);
+      setWsUrl(scannedData);
       websocket = new WebSocket(scannedData);
       websocket.binaryType = "blob";
 
       websocket.onopen = () => {
         setConnectionStatus(`Connected`);
-        // setConnectionStatus(`Connected to ${scannedData}`);
-        console.log("WebSocket connected");
       };
 
       websocket.onmessage = async (e) => {
@@ -170,15 +184,11 @@ const Main: React.FC<MainProps> = ({ route }) => {
           const message = JSON.parse(e.data);
 
           if (message.content && message.type == "audio") {
-            console.log("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ Audio message");
-
             const buffer = message.content;
-            // console.log(buffer.length);
             if (buffer && buffer.length > 0) {
               const filePath = await constructTempFilePath(buffer);
               if (filePath !== null) {
                 addToQueue(filePath);
-                // console.log("audio file written to", filePath);
               } else {
                 console.error("Failed to create file path");
               }
@@ -198,7 +208,6 @@ const Main: React.FC<MainProps> = ({ route }) => {
 
       websocket.onclose = () => {
         setConnectionStatus("Disconnected.");
-        console.log("WebSocket disconnected");
       };
 
       setWs(websocket);
@@ -212,170 +221,41 @@ const Main: React.FC<MainProps> = ({ route }) => {
         websocket.close();
       }
     };
-  }, [scannedData]);
-
-  useEffect(() => {
-    console.log("Permission Response:", permissionResponse);
-    if (permissionResponse?.status !== "granted") {
-      console.log("Requesting permission..");
-      requestPermission();
-    }
-  }, []);
-
-  const startRecording = useCallback(async () => {
-    if (recording) {
-      console.log("A recording is already in progress.");
-      return;
-    }
-
-    try {
-      console.log("🌶️🌶️🌶️🌶️🌶️🌶️🌶️🌶️🌶️🌶️");
-
-      console.log(permissionResponse);
-
-      if (
-        permissionResponse !== null &&
-        permissionResponse.status !== `granted`
-      ) {
-        console.log("Requesting permission..");
-        await requestPermission();
-      }
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      console.log("Starting recording..");
-      const newRecording = new Audio.Recording();
-      await newRecording.prepareToRecordAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      await newRecording.startAsync();
-
-      setRecording(newRecording);
-    } catch (err) {
-      console.error("Failed to start recording", err);
-    }
-  }, []);
-
-  const stopRecording = useCallback(async () => {
-    console.log("Stopping recording..");
-
-    if (recording) {
-      await recording.stopAndUnloadAsync();
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-      });
-      const uri = recording.getURI();
-      // console.log("recording uri at ", uri);
-      setRecording(null);
-
-      if (ws && uri) {
-        const response = await fetch(uri);
-        // console.log("fetched audio file", response);
-        const blob = await response.blob();
-
-        const reader = new FileReader();
-        reader.readAsArrayBuffer(blob);
-        reader.onloadend = () => {
-          const audioBytes = reader.result;
-          if (audioBytes) {
-            ws.send(audioBytes);
-            const audioArray = new Uint8Array(audioBytes as ArrayBuffer);
-            const decoder = new TextDecoder("utf-8");
-            // console.log(
-            //   "sent audio bytes to WebSocket",
-            //   decoder.decode(audioArray).slice(0, 50)
-            // );
-          }
-        };
-      }
-    }
-  }, [recording]);
-
-  const toggleRecording = (shouldPress: boolean) => {
-    Animated.timing(backgroundColorAnim, {
-      toValue: shouldPress ? 1 : 0,
-      duration: 400,
-      useNativeDriver: false, // 'backgroundColor' does not support native driver
-    }).start();
-    Animated.timing(buttonBackgroundColorAnim, {
-      toValue: shouldPress ? 1 : 0,
-      duration: 400,
-      useNativeDriver: false, // 'backgroundColor' does not support native driver
-    }).start();
-  };
-
-  useEffect(() => {
-    const backAction = () => {
-      navigation.navigate('Home');  // Always navigate back to Home
-      return true;  // Prevent default action
-    };
-
-    // Add event listener for hardware back button on Android
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
-    return () => backHandler.remove();
-  }, [navigation]);
-
+  }, [scannedData, rescan]);
 
   return (
     <Animated.View style={[styles.container, { backgroundColor }]}>
-      {/* <TouchableOpacity
-        onPress={() => {
-          console.log("hi!");
-
-          navigation.navigate("Camera");
-        }}
-      >
-        <Animated.View style={styles.qr}>
-          <Image source={IconImage} style={styles.icon} />
-        </Animated.View>
-      </TouchableOpacity> */}
-      {/* <View style={styles.topBar}></View> */}
       <View style={styles.middle}>
-        <Text
-          style={[
-            styles.statusText,
-            {
-              color: connectionStatus.startsWith("Connected") ? "green" : "red",
-            },
-          ]}
-        >
-          {connectionStatus}
-        </Text>
+        <RecordButton
+          playPip={playPip}
+          playPop={playPop}
+          recording={recording}
+          setRecording={setRecording}
+          ws={ws}
+          backgroundColorAnim={backgroundColorAnim}
+          buttonBackgroundColorAnim={buttonBackgroundColorAnim}
+          backgroundColor={backgroundColor}
+          buttonBackgroundColor={buttonBackgroundColor}
+          setIsPressed={setIsPressed}
+        />
         <TouchableOpacity
-          style={styles.button}
-          onPressIn={() => {
-            playPip();
-            setIsPressed(true);
-            toggleRecording(true); // Pass true when pressed
-            startRecording();
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          }}
-          onPressOut={() => {
-            playPop();
-            setIsPressed(false);
-            toggleRecording(false); // Pass false when released
-            stopRecording();
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          style={styles.statusButton}
+          onPress={() => {
+            setRescan(!rescan);
           }}
         >
-          <Animated.View
-            style={[styles.circle, { backgroundColor: buttonBackgroundColor }]}
+          <Text
+            style={[
+              styles.statusText,
+              {
+                color: connectionStatus.startsWith("Connected")
+                  ? "green"
+                  : "red",
+              },
+            ]}
           >
-            {/* <Text
-              style={
-                recording ? styles.buttonTextRecording : styles.buttonTextDefault
-              }
-            >
-              Record
-            </Text> */}
-          </Animated.View>
+            {connectionStatus}
+          </Text>
         </TouchableOpacity>
       </View>
     </Animated.View>
@@ -418,27 +298,14 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
 
-  button: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonTextDefault: {
-    color: "black",
-    fontSize: 16,
-  },
-  buttonTextRecording: {
-    color: "white",
-    fontSize: 16,
-  },
   statusText: {
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  statusButton: {
     position: "absolute",
     bottom: 20,
     alignSelf: "center",
-    fontSize: 12,
-    fontWeight: "bold",
   },
 });
 

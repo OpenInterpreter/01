@@ -1,20 +1,11 @@
 import { useEffect, useState } from "react";
-import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
+import { Audio } from "expo-av";
 
-const useSoundEffect = (soundFile) => {
-  const [sound, setSound] = useState(null); // Explicitly set initial state to null
+const useSoundEffect = (soundFile: any) => {
+  const [sound, setSound] = useState<Audio.Sound | null>(null); // Explicitly set initial state to null
 
   useEffect(() => {
     const loadSound = async () => {
-      //   await Audio.setAudioModeAsync({
-      //     staysActiveInBackground: true,
-      //     shouldDuckAndroid: true,
-      //     playThroughEarpieceAndroid: false,
-      //     interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-      //     interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-      //     allowsRecordingIOS: false,
-      //     playsInSilentModeIOS: true,
-      //   });
       const { sound: newSound } = await Audio.Sound.createAsync(soundFile);
       setSound(newSound);
     };
