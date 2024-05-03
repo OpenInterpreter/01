@@ -23,6 +23,7 @@ In **Expo Go** select _Scan QR code_ to scan the QR code produced by the `npx ex
 ## Using the App
 
 ```shell
+cd software                             # cd into `software`
 poetry run 01 --mobile                  # exposes QR code for 01 Light server
 ```
 
