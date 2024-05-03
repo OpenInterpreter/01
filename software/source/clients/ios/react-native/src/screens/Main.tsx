@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, BackHandler, Image } from "react-native";
 import * as FileSystem from "expo-file-system";
 import { AVPlaybackStatus, AVPlaybackStatusSuccess, Audio } from "expo-av";
 import { polyfill as polyfillEncoding } from "react-native-polyfill-globals/src/encoding";
@@ -306,6 +306,23 @@ const Main: React.FC<MainProps> = ({ route }) => {
       useNativeDriver: false, // 'backgroundColor' does not support native driver
     }).start();
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.navigate('Home');  // Always navigate back to Home
+      return true;  // Prevent default action
+    };
+
+    // Add event listener for hardware back button on Android
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
+
+
   return (
     <Animated.View style={[styles.container, { backgroundColor }]}>
       {/* <TouchableOpacity
@@ -331,16 +348,6 @@ const Main: React.FC<MainProps> = ({ route }) => {
         >
           {connectionStatus}
         </Text>
-        <RecordButton
-          playPip={playPip}
-          playPop={playPop}
-          recording={recording}
-          setRecording={setRecording}
-          ws={ws}
-          backgroundColorAnim={backgroundColorAnim}
-          buttonBackgroundColorAnim={buttonBackgroundColorAnim}
-          setIsPressed={setIsPressed}
-        />
         <TouchableOpacity
           style={styles.button}
           onPressIn={() => {
