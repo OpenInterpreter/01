@@ -8,6 +8,13 @@
     <br><a href="https://openinterpreter.com/01">Preorder the Light</a>‎ ‎ |‎ ‎ <a href="https://changes.openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">Documentation</a><br>
 </p>
 
+<div align="center">
+
+ | [日本語](docs/README_JP.md) | [English](README.md) |
+
+</div>
+
+
 <br>
 
 ![OI-O1-BannerDemo-2](https://www.openinterpreter.com/OI-O1-BannerDemo-3.jpg)
@@ -19,7 +26,7 @@ We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typef
 > [!IMPORTANT]
 > This experimental project is under rapid development and lacks basic safeguards. Until a stable `1.0` release, only run this repository on devices without sensitive information or access to paid services.
 >
-> **A substantial rewrite to address these concerns and more is occurring [here](https://github.com/KillianLucas/01-rewrite/tree/main).**
+> **A substantial rewrite to address these concerns and more, including the addition of [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) and [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT), is occurring [here](https://github.com/KillianLucas/01-rewrite/tree/main).**
 
 <br>
 
@@ -50,6 +57,8 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 <!-- > For a Windows installation, read our [setup guide](https://docs.openinterpreter.com/getting-started/setup#windows). -->
 
 <br>
+
+**The [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) and [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT) libraries in the incoming 01-rewrite are thanks to the state-of-the-art voice interface work of [Kolja Beigel](https://github.com/KoljaB). Please star those repos and consider contributing to / utilizing those projects!**
 
 # Hardware
 

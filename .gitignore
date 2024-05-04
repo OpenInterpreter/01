@@ -169,3 +169,7 @@ cython_debug/
 _.aifs
 software/output_audio.wav
 .DS_Store
+
+# ignore node modules and .expo files
+node_modules/
+.expo/

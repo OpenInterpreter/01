@@ -25,7 +25,7 @@ class Tts:
     def __init__(self, config):
         pass
 
-    def tts(self, text):
+    def tts(self, text, mobile):
         response = client.audio.speech.create(
             model="tts-1",
             voice=os.getenv("OPENAI_VOICE_NAME", "alloy"),
@@ -36,9 +36,15 @@ class Tts:
             response.stream_to_file(temp_file.name)
 
             # TODO: hack to format audio correctly for device
-            outfile = tempfile.gettempdir() + "/" + "raw.dat"
-            ffmpeg.input(temp_file.name).output(
-                outfile, f="s16le", ar="16000", ac="1", loglevel="panic"
-            ).run()
+            if mobile:
+                outfile = tempfile.gettempdir() + "/" + "output.wav"
+                ffmpeg.input(temp_file.name).output(
+                    outfile, f="wav", ar="16000", ac="1", loglevel="panic"
+                ).run()
+            else:
+                outfile = tempfile.gettempdir() + "/" + "raw.dat"
+                ffmpeg.input(temp_file.name).output(
+                    outfile, f="s16le", ar="16000", ac="1", loglevel="panic"
+                ).run()
 
             return outfile

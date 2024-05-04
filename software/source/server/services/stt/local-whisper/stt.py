@@ -125,7 +125,7 @@ def export_audio_to_wav_ffmpeg(audio: bytearray, mime_type: str) -> str:
 
 def run_command(command):
     result = subprocess.run(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True
     )
     return result.stdout, result.stderr
 
@@ -156,7 +156,7 @@ def stt_wav(service_directory, wav_file_path: str):
         temp_dir, f"output_stt_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.wav"
     )
     ffmpeg.input(wav_file_path).output(
-        output_path, acodec="pcm_s16le", ac=1, ar="16k"
+        output_path, acodec="pcm_s16le", ac=1, ar="16k", loglevel="panic"
     ).run()
     try:
         transcript = get_transcription_file(service_directory, output_path)
