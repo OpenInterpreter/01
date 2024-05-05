@@ -382,7 +382,7 @@ class Device:
         else:
             while True:
                 try:
-                    async with websockets.connect(WS_URL) as websocket:
+                    async with websockets.connect(WS_URL, ping_timeout=None) as websocket:
                         await exec_ws_communication(websocket)
                 except:
                     logger.debug(traceback.format_exc())
