@@ -5,11 +5,16 @@ load_dotenv()  # take environment variables from .env.
 import asyncio
 import subprocess
 import platform
+import os
+import shutil
 
 from .logs import setup_logging
 from .logs import logger
 
 setup_logging()
+
+# dmesg process created at boot time
+dmesg_proc = None
 
 
 def get_kernel_messages():
@@ -25,10 +30,35 @@ def get_kernel_messages():
         output, _ = process.communicate()
         return output.decode("utf-8")
     elif current_platform == "Linux":
-        with open("/var/log/dmesg", "r") as file:
+        log_path = get_dmesg_log_path()
+        with open(log_path, 'r') as file:
             return file.read()
     else:
         logger.info("Unsupported platform.")
+
+
+def get_dmesg_log_path():
+    """
+    Check for the existence of a readable dmesg log file and return its path.
+    Create an accessible path if not found.
+    """
+    if os.access('/var/log/dmesg', os.F_OK | os.R_OK):
+        return '/var/log/dmesg'
+
+    global dmesg_proc
+    dmesg_log_path = '/tmp/dmesg'
+    if dmesg_proc:
+        return dmesg_log_path
+
+    logger.info("Created /tmp/dmesg.")
+    subprocess.run(['touch', dmesg_log_path])
+    dmesg_path = shutil.which('dmesg')
+    if dmesg_path:
+        logger.info(f"Writing to {dmesg_log_path} from dmesg.")
+        dmesg_proc = subprocess.Popen([dmesg_path, '--follow'], text=True, stdout=subprocess.PIPE)
+        subprocess.Popen(['tee', dmesg_log_path], text=True, stdin=dmesg_proc.stdout, stdout=subprocess.DEVNULL)
+    
+    return dmesg_log_path
 
 
 def custom_filter(message):
