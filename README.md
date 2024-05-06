@@ -10,7 +10,7 @@
 
 <div align="center">
 
- | [日本語](docs/README_JP.md) | [English](README.md) |
+ | [中文版](docs/README_CN.md) | [日本語](docs/README_JP.md) | [English](README.md) |
 
 </div>
 
