@@ -56,6 +56,27 @@ const Main: React.FC<MainProps> = ({ route }) => {
   const [accumulatedMessage, setAccumulatedMessage] = useState<string>("");
   const scrollViewRef = useRef<ScrollView>(null);
 
+  /**
+   * Checks if audioDir exists in device storage, if not creates it.
+   */
+  async function dirExists() {
+    try {
+      const dirInfo = await FileSystem.getInfoAsync(audioDir);
+      if (!dirInfo.exists) {
+        console.error("audio directory doesn't exist, creating...");
+        await FileSystem.makeDirectoryAsync(audioDir, { intermediates: true });
+      }
+    } catch (error) {
+      console.error("Error checking or creating directory:", error);
+    }
+  }
+
+  /**
+   * Writes the buffer to a temp file in audioDir in base64 encoding.
+   *
+   * @param {string} buffer
+   * @returns tempFilePath or null
+   */
   const constructTempFilePath = async (buffer: string) => {
     try {
       await dirExists();
@@ -76,21 +97,10 @@ const Main: React.FC<MainProps> = ({ route }) => {
     }
   };
 
-  async function dirExists() {
-    /**
-     * Checks if audio directory exists in device storage, if not creates it.
-     */
-    try {
-      const dirInfo = await FileSystem.getInfoAsync(audioDir);
-      if (!dirInfo.exists) {
-        console.error("audio directory doesn't exist, creating...");
-        await FileSystem.makeDirectoryAsync(audioDir, { intermediates: true });
-      }
-    } catch (error) {
-      console.error("Error checking or creating directory:", error);
-    }
-  }
-
+  /**
+   * Plays the next audio in audioQueue if the queue is not empty
+   * and there is no currently playing audio.
+   */
   const playNextAudio = useCallback(async () => {
     if (audioQueueRef.current.length > 0 && soundRef.current == null) {
       const uri = audioQueueRef.current.at(0) as string;
@@ -110,6 +120,11 @@ const Main: React.FC<MainProps> = ({ route }) => {
     }
   },[]);
 
+  /**
+   * Queries the currently playing Expo Audio.Sound object soundRef
+   * for playback status. When the status denotes soundRef has finished
+   * playback, we unload the sound and call playNextAudio().
+   */
   const _onPlayBackStatusUpdate = useCallback(
     async (status: any) => {
       if (status.didJustFinish) {
@@ -124,6 +139,9 @@ const Main: React.FC<MainProps> = ({ route }) => {
       }
     },[]);
 
+  /**
+   * Single swipe to return to the Home screen from the Main page.
+   */
   useEffect(() => {
     const backAction = () => {
       navigation.navigate("Home"); // Always navigate back to Home
@@ -139,6 +157,9 @@ const Main: React.FC<MainProps> = ({ route }) => {
     return () => backHandler.remove();
   }, [navigation]);
 
+  /**
+   * Handles all WebSocket events
+   */
   useEffect(() => {
     let websocket: WebSocket;
     try {
