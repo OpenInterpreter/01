@@ -5,7 +5,7 @@ import threading
 import os
 import importlib
 from source.server.tunnel import create_tunnel
-from source.server.server import main
+from source.server.ai_server import main
 from source.server.utils.local_mode import select_local_model
 
 import signal
@@ -22,7 +22,7 @@ def run(
         help="Specify the server host where the server will deploy",
     ),
     server_port: int = typer.Option(
-        10001,
+        8000,
         "--server-port",
         help="Specify the server port where the server will deploy",
     ),
@@ -103,7 +103,7 @@ def run(
 def _run(
     server: bool = False,
     server_host: str = "0.0.0.0",
-    server_port: int = 10001,
+    server_port: int = 8000,
     tunnel_service: str = "bore",
     expose: bool = False,
     client: bool = False,
@@ -127,7 +127,7 @@ def _run(
         # llm_service = "llamafile"
         stt_service = "local-whisper"
         select_local_model()
-        
+
     system_type = platform.system()
     if system_type == "Windows":
         server_host = "localhost"
@@ -138,8 +138,6 @@ def _run(
     if not server and not client:
         server = True
         client = True
-        
-    
 
     def handle_exit(signum, frame):
         os._exit(0)
@@ -154,18 +152,18 @@ def _run(
             target=loop.run_until_complete,
             args=(
                 main(
-                    server_host,
-                    server_port,
-                    llm_service,
-                    model,
-                    llm_supports_vision,
-                    llm_supports_functions,
-                    context_window,
-                    max_tokens,
-                    temperature,
-                    tts_service,
-                    stt_service,
-                    mobile,
+                    # server_host,
+                    # server_port,
+                    # llm_service,
+                    # model,
+                    # llm_supports_vision,
+                    # llm_supports_functions,
+                    # context_window,
+                    # max_tokens,
+                    # temperature,
+                    # tts_service,
+                    # stt_service,
+                    # mobile,
                 ),
             ),
         )
@@ -182,6 +180,7 @@ def _run(
             system_type = platform.system()
             if system_type == "Darwin":  # Mac OS
                 client_type = "mac"
+                print("initiating mac device with base device!!!")
             elif system_type == "Windows":  # Windows System
                 client_type = "windows"
             elif system_type == "Linux":  # Linux System
@@ -197,7 +196,9 @@ def _run(
         module = importlib.import_module(
             f".clients.{client_type}.device", package="source"
         )
+        server_url = "0.0.0.0:8000"
         client_thread = threading.Thread(target=module.main, args=[server_url])
+        print("client thread started")
         client_thread.start()
 
     try:
