@@ -89,6 +89,7 @@ class Device:
         self.audiosegments = []
         self.server_url = ""
         self.ctrl_pressed = False
+        # self.latency = None
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
         """Captures an image from the specified camera device and saves it to a temporary file. Adds the image to the captured_images list."""
@@ -153,6 +154,10 @@ class Device:
         while True:
             try:
                 for audio in self.audiosegments:
+                    # if self.latency:
+                    #    elapsed_time = time.time() - self.latency
+                    #    print(f"Time from request to playback: {elapsed_time} seconds")
+                    #    self.latency = None
                     play(audio)
                     self.audiosegments.remove(audio)
                 await asyncio.sleep(0.1)
@@ -203,6 +208,7 @@ class Device:
         stream.stop_stream()
         stream.close()
         print("Recording stopped.")
+        # self.latency = time.time()
 
         duration = wav_file.getnframes() / RATE
         if duration < 0.3:
@@ -340,8 +346,8 @@ class Device:
                 await asyncio.sleep(0.01)
                 chunk = await websocket.recv()
 
-                # logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
-                print((f"Got this message from the server: {type(chunk)} {chunk}"))
+                logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
+                # print((f"Got this message from the server: {type(chunk)} {chunk}"))
                 if type(chunk) == str:
                     chunk = json.loads(chunk)
 
@@ -404,7 +410,7 @@ class Device:
     async def start_async(self):
         print("start async was called!!!!!")
         # Configuration for WebSocket
-        WS_URL = f"ws://{self.server_url}/ws"
+        WS_URL = f"ws://{self.server_url}"
         # Start the WebSocket communication
         asyncio.create_task(self.websocket_communication(WS_URL))
 

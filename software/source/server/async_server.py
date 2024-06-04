@@ -57,9 +57,9 @@ async def main():
                         await interpreter.input(data)
                     elif "bytes" in data:
                         await interpreter.input(data["bytes"])
-                        print("SERVER FEEDING AUDIO")
+                        # print("SERVER FEEDING AUDIO")
                     elif "text" in data:
-                        print("RECEIVED INPUT", data)
+                        # print("RECEIVED INPUT", data)
                         await interpreter.input(data["text"])
 
             async def send_output():

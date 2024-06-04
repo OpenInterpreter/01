@@ -24,7 +24,9 @@ class AsyncInterpreter:
         self.interpreter = interpreter
 
         # STT
-        self.stt = AudioToTextRecorder(use_microphone=False)
+        self.stt = AudioToTextRecorder(
+            model="tiny", spinner=False, use_microphone=False
+        )
         self.stt.stop()  # It needs this for some reason
 
         # TTS
@@ -64,7 +66,7 @@ class AsyncInterpreter:
         if isinstance(chunk, bytes):
             # It's probably a chunk of audio
             self.stt.feed_audio(chunk)
-            print("INTERPRETER FEEDING AUDIO")
+            # print("INTERPRETER FEEDING AUDIO")
 
         else:
 
@@ -88,7 +90,7 @@ class AsyncInterpreter:
         """
         Synchronous function to add a chunk to the output queue.
         """
-        print("ADDING TO QUEUE:", chunk)
+        # print("ADDING TO QUEUE:", chunk)
         asyncio.create_task(self._add_to_queue(self._output_queue, chunk))
 
     async def run(self):
@@ -108,21 +110,18 @@ class AsyncInterpreter:
         while not self._input_queue.empty():
             input_queue.append(self._input_queue.get())
 
-        print("INPUT QUEUE:", input_queue)
+        # print("INPUT QUEUE:", input_queue)
         # message = [i for i in input_queue if i["type"] == "message"][0]["content"]
-        # message = self.stt.text()
+        message = self.stt.text()
 
-        message = "hello"
-        print(message)
+        # print(message)
 
         # print(message)
         def generate(message):
             last_lmc_start_flag = self._last_lmc_start_flag
             self.interpreter.messages = self.active_chat_messages
-            print(
-                "🍀🍀🍀🍀GENERATING, using these messages: ", self.interpreter.messages
-            )
-            print("🍀   🍀   🍀   🍀 active_chat_messages: ", self.active_chat_messages)
+            # print("🍀🍀🍀🍀GENERATING, using these messages: ", self.interpreter.messages)
+            # print("🍀   🍀   🍀   🍀 active_chat_messages: ", self.active_chat_messages)
             print("message is", message)
 
             for chunk in self.interpreter.chat(message, display=True, stream=True):
@@ -188,7 +187,7 @@ class AsyncInterpreter:
             await asyncio.sleep(0.1)
         while True:
             await asyncio.sleep(0.1)
-            print("is_playing", self.tts.is_playing())
+            # print("is_playing", self.tts.is_playing())
             if not self.tts.is_playing():
                 self.add_to_output_queue_sync(
                     {
@@ -201,7 +200,7 @@ class AsyncInterpreter:
                 break
 
     async def _on_tts_chunk_async(self, chunk):
-        print("SENDING TTS CHUNK")
+        # print("SENDING TTS CHUNK")
         await self._add_to_queue(self._output_queue, chunk)
 
     def on_tts_chunk(self, chunk):
