@@ -12,6 +12,18 @@ from pydantic import BaseModel
 import argparse
 import os
 
+# import sentry_sdk
+
+base_interpreter.system_message = (
+    "You are a helpful assistant that can answer questions and help with tasks."
+)
+base_interpreter.computer.import_computer_api = False
+base_interpreter.llm.model = "groq/mixtral-8x7b-32768"
+base_interpreter.llm.api_key = (
+    "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"
+)
+base_interpreter.llm.supports_functions = False
+
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
 
@@ -20,11 +32,24 @@ parser = argparse.ArgumentParser(description="FastAPI server.")
 parser.add_argument("--port", type=int, default=8000, help="Port to run on.")
 args = parser.parse_args()
 
-base_interpreter.tts = "openai"
-base_interpreter.llm.model = "gpt-4-turbo"
+base_interpreter.tts = "elevenlabs"
 
 
 async def main():
+    """
+    sentry_sdk.init(
+        dsn="https://a1465f62a31c7dfb23e1616da86341e9@o4506046614667264.ingest.us.sentry.io/4507374662385664",
+        enable_tracing=True,
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        traces_sample_rate=1.0,
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=1.0,
+    )
+    """
+
     interpreter = AsyncInterpreter(base_interpreter)
 
     app = FastAPI()
@@ -51,6 +76,9 @@ async def main():
 
             async def receive_input():
                 while True:
+                    if websocket.client_state == "DISCONNECTED":
+                        break
+
                     data = await websocket.receive()
 
                     if isinstance(data, bytes):
@@ -65,19 +93,23 @@ async def main():
             async def send_output():
                 while True:
                     output = await interpreter.output()
+
                     if isinstance(output, bytes):
+                        # print(f"Sending {len(output)} bytes of audio data.")
                         await websocket.send_bytes(output)
                         # we dont send out bytes rn, no TTS
-                        pass
+
                     elif isinstance(output, dict):
+                        # print("sending text")
                         await websocket.send_text(json.dumps(output))
 
-            await asyncio.gather(receive_input(), send_output())
+            await asyncio.gather(send_output(), receive_input())
         except Exception as e:
             print(f"WebSocket connection closed with exception: {e}")
             traceback.print_exc()
         finally:
-            await websocket.close()
+            if not websocket.client_state == "DISCONNECTED":
+                await websocket.close()
 
     config = Config(app, host="0.0.0.0", port=8000, lifespan="on")
     server = Server(config)

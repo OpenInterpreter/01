@@ -23,6 +23,7 @@ from .utils.logs import logger
 import base64
 import shutil
 from ..utils.print_markdown import print_markdown
+import time
 
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
@@ -383,6 +384,7 @@ async def stream_tts_to_device(sentence, mobile: bool):
 
 
 def stream_tts(sentence, mobile: bool):
+
     audio_file = tts(sentence, mobile)
 
     # Read the entire WAV file

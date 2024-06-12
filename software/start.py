@@ -5,7 +5,7 @@ import threading
 import os
 import importlib
 from source.server.tunnel import create_tunnel
-from source.server.server import main
+from source.server.async_server import main
 from source.server.utils.local_mode import select_local_model
 
 import signal
@@ -152,18 +152,18 @@ def _run(
             target=loop.run_until_complete,
             args=(
                 main(
-                    server_host,
-                    server_port,
-                    llm_service,
-                    model,
-                    llm_supports_vision,
-                    llm_supports_functions,
-                    context_window,
-                    max_tokens,
-                    temperature,
-                    tts_service,
-                    stt_service,
-                    mobile,
+                    # server_host,
+                    # server_port,
+                    # llm_service,
+                    # model,
+                    # llm_supports_vision,
+                    # llm_supports_functions,
+                    # context_window,
+                    # max_tokens,
+                    # temperature,
+                    # tts_service,
+                    # stt_service,
+                    # mobile,
                 ),
             ),
         )
@@ -196,7 +196,7 @@ def _run(
         module = importlib.import_module(
             f".clients.{client_type}.device", package="source"
         )
-
+        server_url = "0.0.0.0:8000"
         client_thread = threading.Thread(target=module.main, args=[server_url])
         print("client thread started")
         client_thread.start()

@@ -12,7 +12,14 @@
 ###
 
 from pynput import keyboard
-from RealtimeTTS import TextToAudioStream, OpenAIEngine, CoquiEngine
+from RealtimeTTS import (
+    TextToAudioStream,
+    OpenAIEngine,
+    CoquiEngine,
+    ElevenlabsEngine,
+    SystemEngine,
+    GTTSEngine,
+)
 from RealtimeSTT import AudioToTextRecorder
 import time
 import asyncio
@@ -21,11 +28,14 @@ import json
 
 class AsyncInterpreter:
     def __init__(self, interpreter):
+        self.stt_latency = None
+        self.tts_latency = None
+        self.interpreter_latency = None
         self.interpreter = interpreter
 
         # STT
         self.stt = AudioToTextRecorder(
-            model="tiny", spinner=False, use_microphone=False
+            model="tiny.en", spinner=False, use_microphone=False
         )
         self.stt.stop()  # It needs this for some reason
 
@@ -34,6 +44,16 @@ class AsyncInterpreter:
             engine = CoquiEngine()
         elif self.interpreter.tts == "openai":
             engine = OpenAIEngine()
+        elif self.interpreter.tts == "gtts":
+            engine = GTTSEngine()
+        elif self.interpreter.tts == "elevenlabs":
+            engine = ElevenlabsEngine(
+                api_key="sk_077cb1cabdf67e62b85f8782e66e5d8e11f78b450c7ce171"
+            )
+        elif self.interpreter.tts == "system":
+            engine = SystemEngine()
+        else:
+            raise ValueError(f"Unsupported TTS engine: {self.interpreter.tts}")
         self.tts = TextToAudioStream(engine)
 
         self.active_chat_messages = []
@@ -112,7 +132,11 @@ class AsyncInterpreter:
 
         # print("INPUT QUEUE:", input_queue)
         # message = [i for i in input_queue if i["type"] == "message"][0]["content"]
+        start_stt = time.time()
         message = self.stt.text()
+        end_stt = time.time()
+        self.stt_latency = end_stt - start_stt
+        print("STT LATENCY", self.stt_latency)
 
         # print(message)
 
@@ -141,7 +165,7 @@ class AsyncInterpreter:
 
                         # Experimental: The AI voice sounds better with replacements like these, but it should happen at the TTS layer
                         # content = content.replace(". ", ". ... ").replace(", ", ", ... ").replace("!", "! ... ").replace("?", "? ... ")
-
+                        print("yielding this", content)
                         yield content
 
                 # Handle code blocks
@@ -172,17 +196,24 @@ class AsyncInterpreter:
                             )
 
             # Send a completion signal
-
+            end_interpreter = time.time()
+            self.interpreter_latency = end_interpreter - start_interpreter
+            print("INTERPRETER LATENCY", self.interpreter_latency)
             # self.add_to_output_queue_sync({"role": "server","type": "completion", "content": "DONE"})
 
         # Feed generate to RealtimeTTS
         self.add_to_output_queue_sync(
             {"role": "assistant", "type": "audio", "format": "bytes.wav", "start": True}
         )
-        self.tts.feed(generate(message))
+        start_interpreter = time.time()
+        text_iterator = generate(message)
+
+        self.tts.feed(text_iterator)
         self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=True)
+
         while True:
             if self.tts.is_playing():
+                start_tts = time.time()
                 break
             await asyncio.sleep(0.1)
         while True:
@@ -197,6 +228,9 @@ class AsyncInterpreter:
                         "end": True,
                     }
                 )
+                end_tts = time.time()
+                self.tts_latency = end_tts - start_tts
+                print("TTS LATENCY", self.tts_latency)
                 break
 
     async def _on_tts_chunk_async(self, chunk):
@@ -204,6 +238,7 @@ class AsyncInterpreter:
         await self._add_to_queue(self._output_queue, chunk)
 
     def on_tts_chunk(self, chunk):
+        # print("ye")
         asyncio.run(self._on_tts_chunk_async(chunk))
 
     async def output(self):

@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
 
+import subprocess
 import os
 import sys
 import asyncio
@@ -46,7 +47,7 @@ accumulator = Accumulator()
 CHUNK = 1024  # Record in chunks of 1024 samples
 FORMAT = pyaudio.paInt16  # 16 bits per sample
 CHANNELS = 1  # Mono
-RATE = 44100  # Sample rate
+RATE = 16000  # Sample rate
 RECORDING = False  # Flag to control recording state
 SPACEBAR_PRESSED = False  # Flag to track spacebar press state
 
@@ -86,10 +87,10 @@ class Device:
     def __init__(self):
         self.pressed_keys = set()
         self.captured_images = []
-        self.audiosegments = []
+        self.audiosegments = asyncio.Queue()
         self.server_url = ""
         self.ctrl_pressed = False
-        # self.latency = None
+        self.playback_latency = None
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
         """Captures an image from the specified camera device and saves it to a temporary file. Adds the image to the captured_images list."""
@@ -153,14 +154,26 @@ class Device:
         """Plays them sequentially."""
         while True:
             try:
-                for audio in self.audiosegments:
-                    # if self.latency:
-                    #    elapsed_time = time.time() - self.latency
-                    #    print(f"Time from request to playback: {elapsed_time} seconds")
-                    #    self.latency = None
-                    play(audio)
-                    self.audiosegments.remove(audio)
-                await asyncio.sleep(0.1)
+                audio = await self.audiosegments.get()
+                # print("got audio segment!!!!")
+                if self.playback_latency:
+                    elapsed_time = time.time() - self.playback_latency
+                    print(f"Time from request to playback: {elapsed_time} seconds")
+                    self.playback_latency = None
+
+                args = ["ffplay", "-autoexit", "-", "-nodisp"]
+                proc = subprocess.Popen(
+                    args=args,
+                    stdout=subprocess.PIPE,
+                    stdin=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                out, err = proc.communicate(input=audio)
+                proc.poll()
+
+                # play(audio)
+                # self.audiosegments.remove(audio)
+                # await asyncio.sleep(0.1)
             except asyncio.exceptions.CancelledError:
                 # This happens once at the start?
                 pass
@@ -208,7 +221,7 @@ class Device:
         stream.stop_stream()
         stream.close()
         print("Recording stopped.")
-        # self.latency = time.time()
+        self.playback_latency = time.time()
 
         duration = wav_file.getnframes() / RATE
         if duration < 0.3:
@@ -315,18 +328,21 @@ class Device:
 
     async def message_sender(self, websocket):
         while True:
-            message = await asyncio.get_event_loop().run_in_executor(
-                None, send_queue.get
-            )
+            try:
+                message = await asyncio.get_event_loop().run_in_executor(
+                    None, send_queue.get
+                )
 
-            if isinstance(message, bytes):
-                await websocket.send(message)
+                if isinstance(message, bytes):
+                    await websocket.send(message)
 
-            else:
-                await websocket.send(json.dumps(message))
+                else:
+                    await websocket.send(json.dumps(message))
 
-            send_queue.task_done()
-            await asyncio.sleep(0.01)
+                send_queue.task_done()
+                await asyncio.sleep(0.01)
+            except:
+                traceback.print_exc()
 
     async def websocket_communication(self, WS_URL):
         print("websocket communication was called!!!!")
@@ -343,7 +359,7 @@ class Device:
             asyncio.create_task(self.message_sender(websocket))
 
             while True:
-                await asyncio.sleep(0.01)
+                await asyncio.sleep(0.0001)
                 chunk = await websocket.recv()
 
                 logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
@@ -351,31 +367,38 @@ class Device:
                 if type(chunk) == str:
                     chunk = json.loads(chunk)
 
-                message = accumulator.accumulate(chunk)
+                # message = accumulator.accumulate(chunk)
+                message = chunk
                 if message == None:
                     # Will be None until we have a full message ready
                     continue
 
                 # At this point, we have our message
+                # print("checkpoint reached!", message)
+                if isinstance(message, bytes):
 
-                if message["type"] == "audio" and message["format"].startswith("bytes"):
+                    # if message["type"] == "audio" and message["format"].startswith("bytes"):
                     # Convert bytes to audio file
 
-                    audio_bytes = message["content"]
+                    # audio_bytes = message["content"]
+                    audio_bytes = message
 
                     # Create an AudioSegment instance with the raw data
+                    """
                     audio = AudioSegment(
                         # raw audio data (bytes)
                         data=audio_bytes,
                         # signed 16-bit little-endian format
                         sample_width=2,
-                        # 16,000 Hz frame rate
-                        frame_rate=16000,
+                        # 24,000 Hz frame rate
+                        frame_rate=24000,
                         # mono sound
                         channels=1,
                     )
+                    """
 
-                    self.audiosegments.append(audio)
+                    # print("audio segment was created")
+                    await self.audiosegments.put(audio_bytes)
 
                 # Run the code if that's the client's job
                 if os.getenv("CODE_RUNNER") == "client":
@@ -399,6 +422,7 @@ class Device:
             while True:
                 try:
                     async with websockets.connect(WS_URL) as websocket:
+                        print("awaiting exec_ws_communication")
                         await exec_ws_communication(websocket)
                 except:
                     logger.info(traceback.format_exc())
@@ -410,7 +434,7 @@ class Device:
     async def start_async(self):
         print("start async was called!!!!!")
         # Configuration for WebSocket
-        WS_URL = f"ws://{self.server_url}"
+        WS_URL = f"ws://{self.server_url}/ws"
         # Start the WebSocket communication
         asyncio.create_task(self.websocket_communication(WS_URL))
 
