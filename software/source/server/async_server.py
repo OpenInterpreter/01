@@ -2,6 +2,7 @@ import asyncio
 import traceback
 import json
 from fastapi import FastAPI, WebSocket, Header
+from fastapi.responses import PlainTextResponse
 from uvicorn import Config, Server
 from interpreter import interpreter as base_interpreter
 from .async_interpreter import AsyncInterpreter
@@ -18,38 +19,25 @@ base_interpreter.system_message = (
     "You are a helpful assistant that can answer questions and help with tasks."
 )
 base_interpreter.computer.import_computer_api = False
-base_interpreter.llm.model = "groq/mixtral-8x7b-32768"
-base_interpreter.llm.api_key = (
-    "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"
-)
+base_interpreter.llm.model = "groq/llama3-8b-8192"
+base_interpreter.llm.api_key = os.environ["GROQ_API_KEY"]
+print(base_interpreter.llm.api_key)
 base_interpreter.llm.supports_functions = False
+base_interpreter.auto_run = True
 
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
 
 # Parse command line arguments for port number
+"""
 parser = argparse.ArgumentParser(description="FastAPI server.")
 parser.add_argument("--port", type=int, default=8000, help="Port to run on.")
 args = parser.parse_args()
-
+"""
 base_interpreter.tts = "elevenlabs"
 
 
-async def main():
-    """
-    sentry_sdk.init(
-        dsn="https://a1465f62a31c7dfb23e1616da86341e9@o4506046614667264.ingest.us.sentry.io/4507374662385664",
-        enable_tracing=True,
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        traces_sample_rate=1.0,
-        # Set profiles_sample_rate to 1.0 to profile 100%
-        # of sampled transactions.
-        # We recommend adjusting this value in production.
-        profiles_sample_rate=1.0,
-    )
-    """
-
+async def main(server_host, server_port):
     interpreter = AsyncInterpreter(base_interpreter)
 
     app = FastAPI()
@@ -62,6 +50,10 @@ async def main():
         allow_headers=["*"],  # Allow all headers
     )
 
+    @app.get("/ping")
+    async def ping():
+        return PlainTextResponse("pong")
+
     @app.post("/load_chat")
     async def load_chat(messages: List[Dict[str, Any]]):
         interpreter.interpreter.messages = messages
@@ -69,7 +61,7 @@ async def main():
         print("🪼🪼🪼🪼🪼🪼 Messages loaded: ", interpreter.active_chat_messages)
         return {"status": "success"}
 
-    @app.websocket("/ws")
+    @app.websocket("/")
     async def websocket_endpoint(websocket: WebSocket):
         await websocket.accept()
         try:
@@ -85,7 +77,7 @@ async def main():
                         await interpreter.input(data)
                     elif "bytes" in data:
                         await interpreter.input(data["bytes"])
-                        # print("SERVER FEEDING AUDIO")
+                        # print("RECEIVED INPUT", data)
                     elif "text" in data:
                         # print("RECEIVED INPUT", data)
                         await interpreter.input(data["text"])
@@ -111,7 +103,8 @@ async def main():
             if not websocket.client_state == "DISCONNECTED":
                 await websocket.close()
 
-    config = Config(app, host="0.0.0.0", port=8000, lifespan="on")
+    print(f"Starting server on {server_host}:{server_port}")
+    config = Config(app, host=server_host, port=server_port, lifespan="on")
     server = Server(config)
     await server.serve()
 

@@ -24,6 +24,7 @@ from RealtimeSTT import AudioToTextRecorder
 import time
 import asyncio
 import json
+import os
 
 
 class AsyncInterpreter:
@@ -47,9 +48,7 @@ class AsyncInterpreter:
         elif self.interpreter.tts == "gtts":
             engine = GTTSEngine()
         elif self.interpreter.tts == "elevenlabs":
-            engine = ElevenlabsEngine(
-                api_key="sk_077cb1cabdf67e62b85f8782e66e5d8e11f78b450c7ce171"
-            )
+            engine = ElevenlabsEngine(api_key=os.environ["ELEVEN_LABS_API_KEY"])
         elif self.interpreter.tts == "system":
             engine = SystemEngine()
         else:
@@ -96,12 +95,12 @@ class AsyncInterpreter:
                 pass
 
             if "start" in chunk:
-                print("input received")
+                # print("Starting STT")
                 self.stt.start()
                 self._last_lmc_start_flag = time.time()
                 # self.interpreter.computer.terminal.stop() # Stop any code execution... maybe we should make interpreter.stop()?
             elif "end" in chunk:
-                print("running oi on input now")
+                # print("Running OI on input")
                 asyncio.create_task(self.run())
             else:
                 await self._add_to_queue(self._input_queue, chunk)
@@ -139,6 +138,7 @@ class AsyncInterpreter:
         print("STT LATENCY", self.stt_latency)
 
         # print(message)
+        end_interpreter = 0
 
         # print(message)
         def generate(message):
@@ -165,7 +165,7 @@ class AsyncInterpreter:
 
                         # Experimental: The AI voice sounds better with replacements like these, but it should happen at the TTS layer
                         # content = content.replace(". ", ". ... ").replace(", ", ", ... ").replace("!", "! ... ").replace("?", "? ... ")
-                        print("yielding this", content)
+                        # print("yielding this", content)
                         yield content
 
                 # Handle code blocks
@@ -214,6 +214,7 @@ class AsyncInterpreter:
         while True:
             if self.tts.is_playing():
                 start_tts = time.time()
+
                 break
             await asyncio.sleep(0.1)
         while True:
@@ -231,6 +232,7 @@ class AsyncInterpreter:
                 end_tts = time.time()
                 self.tts_latency = end_tts - start_tts
                 print("TTS LATENCY", self.tts_latency)
+                self.tts.stop()
                 break
 
     async def _on_tts_chunk_async(self, chunk):

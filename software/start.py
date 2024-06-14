@@ -22,7 +22,7 @@ def run(
         help="Specify the server host where the server will deploy",
     ),
     server_port: int = typer.Option(
-        8000,
+        10001,
         "--server-port",
         help="Specify the server port where the server will deploy",
     ),
@@ -152,8 +152,8 @@ def _run(
             target=loop.run_until_complete,
             args=(
                 main(
-                    # server_host,
-                    # server_port,
+                    server_host,
+                    server_port,
                     # llm_service,
                     # model,
                     # llm_supports_vision,
@@ -196,7 +196,7 @@ def _run(
         module = importlib.import_module(
             f".clients.{client_type}.device", package="source"
         )
-        server_url = "0.0.0.0:8000"
+        # server_url = "0.0.0.0:8000"
         client_thread = threading.Thread(target=module.main, args=[server_url])
         print("client thread started")
         client_thread.start()

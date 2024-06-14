@@ -152,6 +152,15 @@ class Device:
 
     async def play_audiosegments(self):
         """Plays them sequentially."""
+
+        mpv_command = ["mpv", "--no-cache", "--no-terminal", "--", "fd://0"]
+        mpv_process = subprocess.Popen(
+            mpv_command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
         while True:
             try:
                 audio = await self.audiosegments.get()
@@ -161,6 +170,10 @@ class Device:
                     print(f"Time from request to playback: {elapsed_time} seconds")
                     self.playback_latency = None
 
+                if audio is not None:
+                    mpv_process.stdin.write(audio)  # type: ignore
+                    mpv_process.stdin.flush()  # type: ignore
+                """
                 args = ["ffplay", "-autoexit", "-", "-nodisp"]
                 proc = subprocess.Popen(
                     args=args,
@@ -171,7 +184,8 @@ class Device:
                 out, err = proc.communicate(input=audio)
                 proc.poll()
 
-                # play(audio)
+                play(audio)
+                """
                 # self.audiosegments.remove(audio)
                 # await asyncio.sleep(0.1)
             except asyncio.exceptions.CancelledError:
@@ -391,7 +405,7 @@ class Device:
                         # signed 16-bit little-endian format
                         sample_width=2,
                         # 24,000 Hz frame rate
-                        frame_rate=24000,
+                        frame_rate=16000,
                         # mono sound
                         channels=1,
                     )
@@ -399,6 +413,8 @@ class Device:
 
                     # print("audio segment was created")
                     await self.audiosegments.put(audio_bytes)
+
+                    # await self.audiosegments.put(audio)
 
                 # Run the code if that's the client's job
                 if os.getenv("CODE_RUNNER") == "client":
@@ -434,7 +450,8 @@ class Device:
     async def start_async(self):
         print("start async was called!!!!!")
         # Configuration for WebSocket
-        WS_URL = f"ws://{self.server_url}/ws"
+        WS_URL = f"ws://{self.server_url}"
+
         # Start the WebSocket communication
         asyncio.create_task(self.websocket_communication(WS_URL))
 
