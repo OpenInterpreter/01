@@ -21,7 +21,6 @@ base_interpreter.system_message = (
 base_interpreter.computer.import_computer_api = False
 base_interpreter.llm.model = "groq/llama3-8b-8192"
 base_interpreter.llm.api_key = os.environ["GROQ_API_KEY"]
-print(base_interpreter.llm.api_key)
 base_interpreter.llm.supports_functions = False
 base_interpreter.auto_run = True
 
@@ -34,7 +33,7 @@ parser = argparse.ArgumentParser(description="FastAPI server.")
 parser.add_argument("--port", type=int, default=8000, help="Port to run on.")
 args = parser.parse_args()
 """
-base_interpreter.tts = "elevenlabs"
+base_interpreter.tts = "coqui"
 
 
 async def main(server_host, server_port):
