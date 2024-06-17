@@ -38,7 +38,7 @@ class AsyncInterpreter:
         self.stt = AudioToTextRecorder(
             model="tiny.en", spinner=False, use_microphone=False
         )
-        self.stt.stop()  # It needs this for some reason
+        self.stt.stop()
 
         # TTS
         if self.interpreter.tts == "coqui":
@@ -118,8 +118,6 @@ class AsyncInterpreter:
         """
         self.interpreter.messages = self.active_chat_messages
 
-        # self.beeper.start()
-
         self.stt.stop()
         # message = self.stt.text()
         # print("THE MESSAGE:", message)
@@ -137,15 +135,9 @@ class AsyncInterpreter:
         self.stt_latency = end_stt - start_stt
         print("STT LATENCY", self.stt_latency)
 
-        # print(message)
-        end_interpreter = 0
-
-        # print(message)
         def generate(message):
             last_lmc_start_flag = self._last_lmc_start_flag
             self.interpreter.messages = self.active_chat_messages
-            # print("🍀🍀🍀🍀GENERATING, using these messages: ", self.interpreter.messages)
-            # print("🍀   🍀   🍀   🍀 active_chat_messages: ", self.active_chat_messages)
             print("message is", message)
 
             for chunk in self.interpreter.chat(message, display=True, stream=True):
@@ -209,7 +201,7 @@ class AsyncInterpreter:
         text_iterator = generate(message)
 
         self.tts.feed(text_iterator)
-        self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=True)
+        self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=False)
 
         while True:
             if self.tts.is_playing():
@@ -236,7 +228,7 @@ class AsyncInterpreter:
                 break
 
     async def _on_tts_chunk_async(self, chunk):
-        # print("SENDING TTS CHUNK")
+        print(f"Adding chunk to output queue")
         await self._add_to_queue(self._output_queue, chunk)
 
     def on_tts_chunk(self, chunk):
@@ -244,4 +236,7 @@ class AsyncInterpreter:
         asyncio.run(self._on_tts_chunk_async(chunk))
 
     async def output(self):
-        return await self._output_queue.get()
+        print("entering output method")
+        value = await self._output_queue.get()
+        print("output method returning")
+        return value
