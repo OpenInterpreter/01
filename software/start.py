@@ -6,6 +6,8 @@ import os
 import importlib
 from source.server.tunnel import create_tunnel
 from source.server.async_server import main
+
+# from source.server.server import main
 from source.server.utils.local_mode import select_local_model
 
 import signal
@@ -63,7 +65,7 @@ def run(
         0.8, "--temperature", help="Specify the temperature for generation"
     ),
     tts_service: str = typer.Option(
-        "openai", "--tts-service", help="Specify the TTS service"
+        "elevenlabs", "--tts-service", help="Specify the TTS service"
     ),
     stt_service: str = typer.Option(
         "openai", "--stt-service", help="Specify the STT service"
@@ -74,6 +76,9 @@ def run(
     qr: bool = typer.Option(False, "--qr", help="Print the QR code for the server URL"),
     mobile: bool = typer.Option(
         False, "--mobile", help="Toggle server to support mobile app"
+    ),
+    asynchronous: bool = typer.Option(
+        False, "--async", help="use interpreter optimized for latency"
     ),
 ):
     _run(
@@ -97,6 +102,7 @@ def run(
         local=local,
         qr=qr or mobile,
         mobile=mobile,
+        asynchronous=asynchronous,
     )
 
 
@@ -116,14 +122,15 @@ def _run(
     context_window: int = 2048,
     max_tokens: int = 4096,
     temperature: float = 0.8,
-    tts_service: str = "openai",
+    tts_service: str = "elevenlabs",
     stt_service: str = "openai",
     local: bool = False,
     qr: bool = False,
     mobile: bool = False,
+    asynchronous: bool = False,
 ):
     if local:
-        tts_service = "piper"
+        tts_service = "coqui"
         # llm_service = "llamafile"
         stt_service = "local-whisper"
         select_local_model()
@@ -154,6 +161,8 @@ def _run(
                 main(
                     server_host,
                     server_port,
+                    tts_service,
+                    asynchronous,
                     # llm_service,
                     # model,
                     # llm_supports_vision,
@@ -161,7 +170,6 @@ def _run(
                     # context_window,
                     # max_tokens,
                     # temperature,
-                    # tts_service,
                     # stt_service,
                     # mobile,
                 ),
@@ -180,7 +188,6 @@ def _run(
             system_type = platform.system()
             if system_type == "Darwin":  # Mac OS
                 client_type = "mac"
-                print("initiating mac device with base device!!!")
             elif system_type == "Windows":  # Windows System
                 client_type = "windows"
             elif system_type == "Linux":  # Linux System
@@ -196,9 +203,10 @@ def _run(
         module = importlib.import_module(
             f".clients.{client_type}.device", package="source"
         )
-        # server_url = "0.0.0.0:8000"
-        client_thread = threading.Thread(target=module.main, args=[server_url])
-        print("client thread started")
+
+        client_thread = threading.Thread(
+            target=module.main, args=[server_url, tts_service]
+        )
         client_thread.start()
 
     try:

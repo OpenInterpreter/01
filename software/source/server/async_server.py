@@ -1,43 +1,38 @@
 import asyncio
 import traceback
 import json
-from fastapi import FastAPI, WebSocket, Header
+from fastapi import FastAPI, WebSocket
 from fastapi.responses import PlainTextResponse
 from uvicorn import Config, Server
+from .i import configure_interpreter
 from interpreter import interpreter as base_interpreter
 from .async_interpreter import AsyncInterpreter
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
-from openai import OpenAI
-from pydantic import BaseModel
-import argparse
 import os
 
-# import sentry_sdk
-
-base_interpreter.system_message = (
-    "You are a helpful assistant that can answer questions and help with tasks."
-)
-base_interpreter.computer.import_computer_api = False
-base_interpreter.llm.model = "groq/llama3-8b-8192"
-base_interpreter.llm.api_key = os.environ["GROQ_API_KEY"]
-base_interpreter.llm.supports_functions = False
-base_interpreter.auto_run = True
 
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
 
-# Parse command line arguments for port number
-"""
-parser = argparse.ArgumentParser(description="FastAPI server.")
-parser.add_argument("--port", type=int, default=8000, help="Port to run on.")
-args = parser.parse_args()
-"""
-base_interpreter.tts = "coqui"
 
-
-async def main(server_host, server_port):
-    interpreter = AsyncInterpreter(base_interpreter)
+async def main(server_host, server_port, tts_service, asynchronous):
+    if asynchronous:
+        base_interpreter.system_message = (
+            "You are a helpful assistant that can answer questions and help with tasks."
+        )
+        base_interpreter.computer.import_computer_api = False
+        base_interpreter.llm.model = "groq/llama3-8b-8192"
+        base_interpreter.llm.api_key = os.environ["GROQ_API_KEY"]
+        base_interpreter.llm.supports_functions = False
+        base_interpreter.auto_run = True
+        base_interpreter.tts = tts_service
+        interpreter = AsyncInterpreter(base_interpreter)
+    else:
+        configured_interpreter = configure_interpreter(base_interpreter)
+        configured_interpreter.llm.supports_functions = True
+        configured_interpreter.tts = tts_service
+        interpreter = AsyncInterpreter(configured_interpreter)
 
     app = FastAPI()
 
@@ -106,37 +101,6 @@ async def main(server_host, server_port):
     config = Config(app, host=server_host, port=server_port, lifespan="on")
     server = Server(config)
     await server.serve()
-
-    class Rename(BaseModel):
-        input: str
-
-    @app.post("/rename-chat")
-    async def rename_chat(body_content: Rename, x_api_key: str = Header(None)):
-        print("RENAME CHAT REQUEST in PY 🌙🌙🌙🌙")
-        input_value = body_content.input
-        client = OpenAI(
-            # defaults to os.environ.get("OPENAI_API_KEY")
-            api_key=x_api_key,
-        )
-        try:
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"Given the following chat snippet, create a unique and descriptive title in less than 8 words. Your answer must not be related to customer service.\n\n{input_value}",
-                    }
-                ],
-                temperature=0.3,
-                stream=False,
-            )
-            print(response)
-            completion = response["choices"][0]["message"]["content"]
-            return {"data": {"content": completion}}
-        except Exception as e:
-            print(f"Error: {e}")
-            traceback.print_exc()
-            return {"error": str(e)}
 
 
 if __name__ == "__main__":

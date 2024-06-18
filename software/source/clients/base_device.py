@@ -90,6 +90,7 @@ class Device:
         self.audiosegments = asyncio.Queue()
         self.server_url = ""
         self.ctrl_pressed = False
+        self.tts_service = ""
         self.playback_latency = None
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
@@ -164,30 +165,18 @@ class Device:
         while True:
             try:
                 audio = await self.audiosegments.get()
-                # print("got audio segment!!!!")
-                if self.playback_latency:
+                if self.playback_latency and isinstance(audio, bytes):
                     elapsed_time = time.time() - self.playback_latency
-                    print(f"Time from request to playback: {elapsed_time} seconds")
+                    # print(f"Time from request to playback: {elapsed_time} seconds")
                     self.playback_latency = None
 
-                if audio is not None:
+                if self.tts_service == "elevenlabs":
                     mpv_process.stdin.write(audio)  # type: ignore
                     mpv_process.stdin.flush()  # type: ignore
-                """
-                args = ["ffplay", "-autoexit", "-", "-nodisp"]
-                proc = subprocess.Popen(
-                    args=args,
-                    stdout=subprocess.PIPE,
-                    stdin=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                )
-                out, err = proc.communicate(input=audio)
-                proc.poll()
+                else:
+                    play(audio)
 
-                play(audio)
-                """
-                # self.audiosegments.remove(audio)
-                # await asyncio.sleep(0.1)
+                await asyncio.sleep(0.1)
             except asyncio.exceptions.CancelledError:
                 # This happens once at the start?
                 pass
@@ -342,24 +331,17 @@ class Device:
 
     async def message_sender(self, websocket):
         while True:
-            try:
-                message = await asyncio.get_event_loop().run_in_executor(
-                    None, send_queue.get
-                )
-
-                if isinstance(message, bytes):
-                    await websocket.send(message)
-
-                else:
-                    await websocket.send(json.dumps(message))
-
-                send_queue.task_done()
-                await asyncio.sleep(0.01)
-            except:
-                traceback.print_exc()
+            message = await asyncio.get_event_loop().run_in_executor(
+                None, send_queue.get
+            )
+            if isinstance(message, bytes):
+                await websocket.send(message)
+            else:
+                await websocket.send(json.dumps(message))
+            send_queue.task_done()
+            await asyncio.sleep(0.01)
 
     async def websocket_communication(self, WS_URL):
-        print("websocket communication was called!!!!")
         show_connection_log = True
 
         async def exec_ws_communication(websocket):
@@ -373,48 +355,48 @@ class Device:
             asyncio.create_task(self.message_sender(websocket))
 
             while True:
-                await asyncio.sleep(0.0001)
+                await asyncio.sleep(0.01)
                 chunk = await websocket.recv()
 
                 logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
-                # print((f"Got this message from the server: {type(chunk)} {chunk}"))
+                # print("received chunk from server")
+
                 if type(chunk) == str:
                     chunk = json.loads(chunk)
 
-                # message = accumulator.accumulate(chunk)
-                message = chunk
+                if self.tts_service == "elevenlabs":
+                    message = chunk
+                else:
+                    message = accumulator.accumulate(chunk)
+
                 if message == None:
                     # Will be None until we have a full message ready
                     continue
 
                 # At this point, we have our message
-                # print("checkpoint reached!", message)
-                if isinstance(message, bytes):
-
-                    # if message["type"] == "audio" and message["format"].startswith("bytes"):
+                if isinstance(message, bytes) or (
+                    message["type"] == "audio" and message["format"].startswith("bytes")
+                ):
                     # Convert bytes to audio file
+                    if self.tts_service == "elevenlabs":
+                        audio_bytes = message
+                        audio = audio_bytes
+                    else:
+                        audio_bytes = message["content"]
 
-                    # audio_bytes = message["content"]
-                    audio_bytes = message
+                        # Create an AudioSegment instance with the raw data
+                        audio = AudioSegment(
+                            # raw audio data (bytes)
+                            data=audio_bytes,
+                            # signed 16-bit little-endian format
+                            sample_width=2,
+                            # 16,000 Hz frame rate
+                            frame_rate=22050,
+                            # mono sound
+                            channels=1,
+                        )
 
-                    # Create an AudioSegment instance with the raw data
-                    """
-                    audio = AudioSegment(
-                        # raw audio data (bytes)
-                        data=audio_bytes,
-                        # signed 16-bit little-endian format
-                        sample_width=2,
-                        # 24,000 Hz frame rate
-                        frame_rate=16000,
-                        # mono sound
-                        channels=1,
-                    )
-                    """
-
-                    # print("audio segment was created")
-                    await self.audiosegments.put(audio_bytes)
-
-                    # await self.audiosegments.put(audio)
+                    await self.audiosegments.put(audio)
 
                 # Run the code if that's the client's job
                 if os.getenv("CODE_RUNNER") == "client":
@@ -434,29 +416,26 @@ class Device:
             except Exception as e:
                 logger.error(f"Error while attempting to connect: {e}")
         else:
-            print("websocket url is", WS_URL)
             while True:
                 try:
                     async with websockets.connect(WS_URL) as websocket:
-                        print("awaiting exec_ws_communication")
                         await exec_ws_communication(websocket)
                 except:
-                    logger.info(traceback.format_exc())
+                    logger.debug(traceback.format_exc())
                     if show_connection_log:
                         logger.info(f"Connecting to `{WS_URL}`...")
                         show_connection_log = False
                         await asyncio.sleep(2)
 
     async def start_async(self):
-        print("start async was called!!!!!")
         # Configuration for WebSocket
         WS_URL = f"ws://{self.server_url}"
-
         # Start the WebSocket communication
         asyncio.create_task(self.websocket_communication(WS_URL))
 
         # Start watching the kernel if it's your job to do that
         if os.getenv("CODE_RUNNER") == "client":
+            # client is not running code!
             asyncio.create_task(put_kernel_messages_into_queue(send_queue))
 
         asyncio.create_task(self.play_audiosegments())
@@ -488,10 +467,8 @@ class Device:
                 on_press=self.on_press, on_release=self.on_release
             )
             listener.start()
-            print("listener for keyboard started!!!!!")
 
     def start(self):
-        print("device was started!!!!!!")
         if os.getenv("TEACH_MODE") != "True":
             asyncio.run(self.start_async())
             p.terminate()

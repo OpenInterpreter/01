@@ -10,16 +10,9 @@
 """
 
 ###
-
 from pynput import keyboard
-from RealtimeTTS import (
-    TextToAudioStream,
-    OpenAIEngine,
-    CoquiEngine,
-    ElevenlabsEngine,
-    SystemEngine,
-    GTTSEngine,
-)
+
+from RealtimeTTS import TextToAudioStream, CoquiEngine, OpenAIEngine, ElevenlabsEngine
 from RealtimeSTT import AudioToTextRecorder
 import time
 import asyncio
@@ -29,9 +22,9 @@ import os
 
 class AsyncInterpreter:
     def __init__(self, interpreter):
-        self.stt_latency = None
-        self.tts_latency = None
-        self.interpreter_latency = None
+        # self.stt_latency = None
+        # self.tts_latency = None
+        # self.interpreter_latency = None
         self.interpreter = interpreter
 
         # STT
@@ -45,12 +38,9 @@ class AsyncInterpreter:
             engine = CoquiEngine()
         elif self.interpreter.tts == "openai":
             engine = OpenAIEngine()
-        elif self.interpreter.tts == "gtts":
-            engine = GTTSEngine()
         elif self.interpreter.tts == "elevenlabs":
             engine = ElevenlabsEngine(api_key=os.environ["ELEVEN_LABS_API_KEY"])
-        elif self.interpreter.tts == "system":
-            engine = SystemEngine()
+            engine.set_voice("Michael")
         else:
             raise ValueError(f"Unsupported TTS engine: {self.interpreter.tts}")
         self.tts = TextToAudioStream(engine)
@@ -112,111 +102,96 @@ class AsyncInterpreter:
         # print("ADDING TO QUEUE:", chunk)
         asyncio.create_task(self._add_to_queue(self._output_queue, chunk))
 
+    def generate(self, message, start_interpreter):
+        last_lmc_start_flag = self._last_lmc_start_flag
+        self.interpreter.messages = self.active_chat_messages
+
+        # print("message is", message)
+
+        for chunk in self.interpreter.chat(message, display=True, stream=True):
+
+            if self._last_lmc_start_flag != last_lmc_start_flag:
+                # self.beeper.stop()
+                break
+
+            # self.add_to_output_queue_sync(chunk) # To send text, not just audio
+
+            content = chunk.get("content")
+
+            # Handle message blocks
+            if chunk.get("type") == "message":
+                if content:
+                    # self.beeper.stop()
+
+                    # Experimental: The AI voice sounds better with replacements like these, but it should happen at the TTS layer
+                    # content = content.replace(". ", ". ... ").replace(", ", ", ... ").replace("!", "! ... ").replace("?", "? ... ")
+                    # print("yielding ", content)
+                    yield content
+
+            # Handle code blocks
+            elif chunk.get("type") == "code":
+                if "start" in chunk:
+                    # self.beeper.start()
+                    pass
+
+                # Experimental: If the AI wants to type, we should type immediatly
+                if (
+                    self.interpreter.messages[-1]
+                    .get("content", "")
+                    .startswith("computer.keyboard.write(")
+                ):
+                    keyboard.controller.type(content)
+                    self._in_keyboard_write_block = True
+                if "end" in chunk and self._in_keyboard_write_block:
+                    self._in_keyboard_write_block = False
+                    # (This will make it so it doesn't type twice when the block executes)
+                    if self.interpreter.messages[-1]["content"].startswith(
+                        "computer.keyboard.write("
+                    ):
+                        self.interpreter.messages[-1]["content"] = (
+                            "dummy_variable = ("
+                            + self.interpreter.messages[-1]["content"][
+                                len("computer.keyboard.write(") :
+                            ]
+                        )
+
+        # Send a completion signal
+        # end_interpreter = time.time()
+        # self.interpreter_latency = end_interpreter - start_interpreter
+        # print("INTERPRETER LATENCY", self.interpreter_latency)
+        # self.add_to_output_queue_sync({"role": "server","type": "completion", "content": "DONE"})
+
     async def run(self):
         """
         Runs OI on the audio bytes submitted to the input. Will add streaming LMC chunks to the _output_queue.
         """
         self.interpreter.messages = self.active_chat_messages
 
-        # self.beeper.start()
-
         self.stt.stop()
-        # message = self.stt.text()
-        # print("THE MESSAGE:", message)
 
-        # accumulates the input queue message
         input_queue = []
         while not self._input_queue.empty():
             input_queue.append(self._input_queue.get())
 
-        # print("INPUT QUEUE:", input_queue)
-        # message = [i for i in input_queue if i["type"] == "message"][0]["content"]
-        start_stt = time.time()
+        # start_stt = time.time()
         message = self.stt.text()
-        end_stt = time.time()
-        self.stt_latency = end_stt - start_stt
-        print("STT LATENCY", self.stt_latency)
+        # end_stt = time.time()
+        # self.stt_latency = end_stt - start_stt
+        # print("STT LATENCY", self.stt_latency)
 
         # print(message)
-        end_interpreter = 0
-
-        # print(message)
-        def generate(message):
-            last_lmc_start_flag = self._last_lmc_start_flag
-            self.interpreter.messages = self.active_chat_messages
-            # print("🍀🍀🍀🍀GENERATING, using these messages: ", self.interpreter.messages)
-            # print("🍀   🍀   🍀   🍀 active_chat_messages: ", self.active_chat_messages)
-            print("message is", message)
-
-            for chunk in self.interpreter.chat(message, display=True, stream=True):
-
-                if self._last_lmc_start_flag != last_lmc_start_flag:
-                    # self.beeper.stop()
-                    break
-
-                # self.add_to_output_queue_sync(chunk) # To send text, not just audio
-
-                content = chunk.get("content")
-
-                # Handle message blocks
-                if chunk.get("type") == "message":
-                    if content:
-                        # self.beeper.stop()
-
-                        # Experimental: The AI voice sounds better with replacements like these, but it should happen at the TTS layer
-                        # content = content.replace(". ", ". ... ").replace(", ", ", ... ").replace("!", "! ... ").replace("?", "? ... ")
-                        # print("yielding this", content)
-                        yield content
-
-                # Handle code blocks
-                elif chunk.get("type") == "code":
-                    if "start" in chunk:
-                        # self.beeper.start()
-                        pass
-
-                    # Experimental: If the AI wants to type, we should type immediatly
-                    if (
-                        self.interpreter.messages[-1]
-                        .get("content", "")
-                        .startswith("computer.keyboard.write(")
-                    ):
-                        keyboard.controller.type(content)
-                        self._in_keyboard_write_block = True
-                    if "end" in chunk and self._in_keyboard_write_block:
-                        self._in_keyboard_write_block = False
-                        # (This will make it so it doesn't type twice when the block executes)
-                        if self.interpreter.messages[-1]["content"].startswith(
-                            "computer.keyboard.write("
-                        ):
-                            self.interpreter.messages[-1]["content"] = (
-                                "dummy_variable = ("
-                                + self.interpreter.messages[-1]["content"][
-                                    len("computer.keyboard.write(") :
-                                ]
-                            )
-
-            # Send a completion signal
-            end_interpreter = time.time()
-            self.interpreter_latency = end_interpreter - start_interpreter
-            print("INTERPRETER LATENCY", self.interpreter_latency)
-            # self.add_to_output_queue_sync({"role": "server","type": "completion", "content": "DONE"})
 
         # Feed generate to RealtimeTTS
         self.add_to_output_queue_sync(
             {"role": "assistant", "type": "audio", "format": "bytes.wav", "start": True}
         )
         start_interpreter = time.time()
-        text_iterator = generate(message)
+        text_iterator = self.generate(message, start_interpreter)
 
         self.tts.feed(text_iterator)
+
         self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=True)
 
-        while True:
-            if self.tts.is_playing():
-                start_tts = time.time()
-
-                break
-            await asyncio.sleep(0.1)
         while True:
             await asyncio.sleep(0.1)
             # print("is_playing", self.tts.is_playing())
@@ -229,14 +204,14 @@ class AsyncInterpreter:
                         "end": True,
                     }
                 )
-                end_tts = time.time()
-                self.tts_latency = end_tts - start_tts
-                print("TTS LATENCY", self.tts_latency)
+                # end_tts = time.time()
+                # self.tts_latency = end_tts - self.tts.stream_start_time
+                # print("TTS LATENCY", self.tts_latency)
                 self.tts.stop()
                 break
 
     async def _on_tts_chunk_async(self, chunk):
-        # print("SENDING TTS CHUNK")
+        # print("adding chunk to queue")
         await self._add_to_queue(self._output_queue, chunk)
 
     def on_tts_chunk(self, chunk):
@@ -244,4 +219,5 @@ class AsyncInterpreter:
         asyncio.run(self._on_tts_chunk_async(chunk))
 
     async def output(self):
+        # print("outputting chunks")
         return await self._output_queue.get()
