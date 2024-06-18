@@ -102,7 +102,7 @@ class AsyncInterpreter:
         # print("ADDING TO QUEUE:", chunk)
         asyncio.create_task(self._add_to_queue(self._output_queue, chunk))
 
-    def generate(self, message, start_interpreter):
+    def generate(self, message):
         last_lmc_start_flag = self._last_lmc_start_flag
         self.interpreter.messages = self.active_chat_messages
 
@@ -179,7 +179,7 @@ class AsyncInterpreter:
         # self.stt_latency = end_stt - start_stt
         # print("STT LATENCY", self.stt_latency)
 
-        # print(message)
+        print(message)
 
         # Feed generate to RealtimeTTS
         self.add_to_output_queue_sync(

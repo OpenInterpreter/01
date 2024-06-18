@@ -176,6 +176,7 @@ def _run(
             ),
         )
         server_thread.start()
+        print("server thread started")
 
     if expose:
         tunnel_thread = threading.Thread(
@@ -208,6 +209,7 @@ def _run(
             target=module.main, args=[server_url, tts_service]
         )
         client_thread.start()
+        print("client thread started")
 
     try:
         if server:

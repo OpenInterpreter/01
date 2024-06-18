@@ -56,13 +56,9 @@ async def main(server_host, server_port, tts_service, asynchronous):
         print("🪼🪼🪼🪼🪼🪼 Messages loaded: ", interpreter.active_chat_messages)
         return {"status": "success"}
 
-    print("About to set up the websocker endpoint!!!!!!!!!!!!!!!!!!!!!!!!!")
-
     @app.websocket("/")
     async def websocket_endpoint(websocket: WebSocket):
-        print("websocket hit")
         await websocket.accept()
-        print("websocket accepted")
 
         async def send_output():
             try:
@@ -70,20 +66,17 @@ async def main(server_host, server_port, tts_service, asynchronous):
                     output = await interpreter.output()
 
                     if isinstance(output, bytes):
-                        print("server sending bytes output")
                         try:
                             await websocket.send_bytes(output)
-                            print("server successfully sent bytes output")
                         except Exception as e:
                             print(f"Error: {e}")
                             traceback.print_exc()
                             return {"error": str(e)}
 
                     elif isinstance(output, dict):
-                        print("server sending text output")
                         try:
                             await websocket.send_text(json.dumps(output))
-                            print("server successfully sent text output")
+
                         except Exception as e:
                             print(f"Error: {e}")
                             traceback.print_exc()
@@ -129,23 +122,7 @@ async def main(server_host, server_port, tts_service, asynchronous):
             send_task = asyncio.create_task(send_output())
             receive_task = asyncio.create_task(receive_input())
 
-            print("server starting to handle ws connection")
-            """
-            done, pending = await asyncio.wait(
-                [send_task, receive_task],
-                return_when=asyncio.FIRST_COMPLETED,
-            )
-
-            for task in pending:
-                task.cancel()
-
-            for task in done:
-                if task.exception() is not None:
-                    raise
-            """
             await asyncio.gather(send_task, receive_task)
-
-            print("server finished handling ws connection")
 
         except WebSocketDisconnect:
             print("WebSocket disconnected")
