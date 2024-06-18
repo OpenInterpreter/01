@@ -32,7 +32,7 @@ class AsyncInterpreter:
         self.stt = AudioToTextRecorder(
             model="tiny.en", spinner=False, use_microphone=False
         )
-        self.stt.stop()  # It needs this for some reason
+        self.stt.stop()
 
         # TTS
         if self.interpreter.tts == "coqui":

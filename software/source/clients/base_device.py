@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
 
+import requests
 import subprocess
 import os
 import sys
@@ -12,6 +13,7 @@ from pynput import keyboard
 import json
 import traceback
 import websockets
+import websockets.sync.client
 import queue
 from pydub import AudioSegment
 from pydub.playback import play
@@ -91,7 +93,7 @@ class Device:
         self.server_url = ""
         self.ctrl_pressed = False
         self.tts_service = ""
-        self.playback_latency = None
+        # self.playback_latency = None
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
         """Captures an image from the specified camera device and saves it to a temporary file. Adds the image to the captured_images list."""
@@ -165,6 +167,7 @@ class Device:
         while True:
             try:
                 audio = await self.audiosegments.get()
+
                 if self.playback_latency and isinstance(audio, bytes):
                     elapsed_time = time.time() - self.playback_latency
                     print(f"Time from request to playback: {elapsed_time} seconds")
@@ -224,7 +227,7 @@ class Device:
         stream.stop_stream()
         stream.close()
         print("Recording stopped.")
-        self.playback_latency = time.time()
+        # self.playback_latency = time.time()
 
         duration = wav_file.getnframes() / RATE
         if duration < 0.3:
@@ -412,7 +415,7 @@ class Device:
             # See https://github.com/OpenInterpreter/01/issues/197
             try:
                 ws = websockets.connect(WS_URL)
-                await exec_ws_communication(ws)
+                # await exec_ws_communication(ws)
             except Exception as e:
                 logger.error(f"Error while attempting to connect: {e}")
         else:
@@ -431,7 +434,7 @@ class Device:
         # Configuration for WebSocket
         WS_URL = f"ws://{self.server_url}"
         # Start the WebSocket communication
-        asyncio.create_task(self.websocket_communication(WS_URL))
+        await self.websocket_communication(WS_URL)
 
         # Start watching the kernel if it's your job to do that
         if os.getenv("CODE_RUNNER") == "client":
