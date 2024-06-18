@@ -167,10 +167,11 @@ class Device:
         while True:
             try:
                 audio = await self.audiosegments.get()
-                # if self.playback_latency and isinstance(audio, bytes):
-                # elapsed_time = time.time() - self.playback_latency
-                # print(f"Time from request to playback: {elapsed_time} seconds")
-                # self.playback_latency = None
+
+                if self.playback_latency and isinstance(audio, bytes):
+                    elapsed_time = time.time() - self.playback_latency
+                    print(f"Time from request to playback: {elapsed_time} seconds")
+                    self.playback_latency = None
 
                 if self.tts_service == "elevenlabs":
                     mpv_process.stdin.write(audio)  # type: ignore
