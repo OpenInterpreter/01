@@ -1,10 +1,9 @@
-# make this obvious
-from .profiles.default import interpreter as base_interpreter
+# TODO: import from the profiles directory the interpreter directory
 
-# from .profiles.fast import interpreter as base_interpreter
+from .profiles.fast import interpreter as base_interpreter
+
 # from .profiles.local import interpreter as base_interpreter
-
-# TODO: remove files i.py, llm.py, conftest?, services
+# from .profiles.default import interpreter as base_interpreter
 
 import asyncio
 import traceback
@@ -12,8 +11,6 @@ import json
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import PlainTextResponse
 from uvicorn import Config, Server
-
-# from interpreter import interpreter as base_interpreter
 from .async_interpreter import AsyncInterpreter
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
@@ -24,8 +21,8 @@ os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
 
 
-async def main(server_host, server_port, tts_service):
-    base_interpreter.tts = tts_service
+async def main(server_host, server_port):
+    # interpreter.tts set in the profiles directory!!!!
     interpreter = AsyncInterpreter(base_interpreter)
 
     app = FastAPI()
@@ -52,6 +49,12 @@ async def main(server_host, server_port, tts_service):
     @app.websocket("/")
     async def websocket_endpoint(websocket: WebSocket):
         await websocket.accept()
+
+        # Send the tts_service value to the client
+        await websocket.send_text(
+            json.dumps({"type": "config", "tts_service": interpreter.interpreter.tts})
+        )
+
         try:
 
             async def receive_input():

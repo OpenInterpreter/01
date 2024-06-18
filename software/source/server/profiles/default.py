@@ -3,15 +3,15 @@ from interpreter import interpreter
 # This is an Open Interpreter compatible profile.
 # Visit https://01.openinterpreter.com/profile for all options.
 
+# 01 suports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
+# {OpenAI: "openai", ElevenLabs: "elevenlabs", Coqui: "coqui"}
+interpreter.tts = "openai"
 
 # Connect your 01 to a language model
 interpreter.llm.model = "gpt-4-turbo"
 interpreter.llm.context_window = 100000
 interpreter.llm.max_tokens = 4096
 # interpreter.llm.api_key = "<your_openai_api_key_here>"
-
-# Give your 01 a voice
-interpreter.tts = "openai"
 
 # Tell your 01 where to find and save skills
 interpreter.computer.skills.path = "./skills"

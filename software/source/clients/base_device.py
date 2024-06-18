@@ -364,6 +364,10 @@ class Device:
                 if type(chunk) == str:
                     chunk = json.loads(chunk)
 
+                    if chunk.get("type") == "config":
+                        self.tts_service = chunk.get("tts_service")
+                        continue
+
                 if self.tts_service == "elevenlabs":
                     message = chunk
                 else:

@@ -194,7 +194,7 @@ class AsyncInterpreter:
 
         self.tts.feed(text_iterator)
 
-        self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=False)
+        self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=True)
 
         while True:
             await asyncio.sleep(0.1)
