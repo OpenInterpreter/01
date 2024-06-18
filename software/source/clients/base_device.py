@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
 
-import requests
 import subprocess
 import os
 import sys
@@ -13,7 +12,6 @@ from pynput import keyboard
 import json
 import traceback
 import websockets
-import websockets.sync.client
 import queue
 from pydub import AudioSegment
 from pydub.playback import play
@@ -155,7 +153,6 @@ class Device:
 
     async def play_audiosegments(self):
         """Plays them sequentially."""
-        print("play audiosegments called!!!")
 
         mpv_command = ["mpv", "--no-cache", "--no-terminal", "--", "fd://0"]
         mpv_process = subprocess.Popen(
@@ -227,7 +224,7 @@ class Device:
         stream.stop_stream()
         stream.close()
         print("Recording stopped.")
-        # self.playback_latency = time.time()
+        self.playback_latency = time.time()
 
         duration = wav_file.getnframes() / RATE
         if duration < 0.3:
@@ -333,7 +330,6 @@ class Device:
             self.fetch_image_from_camera()
 
     async def message_sender(self, websocket):
-        print("message sender running!!!")
         while True:
             message = await asyncio.get_event_loop().run_in_executor(
                 None, send_queue.get
@@ -356,7 +352,6 @@ class Device:
             else:
                 print("\nHold the spacebar to start recording. Press CTRL-C to exit.")
 
-            print("calling message sender")
             asyncio.create_task(self.message_sender(websocket))
 
             while True:
@@ -417,7 +412,7 @@ class Device:
             # See https://github.com/OpenInterpreter/01/issues/197
             try:
                 ws = websockets.connect(WS_URL)
-                # await exec_ws_communication(ws)
+                await exec_ws_communication(ws)
             except Exception as e:
                 logger.error(f"Error while attempting to connect: {e}")
         else:
@@ -433,12 +428,10 @@ class Device:
                         await asyncio.sleep(2)
 
     async def start_async(self):
-        print("start async called!!!!")
         # Configuration for WebSocket
         WS_URL = f"ws://{self.server_url}"
         # Start the WebSocket communication
-        await self.websocket_communication(WS_URL)
-        print("ws communication called!")
+        asyncio.create_task(self.websocket_communication(WS_URL))
 
         # Start watching the kernel if it's your job to do that
         if os.getenv("CODE_RUNNER") == "client":
@@ -446,7 +439,6 @@ class Device:
             asyncio.create_task(put_kernel_messages_into_queue(send_queue))
 
         asyncio.create_task(self.play_audiosegments())
-        print("play audiosegments called!!")
 
         # If Raspberry Pi, add the button listener, otherwise use the spacebar
         if current_platform.startswith("raspberry-pi"):
@@ -475,10 +467,8 @@ class Device:
                 on_press=self.on_press, on_release=self.on_release
             )
             listener.start()
-            print("listener started!!!!!!!!")
 
     def start(self):
-        print("start client called!")
         if os.getenv("TEACH_MODE") != "True":
             asyncio.run(self.start_async())
             p.terminate()
