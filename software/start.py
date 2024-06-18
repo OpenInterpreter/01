@@ -77,9 +77,6 @@ def run(
     mobile: bool = typer.Option(
         False, "--mobile", help="Toggle server to support mobile app"
     ),
-    asynchronous: bool = typer.Option(
-        False, "--async", help="use interpreter optimized for latency"
-    ),
 ):
     _run(
         server=server or mobile,
@@ -102,7 +99,6 @@ def run(
         local=local,
         qr=qr or mobile,
         mobile=mobile,
-        asynchronous=asynchronous,
     )
 
 
@@ -127,7 +123,6 @@ def _run(
     local: bool = False,
     qr: bool = False,
     mobile: bool = False,
-    asynchronous: bool = False,
 ):
     if local:
         tts_service = "coqui"
@@ -162,7 +157,6 @@ def _run(
                     server_host,
                     server_port,
                     tts_service,
-                    asynchronous,
                     # llm_service,
                     # model,
                     # llm_supports_vision,
