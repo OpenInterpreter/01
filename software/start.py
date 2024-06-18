@@ -41,6 +41,9 @@ def run(
     client_type: str = typer.Option(
         "auto", "--client-type", help="Specify the client type"
     ),
+    # TODO: include other options in comments in the profiles for tts
+    # direct people to the profiles directory to make changes to the interpreter profile
+    # this should be made explicit on the docs
     llm_service: str = typer.Option(
         "litellm", "--llm-service", help="Specify the LLM service"
     ),
@@ -77,9 +80,6 @@ def run(
     mobile: bool = typer.Option(
         False, "--mobile", help="Toggle server to support mobile app"
     ),
-    asynchronous: bool = typer.Option(
-        False, "--async", help="use interpreter optimized for latency"
-    ),
 ):
     _run(
         server=server or mobile,
@@ -102,7 +102,6 @@ def run(
         local=local,
         qr=qr or mobile,
         mobile=mobile,
-        asynchronous=asynchronous,
     )
 
 
@@ -127,7 +126,6 @@ def _run(
     local: bool = False,
     qr: bool = False,
     mobile: bool = False,
-    asynchronous: bool = False,
 ):
     if local:
         tts_service = "coqui"
@@ -162,7 +160,6 @@ def _run(
                     server_host,
                     server_port,
                     tts_service,
-                    asynchronous,
                     # llm_service,
                     # model,
                     # llm_supports_vision,

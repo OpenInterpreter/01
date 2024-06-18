@@ -1,11 +1,19 @@
+# make this obvious
+from .profiles.default import interpreter as base_interpreter
+
+# from .profiles.fast import interpreter as base_interpreter
+# from .profiles.local import interpreter as base_interpreter
+
+# TODO: remove files i.py, llm.py, conftest?, services
+
 import asyncio
 import traceback
 import json
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import PlainTextResponse
 from uvicorn import Config, Server
-from .i import configure_interpreter
-from interpreter import interpreter as base_interpreter
+
+# from interpreter import interpreter as base_interpreter
 from .async_interpreter import AsyncInterpreter
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
@@ -16,23 +24,9 @@ os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
 
 
-async def main(server_host, server_port, tts_service, asynchronous):
-    if asynchronous:
-        base_interpreter.system_message = (
-            "You are a helpful assistant that can answer questions and help with tasks."
-        )
-        base_interpreter.computer.import_computer_api = False
-        base_interpreter.llm.model = "groq/llama3-8b-8192"
-        base_interpreter.llm.api_key = os.environ["GROQ_API_KEY"]
-        base_interpreter.llm.supports_functions = False
-        base_interpreter.auto_run = True
-        base_interpreter.tts = tts_service
-        interpreter = AsyncInterpreter(base_interpreter)
-    else:
-        configured_interpreter = configure_interpreter(base_interpreter)
-        configured_interpreter.llm.supports_functions = True
-        configured_interpreter.tts = tts_service
-        interpreter = AsyncInterpreter(configured_interpreter)
+async def main(server_host, server_port, tts_service):
+    base_interpreter.tts = tts_service
+    interpreter = AsyncInterpreter(base_interpreter)
 
     app = FastAPI()
 
