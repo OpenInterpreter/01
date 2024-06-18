@@ -65,7 +65,7 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 如果你以 [LMC 格式](https://docs.openinterpreter.com/protocols/lmc-messages) 将原始音频字节流传送到 `/`，你将会以相同的格式收到其回复。
 
-受 [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/status/1723140519554105733) 的启发，我们运行了一个 [code-interpreting language model](https://github.com/OpenInterpreter/open-interpreter)，并在你的计算机 [ 内核 ](https://github.com/OpenInterpreter/01/blob/main/01OS/01OS/server/utils/kernel.py) 发生某些事件时调用它。
+受 [Andrej Karpathy's LLM OS](https://twitter.com/karpathy/status/1723140519554105733) 的启发，我们运行了一个 [code-interpreting language model](https://github.com/OpenInterpreter/open-interpreter)，并在你的计算机 [ 内核 ](https://github.com/OpenInterpreter/01/blob/main/software/source/server/utils/kernel.py) 发生某些事件时调用它。
 
 01 将其包装成一个语音界面：
 
