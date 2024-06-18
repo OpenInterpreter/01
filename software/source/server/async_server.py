@@ -1,37 +1,39 @@
 import asyncio
 import traceback
 import json
-from fastapi import FastAPI, WebSocket, Header
+from fastapi import FastAPI, WebSocket
 from fastapi.responses import PlainTextResponse
 from uvicorn import Config, Server
+from .i import configure_interpreter
 from interpreter import interpreter as base_interpreter
 from starlette.websockets import WebSocketDisconnect
 from .async_interpreter import AsyncInterpreter
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
-from openai import OpenAI
-from pydantic import BaseModel
-import argparse
 import os
 
-# import sentry_sdk
-
-base_interpreter.system_message = (
-    "You are a helpful assistant that can answer questions and help with tasks."
-)
-base_interpreter.computer.import_computer_api = False
-base_interpreter.llm.model = "groq/llama3-8b-8192"
-base_interpreter.llm.api_key = os.environ["GROQ_API_KEY"]
-base_interpreter.llm.supports_functions = False
-base_interpreter.auto_run = True
-base_interpreter.tts = "elevenlabs"
 
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
 
 
-async def main(server_host, server_port):
-    interpreter = AsyncInterpreter(base_interpreter)
+async def main(server_host, server_port, tts_service, asynchronous):
+    if asynchronous:
+        base_interpreter.system_message = (
+            "You are a helpful assistant that can answer questions and help with tasks."
+        )
+        base_interpreter.computer.import_computer_api = False
+        base_interpreter.llm.model = "groq/llama3-8b-8192"
+        base_interpreter.llm.api_key = os.environ["GROQ_API_KEY"]
+        base_interpreter.llm.supports_functions = False
+        base_interpreter.auto_run = True
+        base_interpreter.tts = tts_service
+        interpreter = AsyncInterpreter(base_interpreter)
+    else:
+        configured_interpreter = configure_interpreter(base_interpreter)
+        configured_interpreter.llm.supports_functions = True
+        configured_interpreter.tts = tts_service
+        interpreter = AsyncInterpreter(configured_interpreter)
 
     app = FastAPI()
 
@@ -93,7 +95,7 @@ async def main(server_host, server_port):
         async def receive_input():
             try:
                 while True:
-                    print("server awaiting input")
+                    # print("server awaiting input")
                     data = await websocket.receive()
 
                     if isinstance(data, bytes):
