@@ -32,7 +32,7 @@ class AsyncInterpreter:
         self.stt = AudioToTextRecorder(
             model="tiny.en", spinner=False, use_microphone=False
         )
-        self.stt.stop()
+        self.stt.stop()  # It needs this for some reason
 
         # TTS
         if self.interpreter.tts == "coqui":
@@ -103,7 +103,7 @@ class AsyncInterpreter:
         # print("ADDING TO QUEUE:", chunk)
         asyncio.create_task(self._add_to_queue(self._output_queue, chunk))
 
-    def generate(self, message):
+    def generate(self, message, start_interpreter):
         last_lmc_start_flag = self._last_lmc_start_flag
         self.interpreter.messages = self.active_chat_messages
 
