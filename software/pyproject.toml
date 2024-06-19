@@ -49,7 +49,6 @@ pyobjc = "*"
 sentry-sdk = "^2.4.0"
 plyer = "^2.1.0"
 pywinctl = "^0.3"
-dateparser = "^1.1.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

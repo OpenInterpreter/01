@@ -26,12 +26,14 @@ class AsyncInterpreter:
         self.tts_latency = None
         self.interpreter_latency = None
         self.time_from_first_yield_to_first_put = None
+
         self.interpreter = interpreter
 
         # STT
         self.stt = AudioToTextRecorder(
             model="tiny.en", spinner=False, use_microphone=False
         )
+
         self.stt.stop()  # It needs this for some reason
 
         # TTS
@@ -234,3 +236,6 @@ class AsyncInterpreter:
     async def output(self):
         print("outputting chunks")
         return await self._output_queue.get()
+
+    def shutdown(self):
+        self.stt.shutdown()
