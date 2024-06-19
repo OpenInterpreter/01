@@ -127,7 +127,9 @@ If you want to run local speech-to-text using Whisper, you must install Rust. Fo
 
 ## Customizations
 
-To customize the behavior of the system, edit the [system message, model, skills library path,](https://docs.openinterpreter.com/settings/all-settings) etc. in `i.py`. This file sets up an interpreter, and is powered by Open Interpreter.
+To customize the behavior of the system, edit the [system message, model, skills library path,](https://docs.openinterpreter.com/settings/all-settings) etc. in the `profiles` directory under the `server` directory. This file sets up an interpreter, and is powered by Open Interpreter.
+
+To specify the text-to-speech service for the 01 `base_device.py`, set `interpreter.tts` to either "openai" for OpenAI, "elevenlabs" for ElevenLabs, or "coqui" for Coqui (local) in a profile.
 
 ## Ubuntu Dependencies
 

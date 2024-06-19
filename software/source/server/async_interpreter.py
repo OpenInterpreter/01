@@ -22,11 +22,6 @@ import os
 
 class AsyncInterpreter:
     def __init__(self, interpreter):
-        self.stt_latency = None
-        self.tts_latency = None
-        self.interpreter_latency = None
-        self.time_from_first_yield_to_first_put = None
-
         self.interpreter = interpreter
 
         # STT
@@ -128,9 +123,7 @@ class AsyncInterpreter:
 
                     # Experimental: The AI voice sounds better with replacements like these, but it should happen at the TTS layer
                     # content = content.replace(". ", ". ... ").replace(", ", ", ... ").replace("!", "! ... ").replace("?", "? ... ")
-                    print("yielding ", content)
-                    if self.time_from_first_yield_to_first_put is None:
-                        self.time_from_first_yield_to_first_put = time.time()
+                    # print("yielding ", content)
 
                     yield content
 
@@ -162,9 +155,6 @@ class AsyncInterpreter:
                         )
 
         # Send a completion signal
-        end_interpreter = time.time()
-        self.interpreter_latency = end_interpreter - start_interpreter
-        print("INTERPRETER LATENCY", self.interpreter_latency)
         # self.add_to_output_queue_sync({"role": "server","type": "completion", "content": "DONE"})
 
     async def run(self):
@@ -179,11 +169,7 @@ class AsyncInterpreter:
         while not self._input_queue.empty():
             input_queue.append(self._input_queue.get())
 
-        start_stt = time.time()
         message = self.stt.text()
-        end_stt = time.time()
-        self.stt_latency = end_stt - start_stt
-        print("STT LATENCY", self.stt_latency)
 
         print(message)
 
@@ -210,23 +196,11 @@ class AsyncInterpreter:
                         "end": True,
                     }
                 )
-                end_tts = time.time()
-                self.tts_latency = end_tts - self.tts.stream_start_time
-                print("TTS LATENCY", self.tts_latency)
                 self.tts.stop()
                 break
 
     async def _on_tts_chunk_async(self, chunk):
-        print("adding chunk to queue")
-        if (
-            self.time_from_first_yield_to_first_put is not None
-            and self.time_from_first_yield_to_first_put != 0
-        ):
-            print(
-                "time from first yield to first put is ",
-                time.time() - self.time_from_first_yield_to_first_put,
-            )
-            self.time_from_first_yield_to_first_put = 0
+        # print("adding chunk to queue")
         await self._add_to_queue(self._output_queue, chunk)
 
     def on_tts_chunk(self, chunk):
@@ -234,8 +208,5 @@ class AsyncInterpreter:
         asyncio.run(self._on_tts_chunk_async(chunk))
 
     async def output(self):
-        print("outputting chunks")
+        # print("outputting chunks")
         return await self._output_queue.get()
-
-    def shutdown(self):
-        self.stt.shutdown()

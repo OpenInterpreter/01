@@ -1,6 +1,6 @@
 from interpreter import interpreter
 
-# 01 suports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
+# 01 supports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
 # {OpenAI: "openai", ElevenLabs: "elevenlabs", Coqui: "coqui"}
 interpreter.tts = "coqui"
 

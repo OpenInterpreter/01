@@ -1,3 +1,5 @@
+# tests currently hang after completion
+
 """
 import pytest
 import signal

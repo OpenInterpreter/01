@@ -3,9 +3,9 @@ from interpreter import interpreter
 # This is an Open Interpreter compatible profile.
 # Visit https://01.openinterpreter.com/profile for all options.
 
-# 01 suports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
+# 01 supports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
 # {OpenAI: "openai", ElevenLabs: "elevenlabs", Coqui: "coqui"}
-interpreter.tts = "openai"
+interpreter.tts = "elevenlabs"
 
 # Connect your 01 to a language model
 interpreter.llm.model = "gpt-4-turbo"

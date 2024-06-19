@@ -1,9 +1,13 @@
-# TODO: import from the profiles directory the interpreter that should be served!!
+# import from the profiles directory the interpreter to be served
 
-from .profiles.fast import interpreter as base_interpreter
+# add other profiles to the directory to define other interpreter instances and import them here
+# {.profiles.fast: optimizes for STT/TTS latency with the fastest models }
+# {.profiles.local: uses local models and local STT/TTS }
+# {.profiles.default: uses default interpreter settings with optimized TTS latency }
 
+# from .profiles.fast import interpreter as base_interpreter
 # from .profiles.local import interpreter as base_interpreter
-# from .profiles.default import interpreter as base_interpreter
+from .profiles.default import interpreter as base_interpreter
 
 import asyncio
 import traceback
