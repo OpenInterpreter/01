@@ -576,7 +576,7 @@ void tryReconnectToServer() {
 #define MAX_DATA_LEN (1024 * 9)
 
 #define MIC_SAMPLE_RATE 16000
-#define SPEAKER_SAMPLE_RATE 24000  // or 22050 for OpenAI TTS
+#define SPEAKER_SAMPLE_RATE 24000  // set to 24000 for Coqui (local) or 22050 for OpenAI TTS
 
 uint8_t microphonedata0[1024 * 10];
 uint8_t speakerdata0[1024 * 1];
