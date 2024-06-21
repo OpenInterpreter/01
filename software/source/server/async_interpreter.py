@@ -11,7 +11,7 @@
 
 ###
 from pynput import keyboard
-
+from .utils.bytes_to_wav import bytes_to_wav
 from RealtimeTTS import TextToAudioStream, CoquiEngine, OpenAIEngine, ElevenlabsEngine
 from RealtimeSTT import AudioToTextRecorder
 import time
@@ -23,6 +23,7 @@ import os
 class AsyncInterpreter:
     def __init__(self, interpreter):
         self.interpreter = interpreter
+        self.audio_chunks = []
 
         # STT
         self.stt = AudioToTextRecorder(
@@ -73,6 +74,7 @@ class AsyncInterpreter:
         if isinstance(chunk, bytes):
             # It's probably a chunk of audio
             self.stt.feed_audio(chunk)
+            self.audio_chunks.append(chunk)
             # print("INTERPRETER FEEDING AUDIO")
 
         else:
@@ -171,6 +173,12 @@ class AsyncInterpreter:
 
         message = self.stt.text()
 
+        if self.audio_chunks:
+            audio_bytes = bytearray(b"".join(self.audio_chunks))
+            wav_file_path = bytes_to_wav(audio_bytes, "audio/raw")
+            print("wav_file_path ", wav_file_path)
+            self.audio_chunks = []
+
         print(message)
 
         # Feed generate to RealtimeTTS
@@ -181,8 +189,8 @@ class AsyncInterpreter:
         text_iterator = self.generate(message, start_interpreter)
 
         self.tts.feed(text_iterator)
-
-        self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=True)
+        if not self.tts.is_playing():
+            self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=True)
 
         while True:
             await asyncio.sleep(0.1)

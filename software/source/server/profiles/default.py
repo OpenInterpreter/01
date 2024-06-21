@@ -5,7 +5,7 @@ from interpreter import interpreter
 
 # 01 supports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
 # {OpenAI: "openai", ElevenLabs: "elevenlabs", Coqui: "coqui"}
-interpreter.tts = "elevenlabs"
+interpreter.tts = "openai"
 
 # Connect your 01 to a language model
 interpreter.llm.model = "gpt-4-turbo"
