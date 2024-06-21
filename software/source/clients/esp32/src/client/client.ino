@@ -541,7 +541,7 @@ void tryReconnectWiFi() {
 }
 void tryReconnectToServer() {
     preferences.begin("network", true); // Open Preferences with the "network" namespace in ReadOnly mode
-    const String SERVER_URL="sterling-snail-conversely.ngrok-free.app";
+    const String SERVER_URL="SERVER URL HERE";
     String serverURL = SERVER_URL; // Get stored server URL, if any
     // String serverURL = preferences.getString("server_url", ""); // Get stored server URL, if any
     preferences.end(); // Close the Preferences
@@ -793,8 +793,8 @@ void setup() {
     Serial.setTxBufferSize(1024); // Set the transmit buffer size for the Serial object.
 
     WiFi.mode(WIFI_AP_STA); // Set WiFi mode to both AP and STA.
-    const String WIFI_NAME="gunner1";
-    const String WIFI_PASSWORD="startup1";
+    const String WIFI_NAME="WIFI NAME HERE";
+    const String WIFI_PASSWORD="WIFI PASSWORD HERE";
     // delay(100); // Short delay to ensure mode change takes effect
     // WiFi.softAPConfig(localIP, gatewayIP, subnetMask);
     // WiFi.softAP(ssid, password);
