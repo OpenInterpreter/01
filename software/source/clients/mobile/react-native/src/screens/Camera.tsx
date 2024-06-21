@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { Camera } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 // import useSoundEffect from "../lib/useSoundEffect";
 
 export default function CameraScreen() {
-  const [permission, requestPermission] = useCameraPermissions();
-
+  const [permission, requestPermission] = Camera.useCameraPermissions();
   // const playYay = useSoundEffect(require("../../assets/yay.wav"));
 
   const [scanned, setScanned] = useState(false);
@@ -52,12 +51,12 @@ export default function CameraScreen() {
   };
   return (
     <View style={styles.container}>
-      <CameraView
+      <Camera
         style={styles.camera}
         facing={"back"}
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ["qr"],
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        barCodeScannerSettings={{
+          barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
         }}
       >
         <View style={styles.buttonContainer}>
@@ -75,7 +74,7 @@ export default function CameraScreen() {
             </TouchableOpacity>
           )}
         </View>
-      </CameraView>
+      </Camera>
     </View>
   );
 }

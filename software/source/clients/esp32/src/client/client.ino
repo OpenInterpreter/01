@@ -541,7 +541,9 @@ void tryReconnectWiFi() {
 }
 void tryReconnectToServer() {
     preferences.begin("network", true); // Open Preferences with the "network" namespace in ReadOnly mode
-    String serverURL = preferences.getString("server_url", ""); // Get stored server URL, if any
+    const String SERVER_URL="SERVER URL HERE";
+    String serverURL = SERVER_URL; // Get stored server URL, if any
+    // String serverURL = preferences.getString("server_url", ""); // Get stored server URL, if any
     preferences.end(); // Close the Preferences
 
     if (!serverURL.isEmpty()) {
@@ -572,6 +574,9 @@ void tryReconnectToServer() {
 #define DATA_SIZE 1024
 
 #define MAX_DATA_LEN (1024 * 9)
+
+#define MIC_SAMPLE_RATE 16000
+#define SPEAKER_SAMPLE_RATE 24000  // set to 24000 for Coqui (local) or 22050 for OpenAI TTS
 
 uint8_t microphonedata0[1024 * 10];
 uint8_t speakerdata0[1024 * 1];
@@ -615,7 +620,6 @@ void InitI2SSpeakerOrMic(int mode)
     i2s_driver_uninstall(SPEAKER_I2S_NUMBER);
     i2s_config_t i2s_config = {
         .mode = (i2s_mode_t)(I2S_MODE_MASTER),
-        .sample_rate = 16000,
         .bits_per_sample =
             I2S_BITS_PER_SAMPLE_16BIT, // is fixed at 12bit, stereo, MSB
         .channel_format = I2S_CHANNEL_FMT_ALL_RIGHT,
@@ -633,12 +637,16 @@ void InitI2SSpeakerOrMic(int mode)
     {
         i2s_config.mode =
             (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_PDM);
+        i2s_config.sample_rate = MIC_SAMPLE_RATE;
+        i2s_config.dma_buf_count = 8;
+        i2s_config.dma_buf_len = 240;
     }
     else
     {
         i2s_config.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX);
         i2s_config.use_apll = false;
         i2s_config.tx_desc_auto_clear = true;
+        i2s_config.sample_rate = SPEAKER_SAMPLE_RATE;
     }
 
     err += i2s_driver_install(SPEAKER_I2S_NUMBER, &i2s_config, 0, NULL);
@@ -652,8 +660,10 @@ void InitI2SSpeakerOrMic(int mode)
     tx_pin_config.data_out_num = CONFIG_I2S_DATA_PIN;
     tx_pin_config.data_in_num = CONFIG_I2S_DATA_IN_PIN;
     err += i2s_set_pin(SPEAKER_I2S_NUMBER, &tx_pin_config);
-    err += i2s_set_clk(SPEAKER_I2S_NUMBER, 16000, I2S_BITS_PER_SAMPLE_16BIT,
-                    I2S_CHANNEL_MONO);
+    err += i2s_set_clk(SPEAKER_I2S_NUMBER,
+                        (mode == MODE_MIC) ? MIC_SAMPLE_RATE : SPEAKER_SAMPLE_RATE,      // set the sample rate here as well
+                        I2S_BITS_PER_SAMPLE_16BIT,
+                        I2S_CHANNEL_MONO);
 }
 
 void speaker_play(uint8_t *payload, uint32_t len)
@@ -783,15 +793,18 @@ void setup() {
     Serial.setTxBufferSize(1024); // Set the transmit buffer size for the Serial object.
 
     WiFi.mode(WIFI_AP_STA); // Set WiFi mode to both AP and STA.
-
+    const String WIFI_NAME="WIFI NAME HERE";
+    const String WIFI_PASSWORD="WIFI PASSWORD HERE";
     // delay(100); // Short delay to ensure mode change takes effect
     // WiFi.softAPConfig(localIP, gatewayIP, subnetMask);
     // WiFi.softAP(ssid, password);
-    startSoftAccessPoint(ssid, password, localIP, gatewayIP);
+    // startSoftAccessPoint(ssid, password, localIP, gatewayIP);
+    connectToWifi(WIFI_NAME, WIFI_PASSWORD);
     setUpDNSServer(dnsServer, localIP);
+    tryReconnectToServer();
 
-    setUpWebserver(server, localIP);
-    tryReconnectWiFi();
+    // setUpWebserver(server, localIP);
+    // tryReconnectWiFi();
     // Print a welcome message to the Serial port.
     Serial.println("\n\nCaptive Test, V0.5.0 compiled " __DATE__ " " __TIME__ " by CD_FER");
     Serial.printf("%s-%d\n\r", ESP.getChipModel(), ESP.getChipRevision());
