@@ -25,6 +25,7 @@ class AsyncInterpreter:
         self.stt_latency = None
         self.tts_latency = None
         self.interpreter_latency = None
+        # time from first put to first yield
         self.tffytfp = None
         self.debug = debug
 
