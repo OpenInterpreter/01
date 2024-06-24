@@ -21,7 +21,13 @@ import os
 
 
 class AsyncInterpreter:
-    def __init__(self, interpreter):
+    def __init__(self, interpreter, debug):
+        self.stt_latency = None
+        self.tts_latency = None
+        self.interpreter_latency = None
+        self.tffytfp = None
+        self.debug = debug
+
         self.interpreter = interpreter
         self.audio_chunks = []
 
@@ -126,6 +132,8 @@ class AsyncInterpreter:
                     # Experimental: The AI voice sounds better with replacements like these, but it should happen at the TTS layer
                     # content = content.replace(". ", ". ... ").replace(", ", ", ... ").replace("!", "! ... ").replace("?", "? ... ")
                     # print("yielding ", content)
+                    if self.time_from_first_yield_to_first_put is None:
+                        self.time_from_first_yield_to_first_put = time.time()
 
                     yield content
 
@@ -157,6 +165,10 @@ class AsyncInterpreter:
                         )
 
         # Send a completion signal
+        if self.debug:
+            end_interpreter = time.time()
+            self.interpreter_latency = end_interpreter - start_interpreter
+            print("INTERPRETER LATENCY", self.interpreter_latency)
         # self.add_to_output_queue_sync({"role": "server","type": "completion", "content": "DONE"})
 
     async def run(self):
@@ -171,13 +183,20 @@ class AsyncInterpreter:
         while not self._input_queue.empty():
             input_queue.append(self._input_queue.get())
 
-        message = self.stt.text()
+        if self.debug:
+            start_stt = time.time()
+            message = self.stt.text()
+            end_stt = time.time()
+            self.stt_latency = end_stt - start_stt
+            print("STT LATENCY", self.stt_latency)
 
-        if self.audio_chunks:
-            audio_bytes = bytearray(b"".join(self.audio_chunks))
-            wav_file_path = bytes_to_wav(audio_bytes, "audio/raw")
-            print("wav_file_path ", wav_file_path)
-            self.audio_chunks = []
+            if self.audio_chunks:
+                audio_bytes = bytearray(b"".join(self.audio_chunks))
+                wav_file_path = bytes_to_wav(audio_bytes, "audio/raw")
+                print("wav_file_path ", wav_file_path)
+                self.audio_chunks = []
+        else:
+            message = self.stt.text()
 
         print(message)
 
@@ -204,11 +223,22 @@ class AsyncInterpreter:
                         "end": True,
                     }
                 )
+                if self.debug:
+                    end_tts = time.time()
+                    self.tts_latency = end_tts - self.tts.stream_start_time
+                    print("TTS LATENCY", self.tts_latency)
                 self.tts.stop()
+
                 break
 
     async def _on_tts_chunk_async(self, chunk):
         # print("adding chunk to queue")
+        if self.debug and self.tffytfp is not None and self.tffytfp != 0:
+            print(
+                "time from first yield to first put is ",
+                time.time() - self.tffytfp,
+            )
+            self.tffytfp = 0
         await self._add_to_queue(self._output_queue, chunk)
 
     def on_tts_chunk(self, chunk):

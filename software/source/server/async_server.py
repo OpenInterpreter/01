@@ -12,7 +12,7 @@ from .profiles.default import interpreter as base_interpreter
 import asyncio
 import traceback
 import json
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, Depends
 from fastapi.responses import PlainTextResponse
 from uvicorn import Config, Server
 from .async_interpreter import AsyncInterpreter
@@ -23,8 +23,6 @@ import os
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
 
-# interpreter.tts set in the profiles directory!!!!
-interpreter = AsyncInterpreter(base_interpreter)
 
 app = FastAPI()
 
@@ -37,14 +35,23 @@ app.add_middleware(
 )
 
 
+async def get_debug_flag():
+    return app.state.debug
+
+
 @app.get("/ping")
 async def ping():
     return PlainTextResponse("pong")
 
 
 @app.websocket("/")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(
+    websocket: WebSocket, debug: bool = Depends(get_debug_flag)
+):
     await websocket.accept()
+
+    # interpreter.tts set in the profiles directory!!!!
+    interpreter = AsyncInterpreter(base_interpreter, debug)
 
     # Send the tts_service value to the client
     await websocket.send_text(
@@ -91,7 +98,9 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.close()
 
 
-async def main(server_host, server_port):
+async def main(server_host, server_port, debug):
+    app.state.debug = debug
+
     print(f"Starting server on {server_host}:{server_port}")
     config = Config(app, host=server_host, port=server_port, lifespan="on")
     server = Server(config)

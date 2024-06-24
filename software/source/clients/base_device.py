@@ -91,6 +91,8 @@ class Device:
         self.server_url = ""
         self.ctrl_pressed = False
         self.tts_service = ""
+        self.debug = False
+        self.playback_latency = None
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
         """Captures an image from the specified camera device and saves it to a temporary file. Adds the image to the captured_images list."""
@@ -164,6 +166,10 @@ class Device:
         while True:
             try:
                 audio = await self.audiosegments.get()
+                if self.debug and self.playback_latency and isinstance(audio, bytes):
+                    elapsed_time = time.time() - self.playback_latency
+                    print(f"Time from request to playback: {elapsed_time} seconds")
+                    self.playback_latency = None
 
                 if self.tts_service == "elevenlabs":
                     mpv_process.stdin.write(audio)  # type: ignore
@@ -219,6 +225,8 @@ class Device:
         stream.stop_stream()
         stream.close()
         print("Recording stopped.")
+        if self.debug:
+            self.playback_latency = time.time()
 
         duration = wav_file.getnframes() / RATE
         if duration < 0.3:
