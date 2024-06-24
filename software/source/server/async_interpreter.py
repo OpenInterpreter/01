@@ -132,8 +132,8 @@ class AsyncInterpreter:
                     # Experimental: The AI voice sounds better with replacements like these, but it should happen at the TTS layer
                     # content = content.replace(". ", ". ... ").replace(", ", ", ... ").replace("!", "! ... ").replace("?", "? ... ")
                     # print("yielding ", content)
-                    if self.time_from_first_yield_to_first_put is None:
-                        self.time_from_first_yield_to_first_put = time.time()
+                    if self.tffytfp is None:
+                        self.tffytfp = time.time()
 
                     yield content
 
