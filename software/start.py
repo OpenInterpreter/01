@@ -41,6 +41,11 @@ def run(
     qr: bool = typer.Option(
         False, "--qr", help="Display QR code to scan to connect to the server"
     ),
+    debug: bool = typer.Option(
+        False,
+        "--debug",
+        help="Print latency measurements and save microphone recordings locally for manual playback.",
+    ),
 ):
     _run(
         server=server,
@@ -52,6 +57,7 @@ def run(
         server_url=server_url,
         client_type=client_type,
         qr=qr,
+        debug=debug,
     )
 
 
@@ -65,6 +71,7 @@ def _run(
     server_url: str = None,
     client_type: str = "auto",
     qr: bool = False,
+    debug: bool = False,
 ):
 
     system_type = platform.system()
@@ -93,6 +100,7 @@ def _run(
                 main(
                     server_host,
                     server_port,
+                    debug,
                 ),
             ),
         )
@@ -125,7 +133,7 @@ def _run(
             f".clients.{client_type}.device", package="source"
         )
 
-        client_thread = threading.Thread(target=module.main, args=[server_url])
+        client_thread = threading.Thread(target=module.main, args=[server_url, debug])
         client_thread.start()
 
     try:
