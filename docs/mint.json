@@ -54,7 +54,7 @@
     },
     {
       "group": "Bodies",
-      "pages": ["bodies/01-light", "bodies/01-heavy"]
+      "pages": ["bodies/01-light"]
     },
     {
       "group": "Legal",

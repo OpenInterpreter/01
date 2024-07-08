@@ -5,7 +5,7 @@
   - [ ] Test it end-to-end.
     - [ ] Make sure it works with computer.skills.search (it should already work)
   - [ ] Create computer.skills.teach()
-    - [ ]  Displays a tkinter message asking users to complete the task via text (eventually voice) in the most generalizable way possible. OI should use computer.mouse and computer.keyboard to fulfill each step, then save the generalized instruction as a skill. Clicking the mouse cancels teach mode. When OI invokes this skill in the future, it will just list those steps (it needs to figure out how to flexibly accomplish each step).
+    - [ ] Displays a tkinter message asking users to complete the task via text (eventually voice) in the most generalizable way possible. OI should use computer.mouse and computer.keyboard to fulfill each step, then save the generalized instruction as a skill. Clicking the mouse cancels teach mode. When OI invokes this skill in the future, it will just list those steps (it needs to figure out how to flexibly accomplish each step).
     - [ ] Computer: "What do you want to name this skill?"
     - [ ] User: Enters name in textbox
     - [ ] Computer: "Whats the First Step"
@@ -73,7 +73,6 @@
 - [ ] Connect the Jetson or Pi to a battery.
 - [ ] Make a rudimentary case for the Seeed Sense + speaker. Optional.
 - [ ] Make a rudimentary case for the Jetson or Pi. Optional.
-- [ ] Determine recommended minimal hardware for the light & heavy.
 
 **Release Day**
 
@@ -81,6 +80,7 @@
 - [ ] Create form to get pre-release feedback from 200 interested people (who responded to Killian's tweet)
 
 **DONE**
+
 - [ ] Get Local TTS working on Mac [Shiven]
 - [ ] Get Local SST working on Mac [Zohaib + Shiven]
 - [ ] Debug level logging/printing [Tom]

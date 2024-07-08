@@ -53,7 +53,6 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 - **01 Light** 是基于 ESP32 的语音接口。 [构建说明在这里。](https://github.com/OpenInterpreter/01/tree/main/hardware/light) 它与运行在你家庭电脑上的 **01 Server** ([下面有设置指南](https://github.com/OpenInterpreter/01/blob/main/README.md#01-server)) 配合使用。
 - **Mac OSX** and **Ubuntu** 支持通过运行 `poetry run 01`。 这会使用你的空格键来模拟 01 Light。
-- （即将推出） **01 Heavy** 是一个独立设备，可以在本地运行所有功能。
 
 **我们需要您的帮助来支持和构建更多硬件。** 01 应该能够在任何具有输入（麦克风、键盘等）、输出（扬声器、屏幕、电机等）和互联网连接（或足够的计算资源以在本地运行所有内容）的设备上运行。 [ 贡献指南 →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 

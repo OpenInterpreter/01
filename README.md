@@ -10,10 +10,9 @@
 
 <div align="center">
 
- | [日本語](docs/README_JP.md) | [English](README.md) |
+| [日本語](docs/README_JP.md) | [English](README.md) |
 
 </div>
-
 
 <br>
 
@@ -65,7 +64,6 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 - The **01 Light** is an ESP32-based voice interface. Build instructions are [here](https://github.com/OpenInterpreter/01/tree/main/hardware/light). A list of what to buy [here](https://github.com/OpenInterpreter/01/blob/main/hardware/light/BOM.md).
 - It works in tandem with the **01 Server** ([setup guide below](https://github.com/OpenInterpreter/01/blob/main/README.md#01-server)) running on your home computer.
 - **Mac OSX** and **Ubuntu** are supported by running `poetry run 01` (**Windows** is supported experimentally). This uses your spacebar to simulate the 01 Light.
-- (coming soon) The **01 Heavy** is a standalone device that runs everything locally.
 
 **We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 
