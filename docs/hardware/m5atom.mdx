@@ -3,16 +3,22 @@ title: "M5 Atom"
 description: "Prep your M5 Atom"
 ---
 
-## ESP32 Playback
+The recommended hardware for the developer kit is based around the M5 Atom. It contains an ESP32 board, as well as a microphone and speaker.
+
+The ESP32 needs to be setup to work with the 01OS server. We've created the firmware needed, just follow this guide.
+
+## ESP32
 
 To set up audio recording + playback on the ESP32 (M5 Atom), do the following:
 
-1. Open Arduino IDE, and open the client/client.ino file
-2. Go to Tools -> Board -> Boards Manager, search "esp32", then install the boards by Arduino and Espressif
-3. Go to Tools -> Manage Libraries, then install the following:
+1. Download the [Arduino IDE](https://www.arduino.cc/en/software)
+2. Get the firmware by copying the contents of `software/source/clients/esp32/src/client/client.ino` from the 01 repository.
+3. Open Arduino IDE and paste the client.ino contents
+4. Go to Tools -> Board -> Boards Manager, search "esp32", then install the boards by Arduino and Espressif
+5. Go to Tools -> Manage Libraries, then install the following:
 
 - M5Atom by M5Stack [Reference](https://www.arduino.cc/reference/en/libraries/m5atom/)
 - WebSockets by Markus Sattler [Reference](https://www.arduino.cc/reference/en/libraries/websockets/)
 
-4. The board needs to connect to WiFi. Once you flash, connect to ESP32 wifi "captive" which will get wifi details. Once it connects, it will ask you to enter 01OS server address in the format "domain.com:port" or "ip:port". Once its able to connect you can use the device.
-5. To flash the .ino to the board, connect the board to the USB port, select the port from the dropdown on the IDE, then select the M5Atom board (or M5Stack-ATOM if you have that). Click on upload to flash the board.
+6. The board needs to connect to WiFi. Once you flash, connect to ESP32 wifi "captive" which will get wifi details. Once it connects, it will ask you to enter 01OS server address in the format "domain.com:port" or "ip:port". Once its able to connect you can use the device.
+7. To flash the .ino to the board, connect the board to the USB port, select the port from the dropdown on the IDE, then select the M5Atom board (or M5Stack-ATOM if you have that). Click on upload to flash the board.
