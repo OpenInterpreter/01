@@ -41,7 +41,7 @@
     },
     {
       "group": "Software Setup",
-      "pages": ["software/installation", "software/setup"]
+      "pages": ["software/installation", "software/setup", "software/flags"]
     },
     {
       "group": "Hardware Setup",
