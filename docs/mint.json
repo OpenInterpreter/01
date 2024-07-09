@@ -41,11 +41,11 @@
     },
     {
       "group": "Software Setup",
-      "pages": ["software/installation", "software/setup", "software/client"]
+      "pages": ["software/installation", "software/setup"]
     },
     {
       "group": "Hardware Setup",
-      "pages": ["hardware/01-light"]
+      "pages": ["hardware/01-light", "hardware/m5atom"]
     },
     {
       "group": "Using 01",
