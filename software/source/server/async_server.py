@@ -40,6 +40,11 @@ async def websocket_endpoint(
 ):
     await websocket.accept()
 
+    # Send the tts_service value to the client
+    await websocket.send_text(
+        json.dumps({"type": "config", "tts_service": interpreter.interpreter.tts})
+    )
+
     try:
 
         async def receive_input():
