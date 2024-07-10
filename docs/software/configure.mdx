@@ -4,18 +4,37 @@ description: "Configure your 01 instance"
 ---
 
 A core part of the 01 server is the interpreter which is an instance of Open Interpreter.
-Open Interpreter is highly configurable and only requires updating a profile.
+Open Interpreter is highly configurable and only requires updating or creating a profile.
+Properties such as `model`, `context_window`, and many more can be updated here.
+
+To open the directory of all profiles, run:
 
 ```bash
 # View profiles
 poetry run 01 --profiles
 ```
 
-Properties such as `model`, `context_window`, and many more can be updated here.
-
-To assign a profile to your 01 instance, use the `--profile` flag:
+To apply a profile to your 01 instance, use the `--profile` flag followed by the name of the profile
 
 ```bash
 # Use profile
+poetry run 01 --profile <profile_name>
+```
+
+### Standard Profiles
+
+`default.py` is the default profile that is used when no profile is specified. The default TTS is OpenAI.
+
+`fast.py` uses elevenlabs and groq, which are the fastest providers.
+
+`local.py` uses coqui TTS and runs the --local explorer from Open Interpreter.
+
+### Custom Profiles
+
+If you want to make your own file, you can do so by creating a new file in the `profiles` directory.
+The easiest way is to duplicate an existing profile and then update values as needed. Be sure to save the profile with a unique name.
+
+```bash
+# Use custom profile
 poetry run 01 --profile <profile_name>
 ```
