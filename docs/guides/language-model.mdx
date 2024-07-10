@@ -3,36 +3,14 @@ title: "Language Model"
 description: "The LLM that powers your 01"
 ---
 
-## llamafile
-
-llamafile lets you distribute and run LLMs with a single file. Read more about llamafile [here](https://github.com/Mozilla-Ocho/llamafile)
-
-```bash
-# Set the LLM service to llamafile
-poetry run 01 --llm-service llamafile
-```
-
-## Llamaedge
-
-llamaedge makes it easy for you to run LLM inference apps and create OpenAI-compatible API services for the Llama2 series of LLMs locally.
-Read more about Llamaedge [here](https://github.com/LlamaEdge/LlamaEdge)
-
-```bash
-# Set the LLM service to Llamaedge
-poetry run 01 --llm-service llamaedge
-```
-
 ## Hosted Models
 
-01OS leverages liteLLM which supports [many hosted models](https://docs.litellm.ai/docs/providers/).
+The default LLM for 01 is GPT-4-Turbo. You can find this in the default profile in `software/source/server/profiles/default.py`.
 
-To select your providers
+The fast profile uses Llama3-8b served by Groq. You can find this in the fast profile in `software/source/server/profiles/fast.py`.
 
-```bash
-# Set the LLM service
-poetry run 01 --llm-service openai
-```
+## Local Models
 
-## Other Models
+You can use local models to power 01.
 
-More instructions coming soon!
+Using the local profile launches the Local Explorer where you can select your inference provider and model. The default options include Llamafile, Jan, Ollama, and LM Studio.
