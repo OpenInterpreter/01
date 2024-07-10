@@ -92,6 +92,10 @@ async def main(server_host, server_port, profile, debug):
     # Get the interpreter from the profile
     interpreter = profile_module.interpreter
 
+    if not hasattr(interpreter, 'tts'):
+        print("Setting TTS provider to default: openai")
+        interpreter.tts = "openai"
+
     # Make it async
     interpreter = AsyncInterpreter(interpreter, debug)
 
