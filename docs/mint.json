@@ -54,11 +54,7 @@
     },
     {
       "group": "Using 01",
-      "pages": [
-        "guides/language-model",
-        "guides/speech-to-text",
-        "guides/text-to-speech"
-      ]
+      "pages": ["guides/language-model", "guides/text-to-speech"]
     },
     {
       "group": "Troubleshooting",
