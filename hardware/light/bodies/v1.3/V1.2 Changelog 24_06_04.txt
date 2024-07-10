@@ -1,0 +1,4 @@
+Version 1.3
+released 24_06_04
+
+Added cable management clips

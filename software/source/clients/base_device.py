@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
 
+import subprocess
 import os
 import sys
 import asyncio
@@ -46,7 +47,7 @@ accumulator = Accumulator()
 CHUNK = 1024  # Record in chunks of 1024 samples
 FORMAT = pyaudio.paInt16  # 16 bits per sample
 CHANNELS = 1  # Mono
-RATE = 44100  # Sample rate
+RATE = 16000  # Sample rate
 RECORDING = False  # Flag to control recording state
 SPACEBAR_PRESSED = False  # Flag to track spacebar press state
 
@@ -60,12 +61,18 @@ CAMERA_WARMUP_SECONDS = float(os.getenv("CAMERA_WARMUP_SECONDS", 0))
 # Specify OS
 current_platform = get_system_info()
 
+
 def is_win11():
     return sys.getwindowsversion().build >= 22000
 
+
 def is_win10():
     try:
-        return platform.system() == "Windows" and "10" in platform.version() and not is_win11()
+        return (
+            platform.system() == "Windows"
+            and "10" in platform.version()
+            and not is_win11()
+        )
     except:
         return False
 
@@ -80,9 +87,12 @@ class Device:
     def __init__(self):
         self.pressed_keys = set()
         self.captured_images = []
-        self.audiosegments = []
+        self.audiosegments = asyncio.Queue()
         self.server_url = ""
         self.ctrl_pressed = False
+        self.tts_service = ""
+        self.debug = False
+        self.playback_latency = None
 
     def fetch_image_from_camera(self, camera_index=CAMERA_DEVICE_INDEX):
         """Captures an image from the specified camera device and saves it to a temporary file. Adds the image to the captured_images list."""
@@ -144,11 +154,29 @@ class Device:
 
     async def play_audiosegments(self):
         """Plays them sequentially."""
+
+        mpv_command = ["mpv", "--no-cache", "--no-terminal", "--", "fd://0"]
+        mpv_process = subprocess.Popen(
+            mpv_command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
         while True:
             try:
-                for audio in self.audiosegments:
+                audio = await self.audiosegments.get()
+                if self.debug and self.playback_latency and isinstance(audio, bytes):
+                    elapsed_time = time.time() - self.playback_latency
+                    print(f"Time from request to playback: {elapsed_time} seconds")
+                    self.playback_latency = None
+
+                if self.tts_service == "elevenlabs":
+                    mpv_process.stdin.write(audio)  # type: ignore
+                    mpv_process.stdin.flush()  # type: ignore
+                else:
                     play(audio)
-                    self.audiosegments.remove(audio)
+
                 await asyncio.sleep(0.1)
             except asyncio.exceptions.CancelledError:
                 # This happens once at the start?
@@ -197,6 +225,8 @@ class Device:
         stream.stop_stream()
         stream.close()
         print("Recording stopped.")
+        if self.debug:
+            self.playback_latency = time.time()
 
         duration = wav_file.getnframes() / RATE
         if duration < 0.3:
@@ -267,19 +297,18 @@ class Device:
     def on_press(self, key):
         """Detect spacebar press and Ctrl+C combination."""
         self.pressed_keys.add(key)  # Add the pressed key to the set
-        
 
         if keyboard.Key.space in self.pressed_keys:
             self.toggle_recording(True)
-        elif {keyboard.Key.ctrl, keyboard.KeyCode.from_char('c')} <= self.pressed_keys:
+        elif {keyboard.Key.ctrl, keyboard.KeyCode.from_char("c")} <= self.pressed_keys:
             logger.info("Ctrl+C pressed. Exiting...")
             kill_process_tree()
             os._exit(0)
-        
+
         # Windows alternative to the above
         if key == keyboard.Key.ctrl_l:
             self.ctrl_pressed = True
-            
+
         try:
             if key.vk == 67 and self.ctrl_pressed:
                 logger.info("Ctrl+C pressed. Exiting...")
@@ -289,17 +318,17 @@ class Device:
         except:
             pass
 
-
-
     def on_release(self, key):
         """Detect spacebar release and 'c' key press for camera, and handle key release."""
-        self.pressed_keys.discard(key)  # Remove the released key from the key press tracking set
+        self.pressed_keys.discard(
+            key
+        )  # Remove the released key from the key press tracking set
 
         if key == keyboard.Key.ctrl_l:
             self.ctrl_pressed = False
         if key == keyboard.Key.space:
             self.toggle_recording(False)
-        elif CAMERA_ENABLED and key == keyboard.KeyCode.from_char('c'):
+        elif CAMERA_ENABLED and key == keyboard.KeyCode.from_char("c"):
             self.fetch_image_from_camera()
 
     async def message_sender(self, websocket):
@@ -332,35 +361,48 @@ class Device:
                 chunk = await websocket.recv()
 
                 logger.debug(f"Got this message from the server: {type(chunk)} {chunk}")
+                # print("received chunk from server")
 
                 if type(chunk) == str:
                     chunk = json.loads(chunk)
 
-                message = accumulator.accumulate(chunk)
+                    if chunk.get("type") == "config":
+                        self.tts_service = chunk.get("tts_service")
+                        continue
+
+                if self.tts_service == "elevenlabs":
+                    message = chunk
+                else:
+                    message = accumulator.accumulate(chunk)
+
                 if message == None:
                     # Will be None until we have a full message ready
                     continue
 
                 # At this point, we have our message
-
-                if message["type"] == "audio" and message["format"].startswith("bytes"):
+                if isinstance(message, bytes) or (
+                    message["type"] == "audio" and message["format"].startswith("bytes")
+                ):
                     # Convert bytes to audio file
+                    if self.tts_service == "elevenlabs":
+                        audio_bytes = message
+                        audio = audio_bytes
+                    else:
+                        audio_bytes = message["content"]
 
-                    audio_bytes = message["content"]
+                        # Create an AudioSegment instance with the raw data
+                        audio = AudioSegment(
+                            # raw audio data (bytes)
+                            data=audio_bytes,
+                            # signed 16-bit little-endian format
+                            sample_width=2,
+                            # 16,000 Hz frame rate
+                            frame_rate=22050,
+                            # mono sound
+                            channels=1,
+                        )
 
-                    # Create an AudioSegment instance with the raw data
-                    audio = AudioSegment(
-                        # raw audio data (bytes)
-                        data=audio_bytes,
-                        # signed 16-bit little-endian format
-                        sample_width=2,
-                        # 16,000 Hz frame rate
-                        frame_rate=16000,
-                        # mono sound
-                        channels=1,
-                    )
-
-                    self.audiosegments.append(audio)
+                    await self.audiosegments.put(audio)
 
                 # Run the code if that's the client's job
                 if os.getenv("CODE_RUNNER") == "client":
@@ -369,7 +411,7 @@ class Device:
                         code = message["content"]
                         result = interpreter.computer.run(language, code)
                         send_queue.put(result)
-                        
+
         if is_win10():
             logger.info("Windows 10 detected")
             # Workaround for Windows 10 not latching to the websocket server.
@@ -399,6 +441,7 @@ class Device:
 
         # Start watching the kernel if it's your job to do that
         if os.getenv("CODE_RUNNER") == "client":
+            # client is not running code!
             asyncio.create_task(put_kernel_messages_into_queue(send_queue))
 
         asyncio.create_task(self.play_audiosegments())

@@ -6,7 +6,7 @@ from ..utils.print_markdown import print_markdown
 
 
 def create_tunnel(
-    tunnel_method="ngrok", server_host="localhost", server_port=10001, qr=False
+    tunnel_method="ngrok", server_host="localhost", server_port=10001, qr=False, domain=None
 ):
     print_markdown("Exposing server to the internet...")
 
@@ -99,8 +99,13 @@ def create_tunnel(
 
         # If ngrok is installed, start it on the specified port
         # process = subprocess.Popen(f'ngrok http {server_port} --log=stdout', shell=True, stdout=subprocess.PIPE)
+        
+        if domain:
+            domain = f"--domain={domain}"
+        else:
+            domain = ""
         process = subprocess.Popen(
-            f"ngrok http {server_port} --scheme http,https  --log=stdout",
+            f"ngrok http {server_port} --scheme http,https {domain} --log=stdout",
             shell=True,
             stdout=subprocess.PIPE,
         )

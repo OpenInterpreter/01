@@ -10,7 +10,7 @@
 
 <div align="center">
 
- | [中文版](docs/README_CN.md) | [日本語](docs/README_JP.md) | [English](README.md) |
+ | [中文版](docs/README_CN.md) | [日本語](docs/README_JA.md) | [English](README.md) |
 
 </div>
 
@@ -127,7 +127,9 @@ If you want to run local speech-to-text using Whisper, you must install Rust. Fo
 
 ## Customizations
 
-To customize the behavior of the system, edit the [system message, model, skills library path,](https://docs.openinterpreter.com/settings/all-settings) etc. in `i.py`. This file sets up an interpreter, and is powered by Open Interpreter.
+To customize the behavior of the system, edit the [system message, model, skills library path,](https://docs.openinterpreter.com/settings/all-settings) etc. in the `profiles` directory under the `server` directory. This file sets up an interpreter, and is powered by Open Interpreter.
+
+To specify the text-to-speech service for the 01 `base_device.py`, set `interpreter.tts` to either "openai" for OpenAI, "elevenlabs" for ElevenLabs, or "coqui" for Coqui (local) in a profile. For the 01 Light, set `SPEAKER_SAMPLE_RATE` in `client.ino` under the `esp32` client directory to 24000 for Coqui (local) or 22050 for OpenAI TTS. We currently don't support ElevenLabs TTS on the 01 Light.
 
 ## Ubuntu Dependencies
 
