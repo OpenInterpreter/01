@@ -1,30 +1,18 @@
-# import from the profiles directory the interpreter to be served
-
-# add other profiles to the directory to define other interpreter instances and import them here
-# {.profiles.fast: optimizes for STT/TTS latency with the fastest models }
-# {.profiles.local: uses local models and local STT/TTS }
-# {.profiles.default: uses default interpreter settings with optimized TTS latency }
-
-# from .profiles.fast import interpreter as base_interpreter
-# from .profiles.local import interpreter as base_interpreter
-from .profiles.default import interpreter as base_interpreter
-
 import asyncio
 import traceback
 import json
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, Depends
 from fastapi.responses import PlainTextResponse
 from uvicorn import Config, Server
 from .async_interpreter import AsyncInterpreter
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
 import os
+import importlib.util
 
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
 
-# interpreter.tts set in the profiles directory!!!!
-interpreter = AsyncInterpreter(base_interpreter)
 
 app = FastAPI()
 
@@ -37,13 +25,19 @@ app.add_middleware(
 )
 
 
+async def get_debug_flag():
+    return app.state.debug
+
+
 @app.get("/ping")
 async def ping():
     return PlainTextResponse("pong")
 
 
 @app.websocket("/")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(
+    websocket: WebSocket, debug: bool = Depends(get_debug_flag)
+):
     await websocket.accept()
 
     # Send the tts_service value to the client
@@ -91,7 +85,25 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.close()
 
 
-async def main(server_host, server_port):
+async def main(server_host, server_port, profile, debug):
+
+    app.state.debug = debug
+
+    # Load the profile module from the provided path
+    spec = importlib.util.spec_from_file_location("profile", profile)
+    profile_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(profile_module)
+
+    # Get the interpreter from the profile
+    interpreter = profile_module.interpreter
+
+    if not hasattr(interpreter, 'tts'):
+        print("Setting TTS provider to default: openai")
+        interpreter.tts = "openai"
+
+    # Make it async
+    interpreter = AsyncInterpreter(interpreter, debug)
+
     print(f"Starting server on {server_host}:{server_port}")
     config = Config(app, host=server_host, port=server_port, lifespan="on")
     server = Server(config)
