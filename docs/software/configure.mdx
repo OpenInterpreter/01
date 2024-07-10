@@ -4,32 +4,18 @@ description: "Configure your 01 instance"
 ---
 
 A core part of the 01 server is the interpreter which is an instance of Open Interpreter.
-Open Interpreter is highly configurable and only requires updating a single file.
+Open Interpreter is highly configurable and only requires updating a profile.
 
 ```bash
-# Edit i.py
-software/source/server/i.py
+# View profiles
+poetry run 01 --profiles
 ```
 
 Properties such as `model`, `context_window`, and many more can be updated here.
 
-### LLM service provider
-
-If you wish to use a local model, you can use the `--llm-service` flag:
+To assign a profile to your 01 instance, use the `--profile` flag:
 
 ```bash
-# use llamafile
-poetry run 01 --server --llm-service llamafile
+# Use profile
+poetry run 01 --profile <profile_name>
 ```
-
-For more information about LLM service providers, check out the page on <a href="/services/language-model">Language Models</a>.
-
-### Voice Interface
-
-Both speech-to-text and text-to-speech can be configured in 01OS.
-
-You are able to pass CLI flags `--tts-service` and/or `--stt-service` with the desired service provider to swap out different services
-
-These different service providers can be found in `/services/stt` and `/services/tts`
-
-For more information, please read about <a href="/services/speech-to-text">speech-to-text</a> and <a href="/services/text-to-speech">text-to-speech</a>
