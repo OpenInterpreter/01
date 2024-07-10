@@ -89,7 +89,7 @@ https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d6
 Les Messages Systèmes Dynamiques vous permettent d'exécuter du code à l'intérieur du message système du LLM, juste avant qu'il n'apparaisse à l'IA.
 
 ```python
-# Modifiez les paramètres suivants dans i.py
+# Modifiez les paramètres suivants dans Profiles
 interpreter.system_message = r" The time is {{time.time()}}. " # Tout ce qui est entre doubles crochets sera exécuté comme du Python
 interpreter.chat("What time is it?") # L'interpréteur connaitre la réponse, sans faire appel à un outil ou une API
 ```
@@ -118,7 +118,7 @@ Si vous souhaitez exécuter localement du speech-to-text en utilisant Whisper, v
 
 ## Personnalisation
 
-Pour personnaliser le comportement du système, modifie [`system message`, `model`, `skills library path`,](https://docs.openinterpreter.com/settings/all-settings) etc. in `i.py`. Ce fichier configure un interprète alimenté par Open Interpreter.
+Pour personnaliser le comportement du système, modifie [`system message`, `model`, `skills library path`,](https://docs.openinterpreter.com/settings/all-settings) etc. in Profiles. Ce fichier configure un interprète alimenté par Open Interpreter.
 
 ## Dépendances Ubuntu
 

@@ -85,7 +85,7 @@ https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d6
 动态系统消息使您能够在 LLM 系统消息出现在 AI 前的片刻内执行代码。
 
 ```python
-# Edit the following settings in i.py
+# Edit the following settings in Profiles
 interpreter.system_message = r" The time is {{time.time()}}. " # Anything in double brackets will be executed as Python
 interpreter.chat("What time is it?") # It will know, without making a tool/API call
 ```
@@ -114,7 +114,7 @@ poetry run 01 --local
 
 ## 自定义
 
-要自定义系统的行为，请编辑 `i.py` 中的 [系统消息、模型、技能库路径](https://docs.openinterpreter.com/settings/all-settings) 等。这个文件设置了一个解释器，并由 Open Interpreter 提供支持。
+要自定义系统的行为，请编辑 Profiles 中的 [系统消息、模型、技能库路径](https://docs.openinterpreter.com/settings/all-settings) 等。这个文件设置了一个解释器，并由 Open Interpreter 提供支持。
 
 ## Ubuntu 依赖项
 

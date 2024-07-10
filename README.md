@@ -96,7 +96,7 @@ https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d6
 Dynamic System Messages enable you to execute code inside the LLM's system message, moments before it appears to the AI.
 
 ```python
-# Edit the following settings in i.py
+# Edit the following settings in Profiles
 interpreter.system_message = r" The time is {{time.time()}}. " # Anything in double brackets will be executed as Python
 interpreter.chat("What time is it?") # It will know, without making a tool/API call
 ```

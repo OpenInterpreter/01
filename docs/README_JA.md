@@ -88,7 +88,7 @@ https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d6
 ダイナミックシステムメッセージは、LLM のシステムメッセージが AI に表示される一瞬前に、その中でコードを実行することを可能にします。
 
 ```python
-# i.py の以下の設定を編集
+# Profiles の以下の設定を編集
 interpreter.system_message = r" The time is {{time.time()}}. " # 二重括弧の中は Python として実行されます
 interpreter.chat("What time is it?") # ツール/API を呼び出すことなく、次のことが分かります
 ```
@@ -117,7 +117,7 @@ Whisper を使ってローカル音声合成を実行したい場合、Rust を�
 
 ## カスタマイズ
 
-システムの動作をカスタマイズするには、`i.py` 内の[システムメッセージ、モデル、スキルライブラリのパス](https://docs.openinterpreter.com/settings/all-settings)などを編集します。このファイルはインタープリターをセットアップするもので、Open Interpreter によって動作します。
+システムの動作をカスタマイズするには、Profiles 内の[システムメッセージ、モデル、スキルライブラリのパス](https://docs.openinterpreter.com/settings/all-settings)などを編集します。このファイルはインタープリターをセットアップするもので、Open Interpreter によって動作します。
 
 ## Ubuntu 依存関係
 
