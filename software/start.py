@@ -6,6 +6,7 @@ import os
 import importlib
 from source.server.tunnel import create_tunnel
 from source.server.async_server import main
+import subprocess
 
 import signal
 
@@ -41,11 +42,25 @@ def run(
     qr: bool = typer.Option(
         False, "--qr", help="Display QR code to scan to connect to the server"
     ),
+    domain: str = typer.Option(
+        None, "--domain", help="Connect ngrok to a custom domain"
+    ),
+    profiles: bool = typer.Option(
+        False,
+        "--profiles",
+        help="Opens the folder where this script is contained",
+    ),
+    profile: str = typer.Option(
+        "default.py", # default
+        "--profile",
+        help="Specify the path to the profile, or the name of the file if it's in the `profiles` directory (run `--profiles` to open the profiles directory)",
+    ),
     debug: bool = typer.Option(
         False,
         "--debug",
         help="Print latency measurements and save microphone recordings locally for manual playback.",
     ),
+
 ):
     _run(
         server=server,
@@ -58,6 +73,9 @@ def run(
         client_type=client_type,
         qr=qr,
         debug=debug,
+        domain=domain,
+        profiles=profiles,
+        profile=profile,
     )
 
 
@@ -72,7 +90,32 @@ def _run(
     client_type: str = "auto",
     qr: bool = False,
     debug: bool = False,
+    domain = None,
+    profiles = None,
+    profile = None,
 ):
+
+    profiles_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "source", "server", "profiles")
+
+    if profiles:
+        if platform.system() == "Windows":
+            subprocess.Popen(['explorer', profiles_dir])
+        elif platform.system() == "Darwin":
+            subprocess.Popen(['open', profiles_dir])
+        elif platform.system() == "Linux":
+            subprocess.Popen(['xdg-open', profiles_dir])
+        else:
+            subprocess.Popen(['open', profiles_dir])
+        exit(0)
+
+    if profile:
+        if not os.path.isfile(profile):
+            profile = os.path.join(profiles_dir, profile)
+            if not os.path.isfile(profile):
+                profile += ".py"
+                if not os.path.isfile(profile):
+                    print(f"Invalid profile path: {profile}")
+                    exit(1)
 
     system_type = platform.system()
     if system_type == "Windows":
@@ -91,7 +134,6 @@ def _run(
     signal.signal(signal.SIGINT, handle_exit)
 
     if server:
-        # print(f"Starting server with mobile = {mobile}")
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         server_thread = threading.Thread(
@@ -100,6 +142,7 @@ def _run(
                 main(
                     server_host,
                     server_port,
+                    profile,
                     debug,
                 ),
             ),
@@ -108,7 +151,7 @@ def _run(
 
     if expose:
         tunnel_thread = threading.Thread(
-            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr]
+            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr, domain]
         )
         tunnel_thread.start()
 

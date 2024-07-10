@@ -1,14 +1,3 @@
-# import from the profiles directory the interpreter to be served
-
-# add other profiles to the directory to define other interpreter instances and import them here
-# {.profiles.fast: optimizes for STT/TTS latency with the fastest models }
-# {.profiles.local: uses local models and local STT/TTS }
-# {.profiles.default: uses default interpreter settings with optimized TTS latency }
-
-# from .profiles.fast import interpreter as base_interpreter
-# from .profiles.local import interpreter as base_interpreter
-from .profiles.default import interpreter as base_interpreter
-
 import asyncio
 import traceback
 import json
@@ -19,6 +8,7 @@ from .async_interpreter import AsyncInterpreter
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
 import os
+import importlib.util
 
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
@@ -49,14 +39,6 @@ async def websocket_endpoint(
     websocket: WebSocket, debug: bool = Depends(get_debug_flag)
 ):
     await websocket.accept()
-
-    # interpreter.tts set in the profiles directory!!!!
-    interpreter = AsyncInterpreter(base_interpreter, debug)
-
-    # Send the tts_service value to the client
-    await websocket.send_text(
-        json.dumps({"type": "config", "tts_service": interpreter.interpreter.tts})
-    )
 
     try:
 
@@ -98,8 +80,20 @@ async def websocket_endpoint(
             await websocket.close()
 
 
-async def main(server_host, server_port, debug):
+async def main(server_host, server_port, profile, debug):
+
     app.state.debug = debug
+
+    # Load the profile module from the provided path
+    spec = importlib.util.spec_from_file_location("profile", profile)
+    profile_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(profile_module)
+
+    # Get the interpreter from the profile
+    interpreter = profile_module.interpreter
+
+    # Make it async
+    interpreter = AsyncInterpreter(interpreter, debug)
 
     print(f"Starting server on {server_host}:{server_port}")
     config = Config(app, host=server_host, port=server_port, lifespan="on")
