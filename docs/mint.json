@@ -50,7 +50,12 @@
     },
     {
       "group": "Hardware Setup",
-      "pages": ["hardware/01-light"]
+      "pages": [
+        "hardware/01-light",
+        "hardware/custom-hardware",
+        "hardware/desktop",
+        "hardware/mobile"
+      ]
     },
     {
       "group": "Troubleshooting",
