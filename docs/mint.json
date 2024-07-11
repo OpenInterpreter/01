@@ -50,7 +50,7 @@
     },
     {
       "group": "Hardware Setup",
-      "pages": ["hardware/01-light", "hardware/m5atom"]
+      "pages": ["hardware/01-light"]
     },
     {
       "group": "Troubleshooting",
