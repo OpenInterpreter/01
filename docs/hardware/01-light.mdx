@@ -3,36 +3,18 @@ title: "01 Light"
 description: "Use your 01 Light"
 ---
 
-If you ordered your 01 Light and it was pre-assembled, you just need to connect it to your computer using the Captive Portal. If you're assembling it yourself, be sure to follow the M5 Atom instructions.
+# Materials
 
-# Pre-assembled
+The Bill of Materials for the 01 Light can be found [here](https://github.com/OpenInterpreter/01/blob/main/hardware/light/BOM.md)
 
-### Captive portal
+# Chip (ESP32)
 
-To connect your 01, you will use the captive portal.
-
-1. Turn on your computer or laptop and connect to the '01 light' Wi-Fi network.
-2. Enter your Wi-Fi/hotspot name and password in the captive portal page.
-3. Enter the server URL generated on their computer and hit 'Connect'.
-
-Now you're connected and ready to go!
-
-# Build Your Own
-
-Check out [this video from James at CAD9 Design](https://www.youtube.com/watch?v=37a5bgvoZy8) on how to assemble your 01
-
-### M5 Atom Prep
-
-The recommended hardware for the developer kit is based around the M5 Atom. It contains an ESP32 board, as well as a microphone and speaker.
-
-The ESP32 needs to be setup to work with the 01OS server. We've created the firmware needed, just follow this guide.
-
-## ESP32
+The ESP32 needs to be setup to work with 01. We've created the firmware needed, just follow this guide.
 
 To set up audio recording + playback on the ESP32 (M5 Atom), do the following:
 
 1. Download the [Arduino IDE](https://www.arduino.cc/en/software)
-2. Get the firmware by copying the contents of `software/source/clients/esp32/src/client/client.ino` from the 01 repository.
+2. Get the firmware by copying the contents of [client.ino](https://github.com/OpenInterpreter/01/blob/main/software/source/clients/esp32/src/client/client.ino) from the 01 repository.
 3. Open Arduino IDE and paste the client.ino contents
 4. Go to Tools -> Board -> Boards Manager, search "esp32", then install the boards by Arduino and Espressif
 5. Go to Tools -> Manage Libraries, then install the following:
@@ -43,6 +25,28 @@ To set up audio recording + playback on the ESP32 (M5 Atom), do the following:
 6. The board needs to connect to WiFi. Once you flash, connect to ESP32 wifi "captive" which will get wifi details. Once it connects, it will ask you to enter 01OS server address in the format "domain.com:port" or "ip:port". Once its able to connect you can use the device.
 7. To flash the .ino to the board, connect the board to the USB port, select the port from the dropdown on the IDE, then select the M5Atom board (or M5Stack-ATOM if you have that). Click on upload to flash the board.
 
-### Suppliementary files
+Check out [this video from Thomas](https://www.youtube.com/watch?v=Y76zed8nEE8) for flashing the ESP32 and connecting the 01.
 
-For CAD files, wiring diagram, and images, please visit the [01 Light hardware repository](https://github.com/OpenInterpreter/01/tree/main/hardware/light).
+# Case
+
+This case of the 01 can be 3d printed at home. It is recommended to use a resin printer for improved quality.
+
+Check out [this video from James at CAD9 Design](https://www.youtube.com/watch?v=BjoO0Kt-IWM) for a deep dive on his design.
+
+The stl files can be found [here](https://github.com/OpenInterpreter/01/tree/main/hardware/light/bodies)
+
+# Assembly
+
+Check out [this video from James at CAD9 Design](https://www.youtube.com/watch?v=37a5bgvoZy8) on how to assemble your 01
+
+# Connect
+
+### Captive portal
+
+To connect your 01, you will use the captive portal.
+
+1. Turn on your computer or laptop and connect to the '01 light' Wi-Fi network.
+2. Enter your Wi-Fi/hotspot name and password in the captive portal page.
+3. Enter the server URL generated on their computer and hit 'Connect'.
+
+Now you're connected and ready to go!
