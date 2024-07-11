@@ -45,11 +45,21 @@ The default LLM for 01 is GPT-4-Turbo. You can find this in the default profile 
 
 The fast profile uses Llama3-8b served by Groq. You can find this in the fast profile in `software/source/server/profiles/fast.py`.
 
+```python
+# Set your profile with a hosted LLM
+interpreter.llm.model = "gpt-4o"
+```
+
 ### Local LLMs
 
 You can use local models to power 01.
 
 Using the local profile launches the Local Explorer where you can select your inference provider and model. The default options include Llamafile, Jan, Ollama, and LM Studio.
+
+```python
+# Set your profile with a local LLM
+interpreter.local_setup()
+```
 
 ### Hosted TTS
 
