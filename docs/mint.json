@@ -52,7 +52,7 @@
       "group": "Hardware Setup",
       "pages": [
         "hardware/01-light",
-        "hardware/custom-hardware",
+        "hardware/custom_hardware",
         "hardware/desktop",
         "hardware/mobile"
       ]
