@@ -38,3 +38,33 @@ The easiest way is to duplicate an existing profile and then update values as ne
 # Use custom profile
 poetry run 01 --profile <profile_name>
 ```
+
+### Hosted LLMs
+
+The default LLM for 01 is GPT-4-Turbo. You can find this in the default profile in `software/source/server/profiles/default.py`.
+
+The fast profile uses Llama3-8b served by Groq. You can find this in the fast profile in `software/source/server/profiles/fast.py`.
+
+### Local LLMs
+
+You can use local models to power 01.
+
+Using the local profile launches the Local Explorer where you can select your inference provider and model. The default options include Llamafile, Jan, Ollama, and LM Studio.
+
+### Hosted TTS
+
+01 supports OpenAI and Elevenlabs for hosted TTS
+
+```python
+# Set your profile with a hosted TTS service
+interpreter.tts = "elevenlabs"
+```
+
+### Local TTS
+
+For local TTS, Coqui is used.
+
+```python
+# Set your profile with a local TTS service
+interpreter.tts = "coqui"
+```

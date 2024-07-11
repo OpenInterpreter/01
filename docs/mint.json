@@ -53,10 +53,6 @@
       "pages": ["hardware/01-light", "hardware/m5atom"]
     },
     {
-      "group": "Using 01",
-      "pages": ["guides/language-model", "guides/text-to-speech"]
-    },
-    {
       "group": "Troubleshooting",
       "pages": ["troubleshooting/faq"]
     },
