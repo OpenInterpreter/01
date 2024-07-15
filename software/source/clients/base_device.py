@@ -155,13 +155,15 @@ class Device:
     async def play_audiosegments(self):
         """Plays them sequentially."""
 
-        mpv_command = ["mpv", "--no-cache", "--no-terminal", "--", "fd://0"]
-        mpv_process = subprocess.Popen(
-            mpv_command,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        if self.tts_service == "elevenlabs":
+            print("Ensure `mpv` in installed to use `elevenlabs`.\n\n(On macOSX, you can run `brew install mpv`.)")
+            mpv_command = ["mpv", "--no-cache", "--no-terminal", "--", "fd://0"]
+            mpv_process = subprocess.Popen(
+                mpv_command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
 
         while True:
             try:

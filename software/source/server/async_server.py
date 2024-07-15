@@ -58,6 +58,8 @@ async def websocket_endpoint(
 
                 data = await websocket.receive()
 
+                await asyncio.sleep(0)
+
                 if isinstance(data, bytes):
                     await interpreter.input(data)
                 elif "bytes" in data:
@@ -71,13 +73,14 @@ async def websocket_endpoint(
             while True:
                 output = await interpreter.output()
 
+                await asyncio.sleep(0)
+
                 if isinstance(output, bytes):
-                    # print(f"Sending {len(output)} bytes of audio data.")
+                    print(f"Sending {len(output)} bytes of audio data.")
                     await websocket.send_bytes(output)
-                    # we dont send out bytes rn, no TTS
 
                 elif isinstance(output, dict):
-                    # print("sending text")
+                    print("sending text")
                     await websocket.send_text(json.dumps(output))
 
         await asyncio.gather(send_output(), receive_input())
