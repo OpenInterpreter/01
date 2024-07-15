@@ -40,15 +40,16 @@ ctranslate2 = "4.1.0"
 py3-tts = "^3.5"
 elevenlabs = "1.2.2"
 groq = "^0.5.0"
-open-interpreter = {extras = ["os"], version = "^0.2.6"}
-litellm = "1.35.35"
-openai = "1.30.5"
+open-interpreter = {extras = ["os"], version = "*"}
+litellm = "*"
+openai = "*"
 pywebview = "*"
 pyobjc = "*"
 
 sentry-sdk = "^2.4.0"
 plyer = "^2.1.0"
 pywinctl = "^0.3"
+certifi = "^2024.7.4"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

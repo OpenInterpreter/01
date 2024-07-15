@@ -10,9 +10,10 @@ from typing import List, Dict, Any
 import os
 import importlib.util
 
+
+
 os.environ["STT_RUNNER"] = "server"
 os.environ["TTS_RUNNER"] = "server"
-
 
 app = FastAPI()
 
@@ -39,6 +40,9 @@ async def websocket_endpoint(
     websocket: WebSocket, debug: bool = Depends(get_debug_flag)
 ):
     await websocket.accept()
+
+    global global_interpreter
+    interpreter = global_interpreter
 
     # Send the tts_service value to the client
     await websocket.send_text(
@@ -103,6 +107,9 @@ async def main(server_host, server_port, profile, debug):
 
     # Make it async
     interpreter = AsyncInterpreter(interpreter, debug)
+
+    global global_interpreter
+    global_interpreter = interpreter
 
     print(f"Starting server on {server_host}:{server_port}")
     config = Config(app, host=server_host, port=server_port, lifespan="on")
