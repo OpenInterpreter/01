@@ -5,15 +5,16 @@
     <br>
     <br>
     <strong>The open-source language model computer.</strong><br>
-    <br><a href="https://openinterpreter.com/01">Preorder the Light</a>‎ ‎ |‎ ‎ <a href="https://changes.openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">Documentation</a><br>
+    <br><a href="https://changes.openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">Documentation</a><br>
 </p>
 
 <div align="center">
 
+
  | [中文版](docs/README_CN.md) | [日本語](docs/README_JA.md) | [English](README.md) |
 
-</div>
 
+</div>
 
 <br>
 
@@ -65,7 +66,6 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 - The **01 Light** is an ESP32-based voice interface. Build instructions are [here](https://github.com/OpenInterpreter/01/tree/main/hardware/light). A list of what to buy [here](https://github.com/OpenInterpreter/01/blob/main/hardware/light/BOM.md).
 - It works in tandem with the **01 Server** ([setup guide below](https://github.com/OpenInterpreter/01/blob/main/README.md#01-server)) running on your home computer.
 - **Mac OSX** and **Ubuntu** are supported by running `poetry run 01` (**Windows** is supported experimentally). This uses your spacebar to simulate the 01 Light.
-- (coming soon) The **01 Heavy** is a standalone device that runs everything locally.
 
 **We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 
@@ -98,7 +98,7 @@ https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d6
 Dynamic System Messages enable you to execute code inside the LLM's system message, moments before it appears to the AI.
 
 ```python
-# Edit the following settings in i.py
+# Edit the following settings in Profiles
 interpreter.system_message = r" The time is {{time.time()}}. " # Anything in double brackets will be executed as Python
 interpreter.chat("What time is it?") # It will know, without making a tool/API call
 ```

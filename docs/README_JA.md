@@ -12,7 +12,7 @@
 
 ![OI-O1-BannerDemo-2](https://www.openinterpreter.com/OI-O1-BannerDemo-3.jpg)
 
-あなたのビルドをサポートします。[1対1のサポートを申し込む。](https://0ggfznkwh4j.typeform.com/to/kkStE8WF)
+あなたのビルドをサポートします。[1 対 1 のサポートを申し込む。](https://0ggfznkwh4j.typeform.com/to/kkStE8WF)
 
 <br>
 
@@ -56,7 +56,6 @@ poetry run 01 # 01 Light シミュレーターを作動させる（スペース�
 - **01 Light** は ESP32 ベースの音声インターフェースです。ビルド手順は[こちら](https://github.com/OpenInterpreter/01/tree/main/hardware/light)。買うべきもののリストは[こちら](https://github.com/OpenInterpreter/01/blob/main/hardware/light/BOM.md)。
 - ご自宅のコンピューターで動作している **01 サーバー**（[下記のセットアップガイド](https://github.com/OpenInterpreter/01/blob/main/README.md#01-server)）と連動して動作します。
 - **Mac OSX** と **Ubuntu** は `poetry run 01` を実行することでサポートされます（**Windows** は実験的にサポートされている）。これはスペースキーを使って 01 Light をシミュレートします。
-- (近日発表) **01 Heavy** は、ローカルですべてを実行するスタンドアローンデバイスです。
 
 **より多くのハードウェアをサポートし、構築するためには、皆さんの協力が必要です。** 01 は、入力（マイク、キーボードなど）、出力（スピーカー、スクリーン、モーターなど）、インターネット接続（またはローカルですべてを実行するのに十分な計算能力）があれば、どのようなデバイスでも実行できるはずです。[コントリビューションガイド →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 
@@ -89,7 +88,7 @@ https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d6
 ダイナミックシステムメッセージは、LLM のシステムメッセージが AI に表示される一瞬前に、その中でコードを実行することを可能にします。
 
 ```python
-# i.py の以下の設定を編集
+# Profiles の以下の設定を編集
 interpreter.system_message = r" The time is {{time.time()}}. " # 二重括弧の中は Python として実行されます
 interpreter.chat("What time is it?") # ツール/API を呼び出すことなく、次のことが分かります
 ```
@@ -118,7 +117,7 @@ Whisper を使ってローカル音声合成を実行したい場合、Rust を�
 
 ## カスタマイズ
 
-システムの動作をカスタマイズするには、`i.py` 内の[システムメッセージ、モデル、スキルライブラリのパス](https://docs.openinterpreter.com/settings/all-settings)などを編集します。このファイルはインタープリターをセットアップするもので、Open Interpreter によって動作します。
+システムの動作をカスタマイズするには、Profiles 内の[システムメッセージ、モデル、スキルライブラリのパス](https://docs.openinterpreter.com/settings/all-settings)などを編集します。このファイルはインタープリターをセットアップするもので、Open Interpreter によって動作します。
 
 ## Ubuntu 依存関係
 

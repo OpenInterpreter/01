@@ -34,27 +34,32 @@
   "navigation": [
     {
       "group": "Getting Started",
-      "pages": ["getting-started/introduction", "getting-started/setup"]
-    },
-    {
-      "group": "Server",
-      "pages": ["server/setup"]
-    },
-    {
-      "group": "Services",
       "pages": [
-        "services/language-model",
-        "services/speech-to-text",
-        "services/text-to-speech"
+        "getting-started/introduction",
+        "getting-started/getting-started"
       ]
     },
     {
-      "group": "Client",
-      "pages": ["client/setup"]
+      "group": "Software Setup",
+      "pages": [
+        "software/installation",
+        "software/run",
+        "software/configure",
+        "software/flags"
+      ]
     },
     {
-      "group": "Bodies",
-      "pages": ["bodies/01-light", "bodies/01-heavy"]
+      "group": "Hardware Setup",
+      "pages": [
+        "hardware/01-light",
+        "hardware/custom_hardware",
+        "hardware/desktop",
+        "hardware/mobile"
+      ]
+    },
+    {
+      "group": "Troubleshooting",
+      "pages": ["troubleshooting/faq"]
     },
     {
       "group": "Legal",
@@ -66,7 +71,7 @@
   },
   "footerSocials": {
     "twitter": "https://x.com/OpenInterpreter",
-    "github": "https://github.com/KillianLucas/01",
-    "discord": "https://discord.gg/E2XTbkj4JF"
+    "github": "https://github.com/OpenInterpreter/01",
+    "discord": "https://discord.com/invite/Hvz9Axh84z"
   }
 }

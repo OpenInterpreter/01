@@ -57,7 +57,6 @@ poetry run 01 # Exécute le simulateur 01 Light (maintenez votre barre d'espace,
 - Le **01 Light** est une interface vocale basée sur ESP32. Les instructions de construction sont [ici]. (https://github.com/OpenInterpreter/01/tree/main/hardware/light). Une liste de ce qu'il faut acheter se trouve [ici](https://github.com/OpenInterpreter/01/blob/main/hardware/light/BOM.md).
 - Il fonctionne en tandem avec le **Server 01** ([guide d'installation ci-dessous](https://github.com/OpenInterpreter/01/blob/main/README.md#01-server)) fonctionnant sur votre ordinateur.
 - **Mac OSX** et **Ubuntu** sont pris en charge en exécutant `poetry run 01` (**Windows** est pris en charge de manière expérimentale). Cela utilise votre barre d'espace pour simuler le 01 Light.
-- (prochainement) Le **01 Heavy** est un dispositif autonome qui exécute tout localement.
 
 **Nous avons besoin de votre aide pour soutenir et construire plus de hardware.** Le 01 devrait pouvoir fonctionner sur tout dispositif avec entrée (microphone, clavier, etc.), sortie (haut-parleurs, écrans, moteurs, etc.) et connexion internet (ou suffisamment de puissance de calcul pour tout exécuter localement). [Guide de Contribution →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 
@@ -65,7 +64,7 @@ poetry run 01 # Exécute le simulateur 01 Light (maintenez votre barre d'espace,
 
 # Comment ça marche ?
 
-Le 01 expose un websocket de *speech-to-speech* à l'adresse `localhost:10001`.
+Le 01 expose un websocket de _speech-to-speech_ à l'adresse `localhost:10001`.
 
 Si vous diffusez des octets audio bruts vers `/` au [format de streaming LMC](https://docs.openinterpreter.com/guides/streaming-response), vous recevrez sa réponse dans le même format.
 
@@ -81,7 +80,7 @@ Le 01 l'encapsule dans une interface vocale :
 
 ## Messages LMC
 
-Pour communiquer avec les différents composants du système, nous introduisons le [format de messages LMC](https://docs.openinterpreter.com/protocols/lmc-messages), une extension du format de message d'OpenAI qui inclut un nouveau rôle "*computer*":
+Pour communiquer avec les différents composants du système, nous introduisons le [format de messages LMC](https://docs.openinterpreter.com/protocols/lmc-messages), une extension du format de message d'OpenAI qui inclut un nouveau rôle "_computer_":
 
 https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d64b9f2a5da9
 
@@ -90,7 +89,7 @@ https://github.com/OpenInterpreter/01/assets/63927363/8621b075-e052-46ba-8d2e-d6
 Les Messages Systèmes Dynamiques vous permettent d'exécuter du code à l'intérieur du message système du LLM, juste avant qu'il n'apparaisse à l'IA.
 
 ```python
-# Modifiez les paramètres suivants dans i.py
+# Modifiez les paramètres suivants dans Profiles
 interpreter.system_message = r" The time is {{time.time()}}. " # Tout ce qui est entre doubles crochets sera exécuté comme du Python
 interpreter.chat("What time is it?") # L'interpréteur connaitre la réponse, sans faire appel à un outil ou une API
 ```
@@ -119,7 +118,7 @@ Si vous souhaitez exécuter localement du speech-to-text en utilisant Whisper, v
 
 ## Personnalisation
 
-Pour personnaliser le comportement du système, modifie [`system message`, `model`, `skills library path`,](https://docs.openinterpreter.com/settings/all-settings) etc. in `i.py`. Ce fichier configure un interprète alimenté par Open Interpreter.
+Pour personnaliser le comportement du système, modifie [`system message`, `model`, `skills library path`,](https://docs.openinterpreter.com/settings/all-settings) etc. in Profiles. Ce fichier configure un interprète alimenté par Open Interpreter.
 
 ## Dépendances Ubuntu
 

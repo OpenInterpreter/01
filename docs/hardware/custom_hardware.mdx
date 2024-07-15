@@ -1,0 +1,16 @@
+---
+title: "Custom Hardware"
+description: "Control 01 from your own device"
+---
+
+You can build your own custom hardware that uses the 01 server.
+
+To use 01 with your custom hardware, run the server:
+
+```bash
+poetry run 01 --server
+```
+
+You may need to set additional parameters via [flags](/software/flags) depending on your setup.
+
+To transmit audio commands to 01, send LMC audio chunks to the websocket defined by your server.

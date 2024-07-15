@@ -1,0 +1,80 @@
+---
+title: "FAQ"
+description: "Frequently Asked Questions"
+---
+
+- How do you build on top of the 01?
+- Where should I start?
+- Is there a walk-through for connecting a device to the server?
+- What are minimum hardware requirements?
+  <Accordion title="How do I have code run on the client-side?">
+    We are working on supporting this, but we only support server-side code
+    execution right now.
+  </Accordion>
+  <Accordion title="How do I build a profile?">
+    We recommend running `--profiles`, duplicating a profile, then experimenting
+    with the settings in the profile file (like `system_message`).
+  </Accordion>
+  <Accordion title="Where does the server run?">
+    The server runs on your home computer, or whichever device you want to
+    control.
+  </Accordion>
+  <Accordion title="Can an 01 device connect to the desktop app, or do general customers/consumers need to set it up in their terminal?">
+    We are working on supporting external devices to the desktop app, but for
+    now the 01 will need to connect to the Python server.
+  </Accordion>
+  <Accordion title="Can I on/off certain tools?">
+    We are working on building this feature, but it isn't avaliable yet.
+  </Accordion>
+- What firmware do I use to connect?
+- What ideally do I need in my code to access the server correctly?
+  <Accordion title="Alternatives to nGrok?">
+    We support `--tunnel-service bore` and `--tunnel-service localtunnel` in
+    addition to `--tunnel-service ngrok`. [link to tunnel service docs]
+  </Accordion>
+- If my device runs off bluetooth connected to a phone, is there a mobile app to use to connect to the server?
+
+  <Accordion title="Uses a huge deal of API credits, what options do I have for using local models? Can these be run on the client device?">
+    If you use `--profile local`, you won't need to use an LLM via an API. The
+    01 server will be responsible for LLM running, but you can run the server +
+    client on the same device (simply run `poetry run 01` to test this.)
+  </Accordion>
+  <Accordion title="Which model is best?">
+    We have found `gpt-4-turbo` to be the best, but we expect Claude Sonnet 1.5
+    to be comparable or better.
+  </Accordion>
+  <Accordion title="Do I need to pay for a monthly subscription?">
+    If you use `--profile local`, you don't need to. For hosted language models,
+    you may need to pay a monthly subscription.
+  </Accordion>
+  <Accordion title="Does the computer the O1 connects to need to always be on and running? If its in sleep mode will it wake up when I call on it?">
+    The computer does need to be running, and will not wake up if a request is
+    sent while it's sleeping.
+  </Accordion>
+  <Accordion title="Which Model does 01 use?">
+    The 01 defaults to `gpt-4-turbo`.
+  </Accordion>
+
+<Accordion title="Do you support a Standalone Device/Hosted Server?">
+  We are exploring a few options about how to best provide a stand-alone device
+  connected to a virtual computer in the cloud, provided by Open Interpreter.
+  There will be an announcement once we have figured out the right way to do it.
+  But the idea is that it functions with the same capabilities as the demo, just
+  controlling a computer in the cloud, not the one on your desk at home.
+</Accordion>
+
+<Accordion title="How Do I Get Involved?">
+  We are figuring out the best way to activate the community to build the next
+  phase. For now, you can read over the Repository
+  https://github.com/OpenInterpreter/01 and join the Discord
+  https://discord.gg/Hvz9Axh84z to find and discuss ways to start contributing
+  to the open-source 01 Project!
+</Accordion>
+
+<Accordion title="Is there a Mobile App?">
+  The official app is being developed, and you can find instructions for how to
+  set it up and contribute to development here:
+  https://github.com/OpenInterpreter/01/tree/main/software/source/clients/mobile
+  Please also join the Discord https://discord.gg/Hvz9Axh84z to find and discuss
+  ways to start contributing to the open-source 01 Project!
+</Accordion>
