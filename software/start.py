@@ -134,6 +134,11 @@ def _run(
     signal.signal(signal.SIGINT, handle_exit)
 
     if server:
+        # Have the server play audio if we're running this on the same device. Needless pops and clicks otherwise!
+        if client:
+            play_audio = True
+        else:
+            play_audio = False
         server_thread = threading.Thread(
             target=start_server,
             args=(
@@ -141,6 +146,7 @@ def _run(
                 server_port,
                 profile,
                 debug,
+                play_audio,
             ),
         )
         server_thread.start()
@@ -172,7 +178,13 @@ def _run(
             f".clients.{client_type}.device", package="source"
         )
 
-        client_thread = threading.Thread(target=module.main, args=[server_url, debug])
+        # Have the server play audio if we're running this on the same device. Needless pops and clicks otherwise!
+        if server:
+            play_audio = False
+        else:
+            play_audio = True
+
+        client_thread = threading.Thread(target=module.main, args=[server_url, debug, play_audio])
         client_thread.start()
 
     try:

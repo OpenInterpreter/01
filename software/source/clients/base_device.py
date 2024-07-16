@@ -3,6 +3,7 @@ import websockets
 import pyaudio
 from pynput import keyboard
 import json
+from yaspin import yaspin
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
@@ -18,6 +19,8 @@ class Device:
         self.recording = False
         self.input_stream = None
         self.output_stream = None
+        self.spinner = yaspin()
+        self.play_audio = True
 
     async def connect_with_retry(self, max_retries=50, retry_delay=2):
         for attempt in range(max_retries):
@@ -26,7 +29,8 @@ class Device:
                 print("Connected to server.")
                 return
             except ConnectionRefusedError:
-                print(f"Waiting for the server to be ready. Retrying in {retry_delay} seconds...")
+                if attempt % 4 == 0:
+                    print(f"Waiting for the server to be ready...")
                 await asyncio.sleep(retry_delay)
         raise Exception("Failed to connect to the server after multiple attempts")
 
@@ -37,7 +41,7 @@ class Device:
                 try:
                     # Send start flag
                     await self.websocket.send(json.dumps({"role": "user", "type": "audio", "format": "bytes.wav", "start": True}))
-                    print("Sending audio start message")
+                    #print("Sending audio start message")
                     
                     while self.recording:
                         data = self.input_stream.read(CHUNK, exception_on_overflow=False)
@@ -45,7 +49,7 @@ class Device:
                     
                     # Send stop flag
                     await self.websocket.send(json.dumps({"role": "user", "type": "audio", "format": "bytes.wav", "end": True}))
-                    print("Sending audio end message")
+                    #print("Sending audio end message")
                 except Exception as e:
                     print(f"Error in send_audio: {e}")
             await asyncio.sleep(0.01)
@@ -56,26 +60,30 @@ class Device:
             try:
                 data = await self.websocket.recv()
                 if isinstance(data, bytes) and not self.recording:
-                    self.output_stream.write(data)
+                    if self.play_audio:
+                        self.output_stream.write(data)
             except Exception as e:
                 print(f"Error in receive_audio: {e}")
 
     def on_press(self, key):
         if key == keyboard.Key.space and not self.recording:
-            print("Space pressed, starting recording")
+            #print("Space pressed, starting recording")
+            print("\n")
+            self.spinner.start()
             self.recording = True
 
     def on_release(self, key):
         if key == keyboard.Key.space:
-            print("Space released, stopping recording")
+            self.spinner.stop()
+            #print("Space released, stopping recording")
             self.recording = False
-        elif key == keyboard.Key.esc:
-            print("Esc pressed, stopping the program")
-            return False
+        # elif key == keyboard.Key.esc:
+        #     print("Esc pressed, stopping the program")
+        #     return False
 
     async def main(self):
         await self.connect_with_retry()
-        print("Hold spacebar to record. Press 'Esc' to quit.")
+        print("Hold spacebar to record. Press 'CTRL-C' to quit.")
         listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
         listener.start()
         await asyncio.gather(self.send_audio(), self.receive_audio())

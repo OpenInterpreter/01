@@ -10,7 +10,7 @@ import wave
 import asyncio
 from fastapi.responses import PlainTextResponse
 
-def start_server(server_host, server_port, profile, debug):
+def start_server(server_host, server_port, profile, debug, play_audio):
 
     # Load the profile module from the provided path
     spec = importlib.util.spec_from_file_location("profile", profile)
@@ -46,6 +46,8 @@ def start_server(server_host, server_port, profile, debug):
     interpreter.verbose = debug
     interpreter.server.host = server_host
     interpreter.server.port = server_port
+
+    interpreter.play_audio = play_audio
 
 
     interpreter.audio_chunks = []
@@ -100,12 +102,12 @@ def start_server(server_host, server_port, profile, debug):
             if output["type"] == "message" and len(output.get("content", "")) > 0:
                 self.tts.feed(output.get("content"))
                 if not self.tts.is_playing() and any([c in delimiters for c in output.get("content")]): # Start playing once the first delimiter is encountered.
-                    self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=True, sentence_fragment_delimiters=delimiters)
+                    self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=not self.play_audio, sentence_fragment_delimiters=delimiters)
                     return {"role": "assistant", "type": "audio", "format": "bytes.wav", "start": True}
 
             if output == {"role": "assistant", "type": "message", "end": True}:
                 if not self.tts.is_playing(): # We put this here in case it never outputs a delimiter and never triggers play_async^
-                    self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=True, sentence_fragment_delimiters=delimiters)
+                    self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=not self.play_audio, sentence_fragment_delimiters=delimiters)
                     return {"role": "assistant", "type": "audio", "format": "bytes.wav", "start": True}
                 return {"role": "assistant", "type": "audio", "format": "bytes.wav", "end": True}
 
