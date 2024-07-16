@@ -1,4 +1,5 @@
-from interpreter import interpreter
+from interpreter import AsyncInterpreter
+interpreter = AsyncInterpreter()
 
 # This is an Open Interpreter compatible profile.
 # Visit https://01.openinterpreter.com/profile for all options.
@@ -7,14 +8,12 @@ from interpreter import interpreter
 # {OpenAI: "openai", ElevenLabs: "elevenlabs", Coqui: "coqui"}
 interpreter.tts = "elevenlabs"
 
-# 01 Language Model Config.
-interpreter.llm_service = "litellm"
-interpreter.llm.model = "groq/llama3-8b-8192"
+interpreter.llm.model = "groq/llama3-70b-8192"
 interpreter.llm.supports_vision = False
 interpreter.llm.supports_functions = False
-interpreter.llm.context_window = 2048
-interpreter.llm.max_tokens = 4096
-interpreter.llm.temperature = 0.8
+interpreter.llm.context_window = 8000
+interpreter.llm.max_tokens = 1000
+interpreter.llm.temperature = 0
 
 interpreter.computer.import_computer_api = False
 

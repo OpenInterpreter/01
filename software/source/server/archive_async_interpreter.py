@@ -178,6 +178,7 @@ class AsyncInterpreter:
         """
         self.interpreter.messages = self.active_chat_messages
 
+        
         self.stt.stop()
 
         input_queue = []

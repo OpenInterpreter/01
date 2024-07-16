@@ -5,7 +5,7 @@ import threading
 import os
 import importlib
 from source.server.tunnel import create_tunnel
-from source.server.async_server import main
+from source.server.async_server import start_server
 import subprocess
 
 import signal
@@ -134,17 +134,13 @@ def _run(
     signal.signal(signal.SIGINT, handle_exit)
 
     if server:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         server_thread = threading.Thread(
-            target=loop.run_until_complete,
+            target=start_server,
             args=(
-                main(
-                    server_host,
-                    server_port,
-                    profile,
-                    debug,
-                ),
+                server_host,
+                server_port,
+                profile,
+                debug,
             ),
         )
         server_thread.start()

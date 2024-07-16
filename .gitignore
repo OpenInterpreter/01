@@ -7,6 +7,7 @@ __pycache__/
 software/source/server/conversations/user.json
 software/source/server/tts/local_service/*
 software/source/server/stt/local_service/*
+software/models/*
 
 # C extensions
 *.so
