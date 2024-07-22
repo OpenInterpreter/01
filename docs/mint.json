@@ -44,6 +44,7 @@
       "pages": [
         "software/introduction",
         "software/installation",
+        "software/connect",
         "software/run",
         "software/configure",
         "software/flags"
@@ -52,7 +53,15 @@
     {
       "group": "Hardware Setup",
       "pages": [
-        "hardware/01-light",
+        {
+          "group": "01 Light",
+          "pages": [
+            "hardware/01-light/materials",
+            "hardware/01-light/case",
+            "hardware/01-light/assembly",
+            "hardware/01-light/esp32"
+          ]
+        },
         "hardware/custom_hardware",
         "hardware/desktop",
         "hardware/mobile"
