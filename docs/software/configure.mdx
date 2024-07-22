@@ -34,10 +34,62 @@ poetry run 01 --profile <profile_name>
 If you want to make your own file, you can do so by creating a new file in the `profiles` directory.
 The easiest way is to duplicate an existing profile and then update values as needed. Be sure to save the profile with a unique name.
 
+Remember to add `interpreter.tts = ` to set the text-to-speech provider.
+
+To use a custom profile, run:
+
 ```bash
 # Use custom profile
 poetry run 01 --profile <profile_name>
 ```
+
+### Example Profile
+
+````python
+from interpreter import AsyncInterpreter
+interpreter = AsyncInterpreter()
+
+# This is an Open Interpreter compatible profile.
+# Visit https://01.openinterpreter.com/profile for all options.
+
+# 01 supports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
+# {OpenAI: "openai", ElevenLabs: "elevenlabs", Coqui: "coqui"}
+interpreter.tts = "openai"
+
+# Connect your 01 to a language model
+interpreter.llm.model = "gpt-4o"
+interpreter.llm.context_window = 100000
+interpreter.llm.max_tokens = 4096
+# interpreter.llm.api_key = "<your_openai_api_key_here>"
+
+# Tell your 01 where to find and save skills
+interpreter.computer.skills.path = "./skills"
+
+# Extra settings
+interpreter.computer.import_computer_api = True
+interpreter.computer.import_skills = True
+interpreter.computer.run("python", "computer")  # This will trigger those imports
+interpreter.auto_run = True
+interpreter.loop = True
+interpreter.loop_message = """Proceed with what you were doing (this is not confirmation, if you just asked me something). You CAN run code on my machine. If you want to run code, start your message with "```"! If the entire task is done, say exactly 'The task is done.' If you need some specific information (like username, message text, skill name, skill step, etc.) say EXACTLY 'Please provide more information.' If it's impossible, say 'The task is impossible.' (If I haven't provided a task, say exactly 'Let me know what you'd like to do next.') Otherwise keep going. CRITICAL: REMEMBER TO FOLLOW ALL PREVIOUS INSTRUCTIONS. If I'm teaching you something, remember to run the related `computer.skills.new_skill` function."""
+interpreter.loop_breakers = [
+    "The task is done.",
+    "The task is impossible.",
+    "Let me know what you'd like to do next.",
+    "Please provide more information.",
+]
+
+# Set the identity and personality of your 01
+interpreter.system_message = """
+
+You are the 01, a screenless executive assistant that can complete any task.
+When you execute code, it will be executed on the user's machine. The user has given you full and complete permission to execute any code necessary to complete the task.
+Run any code to achieve the goal, and if at first you don't succeed, try again and again.
+You can install new packages.
+Be concise. Your messages are being read aloud to the user. DO NOT MAKE PLANS. RUN CODE QUICKLY.
+Try to spread complex tasks over multiple code blocks. Don't try to complex tasks in one go.
+Manually summarize text."""
+````
 
 ### Hosted LLMs
 
@@ -58,12 +110,15 @@ Using the local profile launches the Local Explorer where you can select your in
 
 ```python
 # Set your profile with a local LLM
+interpreter.llm.model = "ollama/codestral"
+
+# You can also use the Local Explorer to interactively select your model
 interpreter.local_setup()
 ```
 
 ### Hosted TTS
 
-01 supports OpenAI and Elevenlabs for hosted TTS
+01 supports OpenAI and Elevenlabs for hosted TTS.
 
 ```python
 # Set your profile with a hosted TTS service

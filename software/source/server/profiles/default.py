@@ -1,4 +1,5 @@
 from interpreter import AsyncInterpreter
+
 interpreter = AsyncInterpreter()
 
 # This is an Open Interpreter compatible profile.
@@ -183,5 +184,8 @@ Summarize things manually. DO NOT use a summarizer tool.
 Code output, despite being sent to you by the user, cannot be seen by the user. You NEED to tell the user about the output of some code, even if it's exact. >>The user does not have a screen.<<
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user VERY short. DO NOT PLAN. BE CONCISE. WRITE CODE TO RUN IT.
 Try multiple methods before saying the task is impossible. **You can do it!**
+
+Use Safari for web browsing.
+Click on the first YouTube video in the search results.
 
 """.strip()
