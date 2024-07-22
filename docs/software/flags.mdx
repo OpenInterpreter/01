@@ -5,38 +5,98 @@ description: "Customize the behaviour of your 01 from the CLI"
 
 ## CLI Flags
 
-- `--server`
-  Run server.
+### Server
 
-- `--server-host TEXT`
-  Specify the server host where the server will deploy.
-  Default: `0.0.0.0`.
+Runs the server.
 
-- `--server-port INTEGER`
-  Specify the server port where the server will deploy.
-  Default: `10001`.
+```
+poetry run 01 --server
+```
 
-- `--tunnel-service TEXT`
-  Specify the tunnel service.
-  Default: `ngrok`.
+### Server Host
 
-- `--expose`
-  Expose server to internet.
+Specify the server host where the server will deploy.
 
-- `--client`
-  Run client.
+Default: `0.0.0.0`.
 
-- `--server-url TEXT`
-  Specify the server URL that the client should expect.
-  Defaults to server-host and server-port.
-  Default: `None`.
+```
+poetry run 01 --server-host 0.0.0.0
+```
 
-- `--client-type TEXT`
-  Specify the client type.
-  Default: `auto`.
+### Server Port
 
-- `--qr`
-  Display QR code to scan to connect to the server.
+Specify the server port where the server will deploy.
 
-- `--help`
-  Show this message and exit.
+Default: `10001`.
+
+```
+poetry run 01 --server-port 10001
+```
+
+### Tunnel Service
+
+Specify the tunnel service.
+
+Default: `ngrok`.
+
+```
+poetry run 01 --tunnel-service ngrok
+```
+
+Specify the tunnel service.
+Default: `ngrok`.
+
+### Expose
+
+Expose server to internet.
+
+```
+poetry run 01 --expose
+```
+
+### Client
+
+Run client.
+
+```
+poetry run 01 --client
+```
+
+### Server URL
+
+Specify the server URL that the client should expect.
+Defaults sets the server-host and server-port.
+
+Default: `None`.
+
+```
+poetry run 01 --server-url http://0.0.0.0:10001
+```
+
+### Client Type
+
+Specify the client type.
+
+Default: `auto`.
+
+```
+poetry run 01 --client-type auto
+```
+
+Default: `auto`.
+
+### QR
+
+Display QR code to scan to connect to the server.
+
+```
+poetry run 01 --qr
+```
+
+### Help
+
+Show this message and exit.
+
+```
+poetry run 01 --help
+```
