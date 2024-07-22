@@ -1,14 +1,11 @@
-import importlib
-import traceback
-import json
-import os
 from RealtimeTTS import TextToAudioStream, CoquiEngine, OpenAIEngine, ElevenlabsEngine
-from RealtimeSTT import AudioToTextRecorder
-import types
-import time
-import wave
-import asyncio
 from fastapi.responses import PlainTextResponse
+from RealtimeSTT import AudioToTextRecorder
+import importlib
+import asyncio
+import types
+import wave
+import os
 
 def start_server(server_host, server_port, profile, debug, play_audio):
 
@@ -25,7 +22,6 @@ def start_server(server_host, server_port, profile, debug, play_audio):
         model="tiny.en", spinner=False, use_microphone=False
     )
     interpreter.stt.stop()  # It needs this for some reason
-
 
     # TTS
     if not hasattr(interpreter, 'tts'):
@@ -46,16 +42,13 @@ def start_server(server_host, server_port, profile, debug, play_audio):
     interpreter.verbose = debug
     interpreter.server.host = server_host
     interpreter.server.port = server_port
-
     interpreter.play_audio = play_audio
-
-
     interpreter.audio_chunks = []
 
 
-    old_input = interpreter.input
-    old_output = interpreter.output
+    ### Swap out the input function for one that supports voice
 
+    old_input = interpreter.input
 
     async def new_input(self, chunk):
         await asyncio.sleep(0)
@@ -86,6 +79,10 @@ def start_server(server_host, server_port, profile, debug, play_audio):
                 await old_input({"role": "user", "type": "message", "end": True})
 
 
+    ### Swap out the output function for one that supports voice
+
+    old_output = interpreter.output
+
     async def new_output(self):
         while True:
             output = await old_output()
@@ -100,25 +97,29 @@ def start_server(server_host, server_port, profile, debug, play_audio):
             delimiters = ".?!;,\n…)]}"
 
             if output["type"] == "message" and len(output.get("content", "")) > 0:
+
                 self.tts.feed(output.get("content"))
+
                 if not self.tts.is_playing() and any([c in delimiters for c in output.get("content")]): # Start playing once the first delimiter is encountered.
-                    self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=not self.play_audio, sentence_fragment_delimiters=delimiters)
+                    self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=not self.play_audio, sentence_fragment_delimiters=delimiters, minimum_sentence_length=9)
                     return {"role": "assistant", "type": "audio", "format": "bytes.wav", "start": True}
 
             if output == {"role": "assistant", "type": "message", "end": True}:
                 if not self.tts.is_playing(): # We put this here in case it never outputs a delimiter and never triggers play_async^
-                    self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=not self.play_audio, sentence_fragment_delimiters=delimiters)
+                    self.tts.play_async(on_audio_chunk=self.on_tts_chunk, muted=not self.play_audio, sentence_fragment_delimiters=delimiters, minimum_sentence_length=9)
                     return {"role": "assistant", "type": "audio", "format": "bytes.wav", "start": True}
                 return {"role": "assistant", "type": "audio", "format": "bytes.wav", "end": True}
 
     def on_tts_chunk(self, chunk):
         self.output_queue.sync_q.put(chunk)
 
-    # Wrap in voice interface
+
+    # Set methods on interpreter object
     interpreter.input = types.MethodType(new_input, interpreter)
     interpreter.output = types.MethodType(new_output, interpreter)
     interpreter.on_tts_chunk = types.MethodType(on_tts_chunk, interpreter)
 
+    # Add ping route, required by device
     @interpreter.server.app.get("/ping")
     async def ping():
         return PlainTextResponse("pong")

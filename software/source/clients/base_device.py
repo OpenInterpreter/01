@@ -59,11 +59,10 @@ class Device:
         while True:
             try:
                 data = await self.websocket.recv()
-                if isinstance(data, bytes) and not self.recording:
-                    if self.play_audio:
-                        self.output_stream.write(data)
+                if self.play_audio and isinstance(data, bytes) and not self.recording:
+                    self.output_stream.write(data)
             except Exception as e:
-                print(f"Error in receive_audio: {e}")
+                await self.connect_with_retry()
 
     def on_press(self, key):
         if key == keyboard.Key.space and not self.recording:
