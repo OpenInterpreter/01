@@ -49,7 +49,7 @@ cd 01/software # CD into the source directory
 <!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
 
 ```shell
-brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
+brew install portaudio ffmpeg cmake poetry # Install Mac OSX dependencies
 poetry install # Install Python dependencies
 export OPENAI_API_KEY=sk... # OR run `poetry run 01 --local` to run everything locally
 poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
