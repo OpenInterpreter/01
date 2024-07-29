@@ -64,7 +64,10 @@
         },
         "hardware/custom_hardware",
         "hardware/desktop",
-        "hardware/mobile"
+        {
+          "group": "Mobile",
+          "pages": ["hardware/mobile/ios", "hardware/mobile/android"]
+        }
       ]
     },
     {
