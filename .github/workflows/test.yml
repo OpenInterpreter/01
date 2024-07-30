@@ -46,15 +46,23 @@ jobs:
           poetry update
           poetry install
 
-      # # Install Portaudio on Ubuntu
-      # - name: Installing Portaudio in Ubuntu
-      #   if: matrix.os == 'ubuntu-latest'
-      #   run: sudo apt-get install portaudio19-dev python-all-dev
+      # Install ffmpeg on Ubuntu
+      - name: Installing ffmpeg in Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install ffmpeg
 
-      # # Install Portaudio on macOS using Homebrew
-      # - name: Installing Portaudio in Mac
-      #   if: matrix.os == 'macos-latest'
-      #   run: brew install portaudio
+      # Install ffmpeg on macOS using Homebrew
+      - name: Installing ffmpeg in Mac
+        if: matrix.os == 'macos-latest'
+        run: brew install ffmpeg
+
+      # Install choco and then ffmpeg on Windows
+      - name: Installing choco and ffmpeg in Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+          choco install ffmpeg
 
       # Run pytest
       - name: Run Pytest

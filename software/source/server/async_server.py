@@ -7,6 +7,8 @@ import types
 import wave
 import os
 
+os.environ["INTERPRETER_REQUIRE_ACKNOWLEDGE"] = "False"
+
 def start_server(server_host, server_port, profile, debug, play_audio):
 
     # Load the profile module from the provided path
@@ -64,7 +66,7 @@ def start_server(server_host, server_port, profile, debug, play_audio):
                 self.stt.stop()
                 content = self.stt.text()
 
-                print("User: ", content)
+                print("\n\nUser: ", content)
 
                 if False:
                     audio_bytes = bytearray(b"".join(self.audio_chunks))
