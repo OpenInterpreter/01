@@ -44,7 +44,6 @@
       "pages": [
         "software/introduction",
         "software/installation",
-        "software/connect",
         "software/run",
         "software/configure",
         "software/flags"
@@ -59,7 +58,8 @@
             "hardware/01-light/materials",
             "hardware/01-light/case",
             "hardware/01-light/assembly",
-            "hardware/01-light/esp32"
+            "hardware/01-light/esp32",
+            "hardware/01-light/connect"
           ]
         },
         "hardware/custom_hardware",
