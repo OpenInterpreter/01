@@ -1,0 +1,41 @@
+---
+title: "Android"
+description: "Control 01 from your Android phone"
+---
+
+Using your phone is a great way to control 01. There are multiple options available.
+
+## [React Native app](https://github.com/OpenInterpreter/01/tree/main/software/source/clients/mobile)
+
+Work in progress, we will continue to improve this application.
+
+If you want to run it on your device, you will need to install [Expo Go](https://expo.dev/go) on your mobile device.
+
+### Setup Instructions
+
+- [Install 01 software](/software/installation) on your machine
+
+- Run the Expo server:
+
+```shell
+cd software/source/clients/mobile/react-native
+npm install # install dependencies
+npx expo start # start local expo development server
+```
+
+This will produce a QR code that you can scan with Expo Go on your mobile device.
+
+Open **Expo Go** on your mobile device and select _Scan QR code_ to scan the QR code produced by the `npx expo start` command.
+
+- Run 01:
+
+```shell
+cd software                             # cd into `software`
+poetry run 01 --mobile                  # exposes QR code for 01 Light server
+```
+
+### Using the App
+
+In the 01 mobile app, select _Scan Code_ to scan the QR code produced by the `poetry run 01 --mobile` command.
+
+Press and hold the button to speak, release to make the request. To rescan the QR code, swipe left on the screen to go back.

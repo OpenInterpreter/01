@@ -42,6 +42,7 @@
     {
       "group": "Software Setup",
       "pages": [
+        "software/introduction",
         "software/installation",
         "software/run",
         "software/configure",
@@ -51,10 +52,22 @@
     {
       "group": "Hardware Setup",
       "pages": [
-        "hardware/01-light",
+        {
+          "group": "01 Light",
+          "pages": [
+            "hardware/01-light/materials",
+            "hardware/01-light/case",
+            "hardware/01-light/assembly",
+            "hardware/01-light/esp32",
+            "hardware/01-light/connect"
+          ]
+        },
         "hardware/custom_hardware",
         "hardware/desktop",
-        "hardware/mobile"
+        {
+          "group": "Mobile",
+          "pages": ["hardware/mobile/ios", "hardware/mobile/android"]
+        }
       ]
     },
     {
