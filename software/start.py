@@ -35,9 +35,9 @@ def run(
         "ngrok", "--tunnel-service", help="Specify the tunnel service"
     ),
     expose: str = typer.Option(
-        None, 
+        '', 
         "--expose", 
-        help="Expose localhost to internet. Optionally specify a custom domain.",
+        help="Expose localhost to internet with auth and optional custom domain if specified",
     ),
     client: bool = typer.Option(False, "--client", help="Run client"),
     server_url: str = typer.Option(
@@ -92,7 +92,7 @@ def _run(
     server_host: str = "0.0.0.0",
     server_port: int = 10001,
     tunnel_service: str = "bore",
-    expose: str = None,
+    expose: str = '',
     client: bool = False,
     server_url: str = None,
     client_type: str = "auto",
@@ -162,16 +162,9 @@ def _run(
         )
         server_thread.start()
 
-    if expose is not None:
-        # `--expose` was passed
-        if expose == '':
-            # `--expose` was called without a custom domain
-            # Autogenerate domain with ngrok
-            expose = "unspecified"
-        # else, `--expose was passed a custom domain`
-
+    if expose:
         tunnel_thread = threading.Thread(
-            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr, expose]
+            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr]
         )
         tunnel_thread.start()
 
