@@ -1,5 +1,5 @@
 import typer
-import asyncio
+import ngrok
 import platform
 import threading
 import os
@@ -12,11 +12,13 @@ import socket
 import json
 import segno
 import time
+from dotenv import load_dotenv
 
 import signal
 
 app = typer.Typer()
 
+load_dotenv()
 
 @app.command()
 def run(
@@ -30,9 +32,6 @@ def run(
         10001,
         "--server-port",
         help="Specify the server port where the server will deploy",
-    ),
-    tunnel_service: str = typer.Option(
-        "ngrok", "--tunnel-service", help="Specify the tunnel service"
     ),
     expose: bool = typer.Option(False, "--expose", help="Expose server to internet"),
     client: bool = typer.Option(False, "--client", help="Run client"),
@@ -73,7 +72,6 @@ def run(
         server=server,
         server_host=server_host,
         server_port=server_port,
-        tunnel_service=tunnel_service,
         expose=expose,
         client=client,
         server_url=server_url,
@@ -91,7 +89,6 @@ def _run(
     server: bool = False,
     server_host: str = "0.0.0.0",
     server_port: int = 10001,
-    tunnel_service: str = "bore",
     expose: bool = False,
     client: bool = False,
     server_url: str = None,
@@ -163,9 +160,9 @@ def _run(
         )
         server_thread.start()
 
-    if expose:
+    if expose and not livekit:
         tunnel_thread = threading.Thread(
-            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr, domain]
+            target=create_tunnel, args=[server_host, server_port, qr, domain]
         )
         tunnel_thread.start()
 
@@ -218,12 +215,6 @@ def _run(
             )
             return token.to_jwt()
 
-        # Get local IP address
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip_address = s.getsockname()[0]
-        s.close()
-
         # Create threads for each command and store handles
         interpreter_thread = threading.Thread(
             target=run_command, args=("poetry run interpreter --server",)
@@ -242,10 +233,30 @@ def _run(
             thread.start()
             time.sleep(7)
 
-        # Create QR code
-        url = f"ws://{ip_address}:7880"
         token = getToken()
-        content = json.dumps({"livekit_server": url, "token": token})
+
+        # Create QR code
+        if expose and domain:
+            listener = ngrok.forward("localhost:7880", authtoken_from_env=True, domain=domain)
+            url= listener.url()
+            print(url)
+            content = json.dumps({"livekit_server": url, "token": token})
+        elif expose and not domain:
+            listener = ngrok.forward("localhost:7880", authtoken_from_env=True)
+            url= listener.url()
+            print(url)
+            content = json.dumps({"livekit_server": url, "token": token})
+        else:
+            # Get local IP address
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip_address = s.getsockname()[0]
+            s.close()
+            
+            url = f"ws://{ip_address}:7880"
+            print(url)
+            content = json.dumps({"livekit_server": url, "token": token})
+
         qr_code = segno.make(content)
         qr_code.terminal(compact=True)
 
