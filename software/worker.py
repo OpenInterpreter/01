@@ -72,5 +72,5 @@ async def entrypoint(ctx: JobContext):
 if __name__ == "__main__":
     # Initialize the worker with the entrypoint
     cli.run_app(
-        WorkerOptions(entrypoint_fnc=entrypoint, api_key="devkey", api_secret="secret", port=8082)
+        WorkerOptions(entrypoint_fnc=entrypoint, api_key="devkey", api_secret="secret")
     )
