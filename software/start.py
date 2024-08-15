@@ -240,7 +240,7 @@ def _run(
         # Start all threads and set up logging for thread completion
         for thread in threads:
             thread.start()
-            time.sleep(5)
+            time.sleep(7)
 
         # Create QR code
         url = f"ws://{ip_address}:7880"
