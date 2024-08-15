@@ -201,20 +201,6 @@ def _run(
         def run_command(command):
             subprocess.run(command, shell=True, check=True)
 
-        def getToken():
-            token = (
-                api.AccessToken("devkey", "secret")
-                .with_identity("identity")
-                .with_name("my name")
-                .with_grants(
-                    api.VideoGrants(
-                        room_join=True,
-                        room="my-room",
-                    )
-                )
-            )
-            return token.to_jwt()
-
         # Create threads for each command and store handles
         interpreter_thread = threading.Thread(
             target=run_command, args=("poetry run interpreter --server",)
@@ -233,19 +219,17 @@ def _run(
             thread.start()
             time.sleep(7)
 
-        token = getToken()
-
         # Create QR code
         if expose and domain:
             listener = ngrok.forward("localhost:7880", authtoken_from_env=True, domain=domain)
             url= listener.url()
             print(url)
-            content = json.dumps({"livekit_server": url, "token": token})
+            content = json.dumps({"livekit_server": url})
         elif expose and not domain:
             listener = ngrok.forward("localhost:7880", authtoken_from_env=True)
             url= listener.url()
             print(url)
-            content = json.dumps({"livekit_server": url, "token": token})
+            content = json.dumps({"livekit_server": url})
         else:
             # Get local IP address
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -255,7 +239,7 @@ def _run(
             
             url = f"ws://{ip_address}:7880"
             print(url)
-            content = json.dumps({"livekit_server": url, "token": token})
+            content = json.dumps({"livekit_server": url})
 
         qr_code = segno.make(content)
         qr_code.terminal(compact=True)
