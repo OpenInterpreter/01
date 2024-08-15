@@ -34,11 +34,7 @@ def run(
     tunnel_service: str = typer.Option(
         "ngrok", "--tunnel-service", help="Specify the tunnel service"
     ),
-    expose: str = typer.Option(
-        '', 
-        "--expose", 
-        help="Expose localhost to internet with auth and optional custom domain if specified",
-    ),
+    expose: bool = typer.Option(False, "--expose", help="Expose server to internet"),
     client: bool = typer.Option(False, "--client", help="Run client"),
     server_url: str = typer.Option(
         None,
@@ -50,6 +46,9 @@ def run(
     ),
     qr: bool = typer.Option(
         False, "--qr", help="Display QR code to scan to connect to the server"
+    ),
+    domain: str = typer.Option(
+        None, "--domain", help="Connect ngrok to a custom domain"
     ),
     profiles: bool = typer.Option(
         False,
@@ -81,6 +80,7 @@ def run(
         client_type=client_type,
         qr=qr,
         debug=debug,
+        domain=domain,
         profiles=profiles,
         profile=profile,
         livekit=livekit,
@@ -92,12 +92,13 @@ def _run(
     server_host: str = "0.0.0.0",
     server_port: int = 10001,
     tunnel_service: str = "bore",
-    expose: str = '',
+    expose: bool = False,
     client: bool = False,
     server_url: str = None,
     client_type: str = "auto",
     qr: bool = False,
     debug: bool = False,
+    domain = None,
     profiles = None,
     profile = None,
     livekit: bool = False,
@@ -164,7 +165,7 @@ def _run(
 
     if expose:
         tunnel_thread = threading.Thread(
-            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr]
+            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr, domain]
         )
         tunnel_thread.start()
 
