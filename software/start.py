@@ -1,5 +1,5 @@
 import typer
-import asyncio
+import ngrok
 import platform
 import threading
 import os
@@ -7,11 +7,18 @@ import importlib
 from source.server.tunnel import create_tunnel
 from source.server.async_server import start_server
 import subprocess
+from livekit import api
+import socket
+import json
+import segno
+import time
+from dotenv import load_dotenv
 
 import signal
 
 app = typer.Typer()
 
+load_dotenv()
 
 @app.command()
 def run(
@@ -25,9 +32,6 @@ def run(
         10001,
         "--server-port",
         help="Specify the server port where the server will deploy",
-    ),
-    tunnel_service: str = typer.Option(
-        "ngrok", "--tunnel-service", help="Specify the tunnel service"
     ),
     expose: bool = typer.Option(False, "--expose", help="Expose server to internet"),
     client: bool = typer.Option(False, "--client", help="Run client"),
@@ -60,13 +64,14 @@ def run(
         "--debug",
         help="Print latency measurements and save microphone recordings locally for manual playback.",
     ),
-
+    livekit: bool = typer.Option(
+        False, "--livekit", help="Creates QR code for livekit server and token."
+    ),
 ):
     _run(
         server=server,
         server_host=server_host,
         server_port=server_port,
-        tunnel_service=tunnel_service,
         expose=expose,
         client=client,
         server_url=server_url,
@@ -76,6 +81,7 @@ def run(
         domain=domain,
         profiles=profiles,
         profile=profile,
+        livekit=livekit,
     )
 
 
@@ -83,7 +89,6 @@ def _run(
     server: bool = False,
     server_host: str = "0.0.0.0",
     server_port: int = 10001,
-    tunnel_service: str = "bore",
     expose: bool = False,
     client: bool = False,
     server_url: str = None,
@@ -93,6 +98,7 @@ def _run(
     domain = None,
     profiles = None,
     profile = None,
+    livekit: bool = False,
 ):
 
     profiles_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "source", "server", "profiles")
@@ -124,7 +130,7 @@ def _run(
     if not server_url:
         server_url = f"{server_host}:{server_port}"
 
-    if not server and not client:
+    if not server and not client and not livekit:
         server = True
         client = True
 
@@ -154,9 +160,9 @@ def _run(
         )
         server_thread.start()
 
-    if expose:
+    if expose and not livekit:
         tunnel_thread = threading.Thread(
-            target=create_tunnel, args=[tunnel_service, server_host, server_port, qr, domain]
+            target=create_tunnel, args=[server_host, server_port, qr, domain]
         )
         tunnel_thread.start()
 
@@ -190,6 +196,71 @@ def _run(
 
         client_thread = threading.Thread(target=module.main, args=[server_url, debug, play_audio])
         client_thread.start()
+
+    if livekit:
+        def run_command(command):
+            subprocess.run(command, shell=True, check=True)
+
+        # Create threads for each command and store handles
+        interpreter_thread = threading.Thread(
+            target=run_command, args=("poetry run interpreter --server",)
+        )
+        livekit_thread = threading.Thread(
+            target=run_command, args=('livekit-server --dev --bind "0.0.0.0"',)
+        )
+        worker_thread = threading.Thread(
+            target=run_command, args=("python worker.py dev",)
+        )
+
+        threads = [interpreter_thread, livekit_thread, worker_thread]
+
+        # Start all threads and set up logging for thread completion
+        for thread in threads:
+            thread.start()
+            time.sleep(7)
+
+        # Create QR code
+        if expose and domain:
+            listener = ngrok.forward("localhost:7880", authtoken_from_env=True, domain=domain)
+            url= listener.url()
+            print(url)
+            content = json.dumps({"livekit_server": url})
+        elif expose and not domain:
+            listener = ngrok.forward("localhost:7880", authtoken_from_env=True)
+            url= listener.url()
+            print(url)
+            content = json.dumps({"livekit_server": url})
+        else:
+            # Get local IP address
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip_address = s.getsockname()[0]
+            s.close()
+            
+            url = f"ws://{ip_address}:7880"
+            print(url)
+            content = json.dumps({"livekit_server": url})
+
+        qr_code = segno.make(content)
+        qr_code.terminal(compact=True)
+
+        print("Mobile setup complete. Scan the QR code to connect.")
+
+        def signal_handler(sig, frame):
+            print("Termination signal received. Shutting down...")
+            for thread in threads:
+                if thread.is_alive():
+                    # This will only work if the subprocess uses shell=True and the OS is Unix-like
+                    subprocess.run(f"pkill -P {os.getpid()}", shell=True)
+            os._exit(0)
+
+        # Register the signal handler
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
 
     try:
         if server:
