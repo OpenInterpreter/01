@@ -48,6 +48,8 @@ pywinctl = "^0.3"
 certifi = "^2024.7.4"
 pygame = "^2.6.0"
 mpv = "^1.0.7"
+livekit = "^0.12.1"
+segno = "^1.6.1"
 
 [build-system]
 requires = ["poetry-core"]
