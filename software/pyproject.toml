@@ -49,6 +49,11 @@ certifi = "^2024.7.4"
 pygame = "^2.6.0"
 mpv = "^1.0.7"
 livekit = "^0.12.1"
+livekit-agents = "^0.8.6"
+livekit-plugins-deepgram = "^0.6.5"
+livekit-plugins-openai = "^0.8.1"
+livekit-plugins-silero = "^0.6.4"
+livekit-plugins-elevenlabs = "^0.7.3"
 segno = "^1.6.1"
 
 [build-system]
