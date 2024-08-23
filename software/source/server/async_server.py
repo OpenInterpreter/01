@@ -9,7 +9,7 @@ import os
 
 os.environ["INTERPRETER_REQUIRE_ACKNOWLEDGE"] = "False"
 
-def start_server(server_host, server_port, profile, debug, play_audio):
+def start_server(server_host, server_port, profile, debug):
 
     # Load the profile module from the provided path
     spec = importlib.util.spec_from_file_location("profile", profile)
@@ -35,16 +35,16 @@ def start_server(server_host, server_port, profile, debug, play_audio):
         engine = OpenAIEngine(voice="onyx")
     elif interpreter.tts == "elevenlabs":
         engine = ElevenlabsEngine(api_key=os.environ["ELEVEN_LABS_API_KEY"])
-        engine.set_voice("Michael")
+        engine.set_voice("Will")
     else:
-        raise ValueError(f"Unsupported TTS engine: {interpreter.interpreter.tts}")
+        raise ValueError(f"Unsupported TTS engine: {interpreter.tts}")
     interpreter.tts = TextToAudioStream(engine)
 
     # Misc Settings
     interpreter.verbose = debug
     interpreter.server.host = server_host
     interpreter.server.port = server_port
-    interpreter.play_audio = play_audio
+    interpreter.play_audio = False
     interpreter.audio_chunks = []
 
 
@@ -121,10 +121,12 @@ def start_server(server_host, server_port, profile, debug, play_audio):
     interpreter.output = types.MethodType(new_output, interpreter)
     interpreter.on_tts_chunk = types.MethodType(on_tts_chunk, interpreter)
 
-    # Add ping route, required by device
+    # Add ping route, required by esp32 device
     @interpreter.server.app.get("/ping")
     async def ping():
         return PlainTextResponse("pong")
 
     # Start server
+    interpreter.print = True
+    interpreter.debug = False
     interpreter.server.run()

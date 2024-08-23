@@ -1,5 +1,4 @@
 from interpreter import AsyncInterpreter
-
 interpreter = AsyncInterpreter()
 
 # This is an Open Interpreter compatible profile.
@@ -10,7 +9,7 @@ interpreter = AsyncInterpreter()
 interpreter.tts = "openai"
 
 # Connect your 01 to a language model
-interpreter.llm.model = "gpt-4-turbo"
+interpreter.llm.model = "gpt-4o"
 interpreter.llm.context_window = 100000
 interpreter.llm.max_tokens = 4096
 # interpreter.llm.api_key = "<your_openai_api_key_here>"
@@ -23,14 +22,14 @@ interpreter.computer.import_computer_api = True
 interpreter.computer.import_skills = True
 interpreter.computer.run("python", "computer")  # This will trigger those imports
 interpreter.auto_run = True
-interpreter.loop = True
-interpreter.loop_message = """Proceed with what you were doing (this is not confirmation, if you just asked me something). You CAN run code on my machine. If you want to run code, start your message with "```"! If the entire task is done, say exactly 'The task is done.' If you need some specific information (like username, message text, skill name, skill step, etc.) say EXACTLY 'Please provide more information.' If it's impossible, say 'The task is impossible.' (If I haven't provided a task, say exactly 'Let me know what you'd like to do next.') Otherwise keep going. CRITICAL: REMEMBER TO FOLLOW ALL PREVIOUS INSTRUCTIONS. If I'm teaching you something, remember to run the related `computer.skills.new_skill` function."""
-interpreter.loop_breakers = [
-    "The task is done.",
-    "The task is impossible.",
-    "Let me know what you'd like to do next.",
-    "Please provide more information.",
-]
+# interpreter.loop = True
+# interpreter.loop_message = """Proceed with what you were doing (this is not confirmation, if you just asked me something). You CAN run code on my machine. If you want to run code, start your message with "```"! If the entire task is done, say exactly 'The task is done.' If you need some specific information (like username, message text, skill name, skill step, etc.) say EXACTLY 'Please provide more information.' If it's impossible, say 'The task is impossible.' (If I haven't provided a task, say exactly 'Let me know what you'd like to do next.') Otherwise keep going. CRITICAL: REMEMBER TO FOLLOW ALL PREVIOUS INSTRUCTIONS. If I'm teaching you something, remember to run the related `computer.skills.new_skill` function."""
+# interpreter.loop_breakers = [
+#     "The task is done.",
+#     "The task is impossible.",
+#     "Let me know what you'd like to do next.",
+#     "Please provide more information.",
+# ]
 
 # Set the identity and personality of your 01
 interpreter.system_message = """
@@ -42,20 +41,9 @@ You can install new packages.
 Be concise. Your messages are being read aloud to the user. DO NOT MAKE PLANS. RUN CODE QUICKLY.
 Try to spread complex tasks over multiple code blocks. Don't try to complex tasks in one go.
 Manually summarize text.
+Prefer using Python.
 
-DON'T TELL THE USER THE METHOD YOU'LL USE, OR MAKE PLANS. ACT LIKE THIS:
-
----
-user: Are there any concerts in Seattle?
-assistant: Let me check on that.
-```python
-computer.browser.search("concerts in Seattle")
-```
-```output
-Upcoming concerts: Bad Bunny at Neumos...
-```
-It looks like there's a Bad Bunny concert at Neumos...
----
+DON'T TELL THE USER THE METHOD YOU'LL USE, OR MAKE PLANS. QUICKLY respond with something like "On it." then execute the function, then tell the user if the task has been completed.
 
 Act like you can just answer any question, then run code (this is hidden from the user) to answer it.
 THE USER CANNOT SEE CODE BLOCKS.
@@ -104,7 +92,7 @@ You are an image-based AI, you can see images.
 Clicking text is the most reliable way to use the mouse— for example, clicking a URL's text you see in the URL bar, or some textarea's placeholder text (like "Search" to get into a search bar).
 If you use `plt.show()`, the resulting image will be sent to you. However, if you use `PIL.Image.show()`, the resulting image will NOT be sent to you.
 It is very important to make sure you are focused on the right application and window. Often, your first command should always be to explicitly switch to the correct application. On Macs, ALWAYS use Spotlight to switch applications.
-When searching the web, use query parameters. For example, https://www.amazon.com/s?k=monitor
+If you want to search specific sites like amazon or youtube, use query parameters. For example, https://www.amazon.com/s?k=monitor or https://www.youtube.com/results?search_query=tatsuro+yamashita.
 
 # SKILLS
 

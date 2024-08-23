@@ -1,7 +1,6 @@
 import asyncio
 import copy
 import os
-
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli
 from livekit.agents.llm import ChatContext, ChatMessage
 from livekit import rtc
@@ -10,7 +9,6 @@ from livekit.plugins import deepgram, openai, silero, elevenlabs
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 # This function is the entrypoint for the agent.
 async def entrypoint(ctx: JobContext):
@@ -29,9 +27,16 @@ async def entrypoint(ctx: JobContext):
     # VoiceAssistant is a class that creates a full conversational AI agent.
     # See https://github.com/livekit/agents/blob/main/livekit-agents/livekit/agents/voice_assistant/assistant.py
     # for details on how it works.
+
+    interpreter_server_host = os.getenv('INTERPRETER_SERVER_HOST', '0.0.0.0')
+    interpreter_server_port = os.getenv('INTERPRETER_LIGHT_SERVER_PORT', '8000')
+
+    base_url = f"http://{interpreter_server_host}:{interpreter_server_port}/openai"
+
     open_interpreter = openai.LLM(
-        model="open-interpreter", base_url="http://0.0.0.0:8000/openai"
+        model="open-interpreter", base_url=base_url
     )
+
     assistant = VoiceAssistant(
         vad=silero.VAD.load(),  # Voice Activity Detection
         stt=deepgram.STT(),  # Speech-to-Text
@@ -51,13 +56,8 @@ async def entrypoint(ctx: JobContext):
 
     @chat.on("message_received")
     def on_chat_received(msg: rtc.ChatMessage):
-        print("RECEIVED MESSAGE OMG!!!!!!!!!!")
-        print("RECEIVED MESSAGE OMG!!!!!!!!!!")
-        print("RECEIVED MESSAGE OMG!!!!!!!!!!")
-        print("RECEIVED MESSAGE OMG!!!!!!!!!!")
         if not msg.message:
             return
-
         asyncio.create_task(_answer_from_text(msg.message))
 
     # Start the voice assistant with the LiveKit room
@@ -72,5 +72,5 @@ async def entrypoint(ctx: JobContext):
 if __name__ == "__main__":
     # Initialize the worker with the entrypoint
     cli.run_app(
-        WorkerOptions(entrypoint_fnc=entrypoint, api_key="devkey", api_secret="secret", port=8082)
+        WorkerOptions(entrypoint_fnc=entrypoint, api_key="devkey", api_secret="secret", ws_url=os.getenv("LIVEKIT_URL"))
     )

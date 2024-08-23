@@ -1,3 +1,16 @@
+"""
+01 # Runs light server and light simulator
+
+01 --server livekit # Runs livekit server only
+01 --server light # Runs light server only
+
+01 --client light-python
+
+... --expose # Exposes the server with ngrok
+... --expose --domain <domain> # Exposes the server on a specific ngrok domain
+... --qr # Displays a qr code
+"""
+
 import typer
 import ngrok
 import platform
@@ -12,93 +25,67 @@ import json
 import segno
 import time
 from dotenv import load_dotenv
-
 import signal
-
-app = typer.Typer()
 
 load_dotenv()
 
+system_type = platform.system()
+
+app = typer.Typer()
+
 @app.command()
 def run(
-    server: bool = typer.Option(False, "--server", help="Run server"),
+    server: str = typer.Option(
+        None,
+        "--server",
+        help="Run server (accepts `livekit` or `light`)",
+    ),
     server_host: str = typer.Option(
         "0.0.0.0",
         "--server-host",
         help="Specify the server host where the server will deploy",
     ),
     server_port: int = typer.Option(
-        10001,
+        10101,
         "--server-port",
         help="Specify the server port where the server will deploy",
     ),
-    expose: bool = typer.Option(False, "--expose", help="Expose server to internet"),
-    client: bool = typer.Option(False, "--client", help="Run client"),
+    expose: bool = typer.Option(False, "--expose", help="Expose server over the internet"),
+    domain: str = typer.Option(None, "--domain", help="Use `--expose` with a custom ngrok domain"),
+    client: str = typer.Option(None, "--client", help="Run client of a particular type. Accepts `light-python`, defaults to `light-python`"),
     server_url: str = typer.Option(
         None,
         "--server-url",
-        help="Specify the server URL that the client should expect. Defaults to server-host and server-port",
-    ),
-    client_type: str = typer.Option(
-        "auto", "--client-type", help="Specify the client type"
+        help="Specify the server URL that the --client should expect. Defaults to server-host and server-port",
     ),
     qr: bool = typer.Option(
-        False, "--qr", help="Display QR code to scan to connect to the server"
-    ),
-    domain: str = typer.Option(
-        None, "--domain", help="Connect ngrok to a custom domain"
+        False, "--qr", help="Display QR code containing the server connection information (will be ngrok url if `--expose` is used)"
     ),
     profiles: bool = typer.Option(
         False,
         "--profiles",
-        help="Opens the folder where this script is contained",
+        help="Opens the folder where profiles are contained",
     ),
     profile: str = typer.Option(
-        "default.py", # default
+        "default.py",
         "--profile",
         help="Specify the path to the profile, or the name of the file if it's in the `profiles` directory (run `--profiles` to open the profiles directory)",
     ),
     debug: bool = typer.Option(
         False,
         "--debug",
-        help="Print latency measurements and save microphone recordings locally for manual playback.",
-    ),
-    livekit: bool = typer.Option(
-        False, "--livekit", help="Creates QR code for livekit server and token."
+        help="Print latency measurements and save microphone recordings locally for manual playback",
     ),
 ):
-    _run(
-        server=server,
-        server_host=server_host,
-        server_port=server_port,
-        expose=expose,
-        client=client,
-        server_url=server_url,
-        client_type=client_type,
-        qr=qr,
-        debug=debug,
-        domain=domain,
-        profiles=profiles,
-        profile=profile,
-        livekit=livekit,
-    )
 
+    threads = []
 
-def _run(
-    server: bool = False,
-    server_host: str = "0.0.0.0",
-    server_port: int = 10001,
-    expose: bool = False,
-    client: bool = False,
-    server_url: str = None,
-    client_type: str = "auto",
-    qr: bool = False,
-    debug: bool = False,
-    domain = None,
-    profiles = None,
-    profile = None,
-    livekit: bool = False,
-):
+    # Handle `01` with no arguments, which should start server + client
+    if not server and not client:
+        server = "light"
+        client = "light-python"
+
+    ### PROFILES
 
     profiles_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "source", "server", "profiles")
 
@@ -122,151 +109,130 @@ def _run(
                     print(f"Invalid profile path: {profile}")
                     exit(1)
 
-    system_type = platform.system()
+
+    ### SERVER
+
     if system_type == "Windows":
         server_host = "localhost"
 
     if not server_url:
         server_url = f"{server_host}:{server_port}"
 
-    if not server and not client and not livekit:
-        server = True
-        client = True
-
-    def handle_exit(signum, frame):
-        os._exit(0)
-
-    signal.signal(signal.SIGINT, handle_exit)
-
     if server:
 
-        play_audio = False
+        ### LIGHT SERVER (required by livekit)
 
-        # (DISABLED)
-        # Have the server play audio if we're running this on the same device. Needless pops and clicks otherwise!
-        # if client:
-        #     play_audio = True
+        if server == "light":
+            light_server_port = server_port
+        elif server == "livekit":
+            # The light server should run at a different port if we want to run a livekit server
+            print(f"Starting light server (required for livekit server) on the port before `--server-port` (port {server_port-1}), unless the `AN_OPEN_PORT` env var is set.")
+            print(f"The livekit server will be started on port {server_port}.")
+            light_server_port = os.getenv('AN_OPEN_PORT', server_port-1)
 
         server_thread = threading.Thread(
             target=start_server,
             args=(
                 server_host,
-                server_port,
+                light_server_port,
                 profile,
-                debug,
-                play_audio,
+                debug
             ),
         )
         server_thread.start()
+        threads.append(server_thread)
 
-    if expose and not livekit:
-        tunnel_thread = threading.Thread(
-            target=create_tunnel, args=[server_host, server_port, qr, domain]
-        )
-        tunnel_thread.start()
+        if server == "livekit":
 
-    if client:
-        if client_type == "auto":
-            system_type = platform.system()
-            if system_type == "Darwin":  # Mac OS
-                client_type = "mac"
-            elif system_type == "Windows":  # Windows System
-                client_type = "windows"
-            elif system_type == "Linux":  # Linux System
-                try:
-                    with open("/proc/device-tree/model", "r") as m:
-                        if "raspberry pi" in m.read().lower():
-                            client_type = "rpi"
-                        else:
-                            client_type = "linux"
-                except FileNotFoundError:
-                    client_type = "linux"
+            ### LIVEKIT SERVER
 
-        module = importlib.import_module(
-            f".clients.{client_type}.device", package="source"
-        )
+            def run_command(command):
+                subprocess.run(command, shell=True, check=True)
 
-        play_audio = True
-
-        # (DISABLED)
-        # Have the server play audio if we're running this on the same device. Needless pops and clicks otherwise!
-        # if server:
-        #     play_audio = False
-
-        client_thread = threading.Thread(target=module.main, args=[server_url, debug, play_audio])
-        client_thread.start()
-
-    if livekit:
-        def run_command(command):
-            subprocess.run(command, shell=True, check=True)
-
-        # Create threads for each command and store handles
-        interpreter_thread = threading.Thread(
-            target=run_command, args=("poetry run interpreter --server",)
-        )
-        livekit_thread = threading.Thread(
-            target=run_command, args=('livekit-server --dev --bind "0.0.0.0"',)
-        )
-        worker_thread = threading.Thread(
-            target=run_command, args=("python worker.py dev",)
-        )
-
-        threads = [interpreter_thread, livekit_thread, worker_thread]
-
-        # Start all threads and set up logging for thread completion
-        for thread in threads:
-            thread.start()
+            # Start the livekit server
+            livekit_thread = threading.Thread(
+                target=run_command, args=(f'livekit-server --dev --bind "{server_host}" --port {server_port}',)
+            )
             time.sleep(7)
+            livekit_thread.start()
+            threads.append(livekit_thread)
 
-        # Create QR code
-        if expose and domain:
-            listener = ngrok.forward("localhost:7880", authtoken_from_env=True, domain=domain)
-            url= listener.url()
-            print(url)
-            content = json.dumps({"livekit_server": url})
-        elif expose and not domain:
-            listener = ngrok.forward("localhost:7880", authtoken_from_env=True)
-            url= listener.url()
-            print(url)
-            content = json.dumps({"livekit_server": url})
+            # We communicate with the livekit worker via environment variables:
+            os.environ["INTERPRETER_SERVER_HOST"] = server_host
+            os.environ["INTERPRETER_LIGHT_SERVER_PORT"] = str(light_server_port)
+            os.environ["LIVEKIT_URL"] = f"ws://{server_host}:{server_port}"
+
+            # Start the livekit worker
+            worker_thread = threading.Thread(
+                target=run_command, args=("python worker.py dev",) # TODO: This should not be a CLI, it should just run the python file
+            )
+            time.sleep(7)
+            worker_thread.start()
+            threads.append(worker_thread)
+
+        if expose:
+
+            ### EXPOSE OVER INTERNET
+            listener = ngrok.forward(f"{server_host}:{server_port}", authtoken_from_env=True, domain=domain)
+            url = listener.url()
+
         else:
-            # Get local IP address
+
+            ### GET LOCAL URL
+
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect(("8.8.8.8", 80))
             ip_address = s.getsockname()[0]
             s.close()
-            
-            url = f"ws://{ip_address}:7880"
-            print(url)
+
+            url = f"http://{ip_address}:{server_port}"
+
+
+        if server == "livekit":
+            print("Livekit server will run at:", url)
+
+
+        ### DISPLAY QR CODE
+
+        if qr:
+            time.sleep(7)
             content = json.dumps({"livekit_server": url})
+            qr_code = segno.make(content)
+            qr_code.terminal(compact=True)
 
-        qr_code = segno.make(content)
-        qr_code.terminal(compact=True)
 
-        print("Mobile setup complete. Scan the QR code to connect.")
+    ### CLIENT
 
-        def signal_handler(sig, frame):
-            print("Termination signal received. Shutting down...")
-            for thread in threads:
-                if thread.is_alive():
-                    # This will only work if the subprocess uses shell=True and the OS is Unix-like
-                    subprocess.run(f"pkill -P {os.getpid()}", shell=True)
-            os._exit(0)
+    if client:
+        
+        module = importlib.import_module(
+            f".clients.{client}.client", package="source"
+        )
 
-        # Register the signal handler
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
+        client_thread = threading.Thread(target=module.run, args=[server_url, debug])
+        client_thread.start()
+        threads.append(client_thread)
 
+
+    ### WAIT FOR THREADS TO FINISH, HANDLE CTRL-C
+
+    # Signal handler for termination signals
+    def signal_handler(sig, frame):
+        print("Termination signal received. Shutting down...")
+        for thread in threads:
+            if thread.is_alive():
+                # Kill subprocess associated with thread
+                subprocess.run(f"pkill -P {os.getpid()}", shell=True)
+        os._exit(0)
+
+    # Register signal handler for SIGINT and SIGTERM
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    try:
         # Wait for all threads to complete
         for thread in threads:
             thread.join()
-
-    try:
-        if server:
-            server_thread.join()
-        if expose:
-            tunnel_thread.join()
-        if client:
-            client_thread.join()
     except KeyboardInterrupt:
+        # On KeyboardInterrupt, send SIGINT to self
         os.kill(os.getpid(), signal.SIGINT)

@@ -76,7 +76,7 @@ class Device:
             self.recording = True
 
     def on_release(self, key):
-        if key == keyboard.Key.ctrl:
+        if key == keyboard.Key.ctrl: # TODO: Pass in hotkey
             self.spinner.stop()
             #print("Space released, stopping recording")
             self.recording = False
@@ -86,7 +86,7 @@ class Device:
 
     async def main(self):
         await self.connect_with_retry()
-        print("Hold CTRL to record. Press 'CTRL-C' to quit.")
+        print("Hold CTRL to speak to the assistant. Press 'CTRL-C' to quit.")
         listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
         listener.start()
         await asyncio.gather(self.send_audio(), self.receive_audio())
@@ -94,6 +94,8 @@ class Device:
     def start(self):
         asyncio.run(self.main())
 
-if __name__ == "__main__":
+def run(server_url, debug):
     device = Device()
+    device.server_url = server_url
+    device.debug = debug
     device.start()

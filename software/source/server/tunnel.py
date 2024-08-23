@@ -3,7 +3,7 @@ import pyqrcode
 from ..utils.print_markdown import print_markdown
 
 def create_tunnel(
-    server_host="localhost", server_port=10001, qr=False, domain=None
+    server_host="localhost", server_port=10101, qr=False, domain=None
 ):  
     """
     To use most of ngrok’s features, you’ll need an authtoken. To obtain one, sign up for free at ngrok.com and 
