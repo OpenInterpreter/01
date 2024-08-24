@@ -14,9 +14,9 @@
 #include <Preferences.h>
 
 // Hardcode WiFi credentials and server if needed
-const String WIFI_NAME="Lynn Street Rugs";
-const String WIFI_PASSWORD="7TuftWork9!";
-const String SERVER_URL="http://192.168.0.55:10101";
+const String WIFI_NAME="WIFI NAME HERE";
+const String WIFI_PASSWORD="WIFI PASSWORD HERE";
+const String SERVER_URL="SERVER URL HERE";
 
 Preferences preferences;
 
