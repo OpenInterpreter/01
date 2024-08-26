@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "01OS"
+name = "01"
 packages = [
     {include = "source"},
 ]
