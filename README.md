@@ -71,7 +71,7 @@ poetry run 01
 The **01** is also a hub for hardware devices that run or connect to our software.
 
 - Mac, Windows, and Linux are supported by running `poetry run 01`. This starts the [01 server](https://01.openinterpreter.com/software/run) and a client that uses your `ctrl` key to simulate the 01 light.
-- We have an Android and iOS application under development at [here](software/source/clients/mobile).
+- We have an Android and iOS application under development [here](software/source/clients/mobile).
 - The 01 light is an ESP32-based, push-to-talk voice interface. Build documentation is [here.](https://01.openinterpreter.com/hardware/01-light/materials)
     - It works by connecting to the [01 server](https://01.openinterpreter.com/software/run).
 
