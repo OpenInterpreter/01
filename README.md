@@ -11,7 +11,7 @@
 <div align="center">
 
 
- | [中文版](docs/README_CN.md) | [日本語](docs/README_JA.md) | [English](README.md) |
+ [中文版](docs/README_CN.md) | [日本語](docs/README_JA.md) | [English](README.md)
 
 
 </div>
@@ -29,9 +29,9 @@ We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typef
 
 <br>
 
-The **01** is an open-source platform for conversational devices, inspired by the *Star Trek* computer.
+The **01** is an open-source platform for conversational devices, inspired by the *Rabbit R1* and *Star Trek* computer.
 
-With [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter) at its core, the **01** is more natural, flexible, and capable than its predecessors. Assistants built on **01** can:
+By centering this project on [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter), the **01** is more natural, flexible, and capable than its predecessors. Assistants built from this repository can:
 
 - Execute code
 - Browse the web
@@ -41,39 +41,43 @@ With [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter) at 
 
 <br>
 
-We intend to become the GNU/Linux of this space by staying open, modular, and free.
+We intend to become the GNU/Linux of this new space by staying open, modular, and free.
 
 <br>
 
 # Software
 
 ```shell
-git clone https://github.com/OpenInterpreter/01 # Clone the repository
-cd 01/software # CD into the source directory
+git clone https://github.com/OpenInterpreter/01
+cd 01/software
 ```
 
-<!-- > Not working? Read our [setup guide](https://docs.openinterpreter.com/getting-started/setup). -->
+> Not working? Read the [setup docs](https://01.openinterpreter.com/software/introduction).
 
 ```shell
-brew install portaudio ffmpeg cmake # Install Mac OSX dependencies
-poetry install # Install Python dependencies
-export OPENAI_API_KEY=sk... # OR run `poetry run 01 --local` to run everything locally
-poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
+brew install ffmpeg # mac only. windows and linux instructions below
+poetry install
+poetry run 01
 ```
 
 <!-- > For a Windows installation, read our [setup guide](https://docs.openinterpreter.com/getting-started/setup#windows). -->
 
 <br>
 
-**Note:** The [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) and [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT) libraries at the heart of the 01 are thanks to the voice interface work of [Kolja Beigel](https://github.com/KoljaB). Please star those repos and consider contributing to / utilizing those projects.
+**Note:** The [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT) and [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) libraries at the heart of the 01 are the work of [Kolja Beigel](https://github.com/KoljaB). Please star those repositories and consider contributing to those projects!
 
 # Hardware
 
-- The **01 Light** is an ESP32-based voice interface. Build instructions are [here](https://github.com/OpenInterpreter/01/tree/main/hardware/light). A list of what to buy [here](https://github.com/OpenInterpreter/01/blob/main/hardware/light/BOM.md).
-- It works in tandem with the **01 Server** ([setup guide below](https://github.com/OpenInterpreter/01/blob/main/README.md#01-server)) running on your home computer.
-- **Mac OSX** and **Ubuntu** are supported by running `poetry run 01` (**Windows** is supported experimentally). This uses your spacebar to simulate the 01 Light.
+The **01** is also a hub for hardware devices that run or connect to our software.
 
-**We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). [Contribution Guide →](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
+- Mac, Windows, and Linux are supported by running `poetry run 01`. This starts the [01 server](https://01.openinterpreter.com/software/run) and a client that uses your `ctrl` key to simulate the 01 light.
+- We have an Android and iOS application under development at [here](software/source/clients/mobile).
+- The 01 light is an ESP32-based, push-to-talk voice interface. Build documentation is [here.](https://01.openinterpreter.com/hardware/01-light/materials)
+    - It works by connecting to the [01 server](https://01.openinterpreter.com/software/run).
+
+<br>
+
+**We need your help supporting & building more hardware.** The 01 should be able to run on any device with input (microphone, keyboard, etc.), output (speakers, screens, motors, etc.), and an internet connection (or sufficient compute to run everything locally). [Contribution Guide ↗️](https://github.com/OpenInterpreter/01/blob/main/CONTRIBUTING.md)
 
 <br>
 
@@ -138,7 +142,7 @@ To specify the text-to-speech service for the 01 `base_device.py`, set `interpre
 ## Ubuntu Dependencies
 
 ```bash
-sudo apt-get install portaudio19-dev ffmpeg cmake
+sudo apt-get install ffmpeg
 ```
 
 # Contributors
@@ -149,17 +153,15 @@ Please see our [contributing guidelines](CONTRIBUTING.md) for more details on ho
 
 <br>
 
-# Roadmap
-
-Visit [our roadmap](/ROADMAP.md) to see the future of the 01.
-
-<br>
-
-## Background
+## Directory
 
 ### [Context ↗](https://github.com/KillianLucas/01/blob/main/CONTEXT.md)
 
-The story of devices that came before the 01.
+The story that came before the 01.
+
+### [Roadmap ↗](/ROADMAP.md)
+
+The future of the 01.
 
 <br>
 
