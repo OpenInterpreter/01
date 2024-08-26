@@ -81,7 +81,7 @@ const char post_connected_html[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
-  <title>01OS Setup</title>
+  <title>01 Setup</title>
   <style>
 
   * {
@@ -142,8 +142,8 @@ const char post_connected_html[] PROGMEM = R"=====(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <h1>01OS Setup</h1>
-  <form action="/submit_01os" method="post">
+  <h1>01 Setup</h1>
+  <form action="/submit_01" method="post">
     <div class="contain">
       <label for="server_address">Server Address:</label><br><br>
       <input type="text" id="server_address" name="server_address"><br><br>
@@ -162,7 +162,7 @@ String successHtml = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
-  <title>01OS Setup</title>
+  <title>01 Setup</title>
   <style>
     body {
       background-color: #fff;
@@ -184,7 +184,7 @@ String successHtml = R"=====(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <h2>Connected to 01OS!</h1>
+  <h2>Connected to 01!</h1>
   <p>You can now close this window</p>
 </body>
 </html>
@@ -247,7 +247,7 @@ void connectToWifi(String ssid, String password) {
     }
 }
 
-bool connectTo01OS(String server_address)
+bool connectTo01(String server_address)
 {
     int err = 0;
     int port = 80;
@@ -287,7 +287,7 @@ bool connectTo01OS(String server_address)
     }
 
     HttpClient http(c, domain.c_str(), port);
-    Serial.println("Connecting to 01OS at " + domain + ":" + port + "/ping");
+    Serial.println("Connecting to 01 at " + domain + ":" + port + "/ping");
 
     if (domain.indexOf("ngrok") != -1) {
         http.sendHeader("ngrok-skip-browser-warning", "80");
@@ -476,7 +476,7 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
       request->send(200, "text/plain", "Failed to connect to " + ssid);
     } });
 
-    server.on("/submit_01os", HTTP_POST, [](AsyncWebServerRequest *request)
+    server.on("/submit_01", HTTP_POST, [](AsyncWebServerRequest *request)
               {
     String server_address;
 
@@ -486,7 +486,7 @@ void setUpWebserver(AsyncWebServer &server, const IPAddress &localIP)
     }
 
     // Attempt to connect to the Wi-Fi network with these credentials
-    bool connectedToServer = connectTo01OS(server_address);
+    bool connectedToServer = connectTo01(server_address);
 
     // Redirect user or send a response back
     String connectionMessage;
@@ -553,7 +553,7 @@ void tryReconnectToServer() {
     if (!serverURL.isEmpty()) {
         Serial.println("Trying to reconnect to server with stored URL: " + serverURL);
         // Attempt to connect to the server using the stored URL
-        if (connectTo01OS(serverURL)) {
+        if (connectTo01(serverURL)) {
             Serial.println("Reconnected to server using stored URL.");
         } else {
             Serial.println("Failed to reconnect to server. Proceeding with normal startup.");
@@ -845,7 +845,7 @@ void loop()
     {
         if (server_domain != "")
         {
-            Serial.println("Setting up websocket to 01OS " + server_domain + ":" + server_port);
+            Serial.println("Setting up websocket to 01 " + server_domain + ":" + server_port);
             websocket_setup(server_domain, server_port);
             InitI2SSpeakerOrMic(MODE_SPK);
 
