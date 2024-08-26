@@ -1,6 +1,4 @@
-# 01OS
-
-## Contribute
+## Contribute to these docs
 - Clone this repo
 - install mintlify CLI
 - run mintlify in project directory to get preview of docs

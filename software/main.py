@@ -11,14 +11,17 @@
 ... --qr # Displays a qr code
 """
 
+from yaspin import yaspin
+spinner = yaspin()
+spinner.start()
+
 import typer
 import ngrok
 import platform
 import threading
 import os
 import importlib
-from source.server.tunnel import create_tunnel
-from source.server.async_server import start_server
+from source.server.server import start_server
 import subprocess
 import socket
 import json
@@ -124,11 +127,14 @@ def run(
 
         if server == "light":
             light_server_port = server_port
+            voice = True # The light server will support voice
         elif server == "livekit":
             # The light server should run at a different port if we want to run a livekit server
+            spinner.stop()
             print(f"Starting light server (required for livekit server) on the port before `--server-port` (port {server_port-1}), unless the `AN_OPEN_PORT` env var is set.")
             print(f"The livekit server will be started on port {server_port}.")
             light_server_port = os.getenv('AN_OPEN_PORT', server_port-1)
+            voice = False # The light server will NOT support voice. It will just run Open Interpreter. The Livekit server will handle voice
 
         server_thread = threading.Thread(
             target=start_server,
@@ -136,9 +142,12 @@ def run(
                 server_host,
                 light_server_port,
                 profile,
+                voice,
                 debug
             ),
         )
+        spinner.stop()
+        print("Starting server...")
         server_thread.start()
         threads.append(server_thread)
 
@@ -164,7 +173,7 @@ def run(
 
             # Start the livekit worker
             worker_thread = threading.Thread(
-                target=run_command, args=("python worker.py dev",) # TODO: This should not be a CLI, it should just run the python file
+                target=run_command, args=("python source/server/livekit/worker.py dev",) # TODO: This should not be a CLI, it should just run the python file
             )
             time.sleep(7)
             worker_thread.start()
@@ -208,6 +217,8 @@ def run(
         )
 
         client_thread = threading.Thread(target=module.run, args=[server_url, debug])
+        spinner.stop()
+        print("Starting client...")
         client_thread.start()
         threads.append(client_thread)
 

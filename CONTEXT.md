@@ -1,4 +1,4 @@
-# Takeaways
+# Context
 
 1. **Be minimal.**
 
@@ -6,7 +6,7 @@ Both to developers (the 01 should be very programmer friendly) and to the end us
 
 2. **Develop standards.**
 
-That should be compatible with other popular systems. For example, I think [LMC messages](https://docs.openinterpreter.com/protocols/lmc-messages) should ~ work on OpenAI's API and vice versa.
+That should be compatible with other popular systems.
 
 3. **Resonate strongly with a niche.**
 

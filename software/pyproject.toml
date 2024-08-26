@@ -3,51 +3,15 @@ name = "01OS"
 packages = [
     {include = "source"},
 ]
-include = ["start.py"]
+include = ["main.py"]
 version = "0.0.14"
-description = "The open-source language model computer"
+description = "The #1 open-source voice interface for desktop, mobile, and ESP32 chips."
 authors = ["Killian <killian@openinterpreter.com>"]
 license = "AGPL"
 readme = "../README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.12"
-pyaudio = "^0.2.14"
-pynput = "^1.7.6"
-websockets = "^12.0"
-python-dotenv = "^1.0.1"
-ffmpeg-python = "^0.2.0"
-textual = "^0.50.1"
-pydub = "^0.25.1"
-ngrok = "^1.0.0"
-simpleaudio = "^1.0.4"
-opencv-python = "^4.9.0.80"
-psutil = "^5.9.8"
-platformdirs = "^4.2.0"
-rich = "^13.7.1"
-pytimeparse = "^1.1.8"
-python-crontab = "^3.0.0"
-inquirer = "^3.2.4"
-pyqrcode = "^1.2.1"
-realtimestt = "^0.1.16"
-realtimetts = { version = "^0.4.2", extras = ["all"] }
-keyboard = "^0.13.5"
-pyautogui = "^0.9.54"
-ctranslate2 = "4.1.0"
-#py3-tts = "^3.5"
-#elevenlabs = "1.2.2"
-groq = "^0.5.0"
-open-interpreter = {git = "https://github.com/OpenInterpreter/open-interpreter.git", branch = "development", extras = ["os", "server"]}
-litellm = "*"
-openai = "*"
-pywebview = "*"
-pyobjc = "*"
-sentry-sdk = "^2.4.0"
-plyer = "^2.1.0"
-pywinctl = "^0.3"
-certifi = "^2024.7.4"
-pygame = "^2.6.0"
-mpv = "^1.0.7"
+python = ">=3.10,<3.12"
 livekit = "^0.12.1"
 livekit-agents = "^0.8.6"
 livekit-plugins-deepgram = "^0.6.5"
@@ -55,13 +19,19 @@ livekit-plugins-openai = "^0.8.1"
 livekit-plugins-silero = "^0.6.4"
 livekit-plugins-elevenlabs = "^0.7.3"
 segno = "^1.6.1"
+open-interpreter = {extras = ["os", "server"], version = "^0.3.8"}
+ngrok = "^1.4.0"
+realtimetts = {extras = ["all"], version = "^0.4.5"}
+realtimestt = "^0.2.41"
+pynput = "^1.7.7"
+yaspin = "^3.0.2"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-01 = "start:app"
+01 = "main:app"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"

@@ -4,7 +4,7 @@
     <a href="https://discord.gg/Hvz9Axh84z"><img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=social&logoColor=black"/></a>
     <br>
     <br>
-    <strong>The open-source language model computer.</strong><br>
+    <strong>The #1 open-source voice interface.</strong><br>
     <br><a href="https://changes.openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">Documentation</a><br>
 </p>
 
@@ -26,14 +26,20 @@ We want to help you build. [Apply for 1-on-1 support.](https://0ggfznkwh4j.typef
 
 > [!IMPORTANT]
 > This experimental project is under rapid development and lacks basic safeguards. Until a stable `1.0` release, only run this repository on devices without sensitive information or access to paid services.
->
-> **A substantial rewrite to address these concerns and more, including the addition of [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) and [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT), is occurring [here](https://github.com/KillianLucas/01-rewrite/tree/main).**
 
 <br>
 
-**The 01 Project** is building an open-source ecosystem for AI devices.
+The **01** is an open-source platform for conversational devices, inspired by the *Star Trek* computer.
 
-Our flagship operating system can power conversational devices like the Rabbit R1, Humane Pin, or [Star Trek computer](https://www.youtube.com/watch?v=1ZXugicgn6U).
+With [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter) at its core, the **01** is more natural, flexible, and capable than its predecessors. Assistants built on **01** can:
+
+- Execute code
+- Browse the web
+- Read and create files
+- Control third-party software
+- ...
+
+<br>
 
 We intend to become the GNU/Linux of this space by staying open, modular, and free.
 
@@ -59,7 +65,7 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 <br>
 
-**The [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) and [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT) libraries in the incoming 01-rewrite are thanks to the state-of-the-art voice interface work of [Kolja Beigel](https://github.com/KoljaB). Please star those repos and consider contributing to / utilizing those projects!**
+**Note:** The [RealtimeTTS](https://github.com/KoljaB/RealtimeTTS) and [RealtimeSTT](https://github.com/KoljaB/RealtimeSTT) libraries at the heart of the 01 are thanks to the voice interface work of [Kolja Beigel](https://github.com/KoljaB). Please star those repos and consider contributing to / utilizing those projects.
 
 # Hardware
 
@@ -73,7 +79,7 @@ poetry run 01 # Runs the 01 Light simulator (hold your spacebar, speak, release)
 
 # What does it do?
 
-The 01 exposes a speech-to-speech websocket at `localhost:10001`.
+The 01 exposes a speech-to-speech websocket at `localhost:10101`.
 
 If you stream raw audio bytes to `/` in [Streaming LMC format](https://docs.openinterpreter.com/guides/streaming-response), you will receive its response in the same format.
 
@@ -112,7 +118,7 @@ To run the server on your Desktop and connect it to your 01 Light, run the follo
 ```shell
 brew install ngrok/ngrok/ngrok
 ngrok authtoken ... # Use your ngrok authtoken
-poetry run 01 --server --expose
+poetry run 01 --server light --expose
 ```
 
 The final command will print a server URL. You can enter this into your 01 Light's captive WiFi portal to connect to your 01 Server.
@@ -120,10 +126,8 @@ The final command will print a server URL. You can enter this into your 01 Light
 ## Local Mode
 
 ```
-poetry run 01 --local
+poetry run 01 --profile local.py
 ```
-
-If you want to run local speech-to-text using Whisper, you must install Rust. Follow the instructions given [here](https://www.rust-lang.org/tools/install).
 
 ## Customizations
 
@@ -156,10 +160,6 @@ Visit [our roadmap](/ROADMAP.md) to see the future of the 01.
 ### [Context ↗](https://github.com/KillianLucas/01/blob/main/CONTEXT.md)
 
 The story of devices that came before the 01.
-
-### [Inspiration ↗](https://github.com/KillianLucas/01/tree/main/INSPIRATION.md)
-
-Things we want to steal great ideas from.
 
 <br>
 

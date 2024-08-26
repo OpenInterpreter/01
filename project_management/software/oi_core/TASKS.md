@@ -1,3 +1,0 @@
-- [ ] Release Open Interpreter `0.2.1`
-- [ ] Meet to determine Computer API additions for the 01
-- [ ] Meet to decide how to build the skill library + skill recording

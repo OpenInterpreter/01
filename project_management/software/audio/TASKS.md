@@ -1,3 +1,0 @@
-- [ ] STT implementation — Can we get a bash script that we can run on startup that starts a whisper.cpp tiny binary with an endpoint to connect to it (or something) so script.js can stream audio to it?
-- [ ] TSS implementation — Same as above ^ bash script that starts Rhasspy then some way to connect script.js to it?
-- [ ] Hardware limitations / find minimum requirements for this to be performant. What's the shittiest hardware this can be run on?

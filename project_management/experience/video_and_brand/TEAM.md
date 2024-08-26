@@ -1,4 +1,0 @@
-- Arturo @arturot
-- Killian @killianlucas
-- Matt @matt_rygh
-- Finn

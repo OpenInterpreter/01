@@ -1,3 +1,0 @@
-- Uli @ulidabess
-- Ben @humanbee
-- Killian @killianlucas

@@ -1,15 +1,17 @@
-from RealtimeTTS import TextToAudioStream, CoquiEngine, OpenAIEngine, ElevenlabsEngine
 from fastapi.responses import PlainTextResponse
 from RealtimeSTT import AudioToTextRecorder
+from RealtimeTTS import TextToAudioStream
 import importlib
+import warnings
 import asyncio
 import types
 import wave
 import os
+import sys
 
 os.environ["INTERPRETER_REQUIRE_ACKNOWLEDGE"] = "False"
 
-def start_server(server_host, server_port, profile, debug):
+def start_server(server_host, server_port, profile, voice, debug):
 
     # Load the profile module from the provided path
     spec = importlib.util.spec_from_file_location("profile", profile)
@@ -18,6 +20,18 @@ def start_server(server_host, server_port, profile, debug):
 
     # Get the interpreter from the profile
     interpreter = profile_module.interpreter
+
+    # Apply our settings to it
+    interpreter.verbose = debug
+    interpreter.server.host = server_host
+    interpreter.server.port = server_port
+
+    if voice == False:
+        # If voice is False, just start the standard OI server
+        interpreter.server.run()
+        exit()
+
+    # ONLY if voice is True, will we run the rest of this file.
 
     # STT
     interpreter.stt = AudioToTextRecorder(
@@ -29,21 +43,30 @@ def start_server(server_host, server_port, profile, debug):
     if not hasattr(interpreter, 'tts'):
         print("Setting TTS provider to default: openai")
         interpreter.tts = "openai"
+
     if interpreter.tts == "coqui":
+        from RealtimeTTS import CoquiEngine
         engine = CoquiEngine()
     elif interpreter.tts == "openai":
-        engine = OpenAIEngine(voice="onyx")
+        from RealtimeTTS import OpenAIEngine
+        if hasattr(interpreter, 'voice'):
+            voice = interpreter.voice
+        else:
+            voice = "onyx"
+        engine = OpenAIEngine(voice=voice)
     elif interpreter.tts == "elevenlabs":
-        engine = ElevenlabsEngine(api_key=os.environ["ELEVEN_LABS_API_KEY"])
-        engine.set_voice("Will")
+        from RealtimeTTS import ElevenlabsEngine
+        engine = ElevenlabsEngine()
+        if hasattr(interpreter, 'voice'):
+            voice = interpreter.voice
+        else:
+            voice = "Will"
+        engine.set_voice(voice)
     else:
         raise ValueError(f"Unsupported TTS engine: {interpreter.tts}")
     interpreter.tts = TextToAudioStream(engine)
 
     # Misc Settings
-    interpreter.verbose = debug
-    interpreter.server.host = server_host
-    interpreter.server.port = server_port
     interpreter.play_audio = False
     interpreter.audio_chunks = []
 
@@ -66,7 +89,10 @@ def start_server(server_host, server_port, profile, debug):
                 self.stt.stop()
                 content = self.stt.text()
 
-                print("\n\nUser: ", content)
+                if content.strip() == "":
+                    return
+
+                print(">", content.strip())
 
                 if False:
                     audio_bytes = bytearray(b"".join(self.audio_chunks))
@@ -127,6 +153,6 @@ def start_server(server_host, server_port, profile, debug):
         return PlainTextResponse("pong")
 
     # Start server
+    interpreter.server.display = True
     interpreter.print = True
-    interpreter.debug = False
     interpreter.server.run()

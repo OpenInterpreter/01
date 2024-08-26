@@ -26,15 +26,14 @@ class Device:
         for attempt in range(max_retries):
             try:
                 self.websocket = await websockets.connect(f"ws://{self.server_url}")
-                print("Connected to server.")
 
                 # Send auth, which the server requires (docs.openinterpreter.com/server/usage)
                 await self.websocket.send(json.dumps({"auth": True}))
 
                 return
             except ConnectionRefusedError:
-                if attempt % 4 == 0:
-                    print(f"Waiting for the server to be ready...")
+                if attempt % 8 == 0 and attempt != 0:
+                    print(f"Loading...")
                 await asyncio.sleep(retry_delay)
         raise Exception("Failed to connect to the server after multiple attempts")
 
@@ -71,7 +70,7 @@ class Device:
     def on_press(self, key):
         if key == keyboard.Key.ctrl and not self.recording:
             #print("Space pressed, starting recording")
-            print("\n")
+            print("")
             self.spinner.start()
             self.recording = True
 
@@ -86,7 +85,7 @@ class Device:
 
     async def main(self):
         await self.connect_with_retry()
-        print("Hold CTRL to speak to the assistant. Press 'CTRL-C' to quit.")
+        print("\nHold CTRL to speak to your assistant. Press 'CTRL-C' to quit.")
         listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
         listener.start()
         await asyncio.gather(self.send_audio(), self.receive_audio())
