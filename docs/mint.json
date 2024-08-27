@@ -44,7 +44,8 @@
       "pages": [
         "software/introduction",
         "software/installation",
-        "software/run",
+        "software/livekit-server",
+        "software/light-server",
         "software/configure",
         "software/flags"
       ]
@@ -55,6 +56,7 @@
         {
           "group": "01 Light",
           "pages": [
+            "hardware/01-light/introduction",
             "hardware/01-light/materials",
             "hardware/01-light/case",
             "hardware/01-light/assembly",
@@ -66,17 +68,25 @@
         "hardware/desktop",
         {
           "group": "Mobile",
-          "pages": ["hardware/mobile/ios", "hardware/mobile/android", "hardware/mobile/privacy"]
+          "pages": [
+            "hardware/mobile/ios",
+            "hardware/mobile/android",
+            "hardware/mobile/privacy"
+          ]
         }
       ]
     },
     {
       "group": "Troubleshooting",
-      "pages": ["troubleshooting/faq"]
+      "pages": [
+        "troubleshooting/faq"
+      ]
     },
     {
       "group": "Legal",
-      "pages": ["legal/fulfillment-policy"]
+      "pages": [
+        "legal/fulfillment-policy"
+      ]
     }
   ],
   "feedback": {

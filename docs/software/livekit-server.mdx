@@ -1,0 +1,23 @@
+---
+title: "Livekit Server"
+description: "Run your 01"
+---
+
+<Info> Make sure that you have navigated to the `software` directory. </Info>
+
+This server leverages the Livekit SDK and is used for the mobile apps.
+
+It uses WebRTC for real-time communication and is very robust.
+
+To run the Livekit server:
+
+```bash
+poetry run 01 --server livekit
+```
+
+<Note>
+  Speech to Text and Text to Speech are handled by Livekit plugins which
+  requires a Deepgram or ElevenLabs API key.
+</Note>
+
+Set env var API keys.
