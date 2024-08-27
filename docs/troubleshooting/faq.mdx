@@ -91,8 +91,22 @@ description: "Frequently Asked Questions"
   ways to start contributing to the open-source 01 Project!
 </Accordion>
 
-- If my device runs off bluetooth connected to a phone, is there a mobile app to
-  use to connect to the server?
+<Accordion title="Are there any third parties involved in the communication between 01 and my computer?">
+  If you use ngrok when running `--expose` on the [01
+  Repo](https://github.com/OpenInterpreter/01), that is the only third party
+  involved. You can also use bore and localtunnel — these are used to expose
+  your 01 server over the internet for your device to connect to. If you run it
+  locally, and connect to the server via something like 0.0.0.0, no third
+  parties are involved.
+</Accordion>
+
+<Accordion title="Is communication between 01 and my computer end-to-end encrypted and if so what is the encryption standard used?">
+  This depends on which api_base / llm service provider you use, but re the
+  recommended gpt models: "OpenAI encrypts all data at rest (AES-256) and in
+  transit (TLS 1.2+)". This will be different for Anthropic, Ollama, etc. but
+  I'd expect all large providers to have the same encryption standards.
+</Accordion>
+
 - How do you build on top of the 01?
 - What are minimum hardware requirements?
 - What firmware do I use to connect? - What ideally do I need in my code to access
