@@ -27,8 +27,8 @@ class Device:
             try:
                 self.websocket = await websockets.connect(f"ws://{self.server_url}")
 
-                # Send auth, which the server requires (docs.openinterpreter.com/server/usage)
-                await self.websocket.send(json.dumps({"auth": True}))
+                # # Send auth, if you're using a server that requires it (docs.openinterpreter.com/server/usage)
+                # await self.websocket.send(json.dumps({"auth": True}))
 
                 return
             except ConnectionRefusedError:

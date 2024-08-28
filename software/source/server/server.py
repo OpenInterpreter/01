@@ -10,6 +10,7 @@ import os
 import sys
 
 os.environ["INTERPRETER_REQUIRE_ACKNOWLEDGE"] = "False"
+os.environ["INTERPRETER_REQUIRE_AUTH"] = "False"
 
 def start_server(server_host, server_port, profile, voice, debug):
 
@@ -25,11 +26,6 @@ def start_server(server_host, server_port, profile, voice, debug):
     interpreter.verbose = debug
     interpreter.server.host = server_host
     interpreter.server.port = server_port
-
-    # Disable authentication, which the `light` server can't support right now
-    def authenticate(token):
-        return True
-    interpreter.server.authenticate = authenticate
 
     if voice == False:
         # If voice is False, just start the standard OI server
