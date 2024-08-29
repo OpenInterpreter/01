@@ -21,7 +21,19 @@ To set up the ESP32 for use with 01, follow this guide to install the firmware:
   <img src="assets/pasted-client.png" alt="Pasted client.ino contents" width="60%" />
 </div>
 
-4. Go to Tools -> Board -> Boards Manager, search "esp32", then install the boards by Arduino and Espressif.
+4. Hardcode your WiFi SSID, WiFi password, and server URL into the code. 
+
+<div style="display: flex; justify-content: center;">
+  <img src="assets/hardcode-wifi-pass-server.png" alt="Hardcode WiFi SSID and password" width="60%" />
+</div>
+
+<div style="display: flex; justify-content: center;">
+  <div style="width: 80%;">
+    Hardcoding is recommended for a more streamlined setup and development environment. However, if you don't hardcode these values or if the ESP32 can't connect using the provided information, it will automatically default to a captive portal for configuration. 
+  </div>
+</div>
+
+5. Go to Tools -> Board -> Boards Manager, search "esp32", then install the boards by Arduino and Espressif.
 
 <div style="display: flex; justify-content: center;">
   <img src="assets/boards-manager.png" alt="Install ESP32 boards" width="60%" />
@@ -60,7 +72,7 @@ To set up the ESP32 for use with 01, follow this guide to install the firmware:
 6. To flash the .ino to the board, connect the board to the USB port.
 
 <div style="display: flex; justify-content: center;">
-  <img src="assets/connect-usb.jpeg" alt="Connect USB" width="60%" />
+  <img src="assets/connect_usb.jpeg" alt="Connect USB" width="60%" />
 </div>
 
 7. Select the port from the dropdown on the IDE, then select the M5Atom board (or M5Stack-ATOM if you have that).

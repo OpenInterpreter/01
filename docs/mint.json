@@ -55,18 +55,29 @@
         {
           "group": "01 Light",
           "pages": [
+            "hardware/01-light/introduction",
             "hardware/01-light/materials",
             "hardware/01-light/case",
             "hardware/01-light/assembly",
-            "hardware/01-light/esp32",
+            "hardware/01-light/chip",
             "hardware/01-light/connect"
+          ]
+        },
+        {
+          "group": "ESP32",
+          "pages": [
+            "hardware/esp32/esp32-setup"
           ]
         },
         "hardware/custom_hardware",
         "hardware/desktop",
         {
           "group": "Mobile",
-          "pages": ["hardware/mobile/ios", "hardware/mobile/android", "hardware/mobile/privacy"]
+          "pages": [
+            "hardware/mobile/ios",
+            "hardware/mobile/android",
+            "hardware/mobile/privacy"
+          ]
         }
       ]
     },
