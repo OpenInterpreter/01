@@ -1,23 +1,77 @@
----
-title: "Livekit Server"
-description: "Run your 01"
----
+## Overview
 
-<Info> Make sure that you have navigated to the `software` directory. </Info>
+Livekit is a powerful, open-source WebRTC server and client SDK that enables real-time audio and video communication. It's designed for applications that require robust, scalable real-time features.
 
-This server leverages the Livekit SDK and is used for the mobile apps.
+### Key Features
+- Real-time audio and video communication
+- Scalable architecture
+- Support for various platforms (web, mobile, desktop)
 
-It uses WebRTC for real-time communication and is very robust.
+## Getting Started
 
-To run the Livekit server:
+### Prerequisites
+Make sure you have navigated to the `software` directory before proceeding.
+
+### Environment Setup
+
+1. Create a `.env` file in the `/software` directory with the following content:
+
+```env
+ELEVEN_API_KEY=your_eleven_labs_api_key
+DEEPGRAM_API_KEY=your_deepgram_api_key
+NGROK_AUTHTOKEN=your_ngrok_auth_token
+```
+
+Replace the placeholders with your actual API keys.
+
+<CardGroup cols={3}>
+  <Card title="Eleven Labs" icon="microphone" href="https://beta.elevenlabs.io">
+    Get your Eleven Labs API key for text-to-speech
+  </Card>
+  <Card title="Deepgram" icon="waveform-lines" href="https://console.deepgram.com">
+    Obtain your Deepgram API key for speech recognition
+  </Card>
+  <Card title="Ngrok" icon="wifi" href="https://dashboard.ngrok.com">
+    Sign up for Ngrok and get your auth token
+  </Card>
+</CardGroup>
+
+### Starting the Server
+
+To start the Livekit server, run the following command:
 
 ```bash
 poetry run 01 --server livekit
 ```
 
 <Note>
-  Speech to Text and Text to Speech are handled by Livekit plugins which
-  requires a Deepgram or ElevenLabs API key.
+Currently, our Livekit server only works with Deepgram and Eleven Labs. We are working to introduce all-local functionality as soon as possible. By setting your profile (see [Configure Your Profile](/software/configure)), you can still change your LLM to be a local LLM, but the `interpreter.tts` value will be ignored for the Livekit server.
 </Note>
 
-Set env var API keys.
+## Livekit vs. Light Server
+
+- **Livekit Server**: Designed for devices with higher processing power, such as phones, web browsers, and more capable hardware. It offers a full range of features and robust performance.
+
+- **Light Server**: We have another lightweight server called the Light server, specifically designed for ESP32 devices. It's optimized for low-power, constrained environments.
+
+## SDK Integration
+
+Livekit provides SDKs for various programming languages and platforms, allowing you to easily integrate real-time communication features into your applications.
+
+### Available SDKs
+
+- JavaScript/TypeScript
+- React
+- React Native
+- iOS (Swift)
+- Android (Kotlin)
+- Flutter
+- Unity
+
+<Card
+  title="Explore Livekit SDKs"
+  icon="code"
+  href="https://docs.livekit.io/client-sdk-js/"
+>
+  Find documentation and integration guides for all Livekit SDKs.
+</Card>
