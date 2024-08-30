@@ -44,8 +44,14 @@
       "pages": [
         "software/introduction",
         "software/installation",
-        "software/livekit-server",
-        "software/light-server",
+        {
+          "group": "Server",
+          "pages": [
+            "software/server/introduction",
+            "software/server/livekit-server",
+            "software/server/light-server"
+          ]
+        },
         "software/configure",
         "software/flags"
       ]

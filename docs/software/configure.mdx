@@ -133,3 +133,11 @@ For local TTS, Coqui is used.
 # Set your profile with a local TTS service
 interpreter.tts = "coqui"
 ```
+
+<Note>
+  When using the Livekit server, the interpreter.tts setting in your profile
+  will be ignored. The Livekit server currently only works with Deepgram for
+  speech recognition and Eleven Labs for text-to-speech. We are working on
+  introducing all-local functionality for the Livekit server as soon as
+  possible.
+</Note>

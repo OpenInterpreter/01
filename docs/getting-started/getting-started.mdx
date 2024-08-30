@@ -15,11 +15,23 @@ To run the 01 on your computer, you will need to install a few essential package
   To install poetry, follow the official guide here.
 </Card>
 
+## What is Poetry?
+
+Poetry is a tool for dependency management and packaging in Python. It allows you to declare the libraries your project depends on and it will manage (install/update) them for you. We use Poetry to ensure that everyone running 01 has the same environment and dependencies.
+
 ### MacOS
+
+On MacOS, we use Homebrew (a package manager) to install the required dependencies. Run the following command in your terminal:
 
 ```bash
 brew install portaudio ffmpeg cmake
 ```
+
+This command installs:
+
+- PortAudio: A cross-platform audio I/O library
+- FFmpeg: A complete, cross-platform solution for recording, converting, and streaming audio and video
+- CMake: An open-source, cross-platform family of tools designed to build, test and package software
 
 ### Ubuntu
 
@@ -28,6 +40,12 @@ brew install portaudio ffmpeg cmake
 ```bash
 sudo apt-get install portaudio19-dev ffmpeg cmake
 ```
+
+This command installs:
+
+- PortAudio: A cross-platform audio I/O library
+- FFmpeg: A complete solution for recording, converting, and streaming audio and video
+- CMake: An open-source, cross-platform family of tools designed to build, test and package software
 
 ### Windows
 
