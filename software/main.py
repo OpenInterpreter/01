@@ -127,19 +127,21 @@ def run(
 
         if server == "light":
             light_server_port = server_port
+            light_server_host = server_host
             voice = True # The light server will support voice
         elif server == "livekit":
             # The light server should run at a different port if we want to run a livekit server
             spinner.stop()
-            print(f"Starting light server (required for livekit server) on the port before `--server-port` (port {server_port-1}), unless the `AN_OPEN_PORT` env var is set.")
+            print(f"Starting light server (required for livekit server) on localhost, on the port before `--server-port` (port {server_port-1}), unless the `AN_OPEN_PORT` env var is set.")
             print(f"The livekit server will be started on port {server_port}.")
             light_server_port = os.getenv('AN_OPEN_PORT', server_port-1)
+            light_server_host = "localhost"
             voice = False # The light server will NOT support voice. It will just run Open Interpreter. The Livekit server will handle voice
 
         server_thread = threading.Thread(
             target=start_server,
             args=(
-                server_host,
+                light_server_host,
                 light_server_port,
                 profile,
                 voice,

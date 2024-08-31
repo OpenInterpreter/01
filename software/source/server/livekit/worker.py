@@ -16,8 +16,7 @@ async def entrypoint(ctx: JobContext):
     initial_ctx = ChatContext().append(
         role="system",
         text=(
-            "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
-            "You should use short and concise responses, and avoiding usage of unpronounceable punctuation."
+            "" # Open Interpreter handles this.
         ),
     )
 
@@ -66,7 +65,9 @@ async def entrypoint(ctx: JobContext):
     await asyncio.sleep(1)
 
     # Greets the user with an initial message
-    await assistant.say("Hey, how can I help you today?", allow_interruptions=True)
+    await assistant.say("""Hi! You can hold the white circle below to speak to me.
+
+Try asking what I can do.""", allow_interruptions=True)
 
 
 if __name__ == "__main__":
