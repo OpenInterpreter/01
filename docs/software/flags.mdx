@@ -7,10 +7,12 @@ description: "Customize the behaviour of your 01 from the CLI"
 
 ### Server
 
-Runs the server.
+Specify the server to run.
+
+Valid arguments are either [livekit](/software/livekit-server) or [light](/software/light-server)
 
 ```
-poetry run 01 --server
+poetry run 01 --server light
 ```
 
 ### Server Host
@@ -33,19 +35,6 @@ Default: `10001`.
 poetry run 01 --server-port 10001
 ```
 
-### Tunnel Service
-
-Specify the tunnel service.
-
-Default: `ngrok`.
-
-```
-poetry run 01 --tunnel-service ngrok
-```
-
-Specify the tunnel service.
-Default: `ngrok`.
-
 ### Expose
 
 Expose server to internet.
@@ -56,10 +45,12 @@ poetry run 01 --expose
 
 ### Client
 
-Run client.
+Specify the client.
+
+Valid argument is `light-python`
 
 ```
-poetry run 01 --client
+poetry run 01 --client light-python
 ```
 
 ### Server URL
@@ -72,18 +63,6 @@ Default: `None`.
 ```
 poetry run 01 --server-url http://0.0.0.0:10001
 ```
-
-### Client Type
-
-Specify the client type.
-
-Default: `auto`.
-
-```
-poetry run 01 --client-type auto
-```
-
-Default: `auto`.
 
 ### QR
 
