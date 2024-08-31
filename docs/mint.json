@@ -40,6 +40,14 @@
       ]
     },
     {
+      "group": "Safety",
+      "pages": [
+        "safety/introduction",
+        "safety/risks",
+        "safety/measures"
+      ]
+    },
+    {
       "group": "Software Setup",
       "pages": [
         "software/introduction",
