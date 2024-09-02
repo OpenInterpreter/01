@@ -1,16 +1,3 @@
-"""
-01 # Runs light server and light simulator
-
-01 --server livekit # Runs livekit server only
-01 --server light # Runs light server only
-
-01 --client light-python
-
-... --expose # Exposes the server with ngrok
-... --expose --domain <domain> # Exposes the server on a specific ngrok domain
-... --qr # Displays a qr code
-"""
-
 from yaspin import yaspin
 spinner = yaspin()
 spinner.start()
@@ -29,6 +16,9 @@ import segno
 import time
 from dotenv import load_dotenv
 import signal
+from source.server.livekit.worker import main as worker_main
+import warnings
+import requests
 
 load_dotenv()
 
@@ -162,24 +152,13 @@ def run(
 
             # Start the livekit server
             livekit_thread = threading.Thread(
-                target=run_command, args=(f'livekit-server --dev --bind "{server_host}" --port {server_port}',)
+                target=run_command, args=(f'livekit-server --dev --bind "{server_host}" --port {server_port} > /dev/null 2>&1',)
             )
             time.sleep(7)
             livekit_thread.start()
             threads.append(livekit_thread)
 
-            # We communicate with the livekit worker via environment variables:
-            os.environ["INTERPRETER_SERVER_HOST"] = server_host
-            os.environ["INTERPRETER_LIGHT_SERVER_PORT"] = str(light_server_port)
-            os.environ["LIVEKIT_URL"] = f"ws://{server_host}:{server_port}"
-
-            # Start the livekit worker
-            worker_thread = threading.Thread(
-                target=run_command, args=("python source/server/livekit/worker.py dev",) # TODO: This should not be a CLI, it should just run the python file
-            )
-            time.sleep(7)
-            worker_thread.start()
-            threads.append(worker_thread)
+            livekit_url = f"ws://{server_host}:{server_port}"
 
         if expose:
 
@@ -199,7 +178,6 @@ def run(
 
         if server == "livekit":
             print("Livekit server will run at:", url)
-
 
         ### DISPLAY QR CODE
 
@@ -241,6 +219,28 @@ def run(
     signal.signal(signal.SIGTERM, signal_handler)
 
     try:
+
+        # Verify the server is running
+        for attempt in range(10):
+            try:
+                response = requests.get(url)
+                status = "OK" if response.status_code == 200 else "Not OK"
+                if status == "OK":
+                    break
+            except requests.RequestException:
+                pass
+            time.sleep(1)
+        else:
+            raise Exception(f"Server at {url} failed to respond after 10 attempts")
+
+        # Start the livekit worker
+        if server == "livekit":
+            time.sleep(7)
+            # These are needed to communicate with the worker's entrypoint
+            os.environ['INTERPRETER_SERVER_HOST'] = light_server_host
+            os.environ['INTERPRETER_SERVER_PORT'] = str(light_server_port)
+            worker_main(livekit_url)
+
         # Wait for all threads to complete
         for thread in threads:
             thread.join()
