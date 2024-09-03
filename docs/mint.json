@@ -83,8 +83,9 @@
         {
           "group": "Mobile",
           "pages": [
-            "hardware/mobile/ios",
-            "hardware/mobile/android"
+            "hardware/mobile/download",
+            "hardware/mobile/development",
+            "hardware/mobile/community-apps"
           ]
         }
       ]
