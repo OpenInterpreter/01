@@ -10,9 +10,11 @@ import os
 import importlib
 from source.server.server import start_server
 import subprocess
+import webview
 import socket
 import json
 import segno
+from livekit import api
 import time
 from dotenv import load_dotenv
 import signal
@@ -158,7 +160,7 @@ def run(
             livekit_thread.start()
             threads.append(livekit_thread)
 
-            livekit_url = f"ws://{server_host}:{server_port}"
+            local_livekit_url = f"ws://{server_host}:{server_port}"
 
         if expose:
 
@@ -178,14 +180,6 @@ def run(
 
         if server == "livekit":
             print("Livekit server will run at:", url)
-
-        ### DISPLAY QR CODE
-
-        if qr:
-            time.sleep(7)
-            content = json.dumps({"livekit_server": url})
-            qr_code = segno.make(content)
-            qr_code.terminal(compact=True)
 
 
     ### CLIENT
@@ -233,13 +227,31 @@ def run(
         else:
             raise Exception(f"Server at {url} failed to respond after 10 attempts")
 
-        # Start the livekit worker
+        ### DISPLAY QR CODE
+        if qr:
+            content = json.dumps({"livekit_server": url})
+            qr_code = segno.make(content)
+            qr_code.terminal(compact=True)
+
+        ### START LIVEKIT WORKER
         if server == "livekit":
             time.sleep(7)
             # These are needed to communicate with the worker's entrypoint
             os.environ['INTERPRETER_SERVER_HOST'] = light_server_host
             os.environ['INTERPRETER_SERVER_PORT'] = str(light_server_port)
-            worker_main(livekit_url)
+
+            token = str(api.AccessToken('devkey', 'secret') \
+                .with_identity("identity") \
+                .with_name("my name") \
+                .with_grants(api.VideoGrants(
+                    room_join=True,
+                    room="my-room",
+            )).to_jwt())
+
+            meet_url = f'https://meet.livekit.io/custom?liveKitUrl={url.replace("http", "ws")}&token={token}\n\n'
+            print(meet_url)
+
+            worker_main(local_livekit_url)
 
         # Wait for all threads to complete
         for thread in threads:

@@ -25,6 +25,7 @@ realtimetts = {extras = ["all"], version = "^0.4.5"}
 realtimestt = "^0.2.41"
 pynput = "^1.7.7"
 yaspin = "^3.0.2"
+pywebview = "^5.2"
 
 [build-system]
 requires = ["poetry-core"]
