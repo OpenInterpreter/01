@@ -153,8 +153,12 @@ def run(
                 subprocess.run(command, shell=True, check=True)
 
             # Start the livekit server
+            if debug:
+                command = f'livekit-server --dev --bind "{server_host}" --port {server_port}'
+            else:
+                command = f'livekit-server --dev --bind "{server_host}" --port {server_port} > /dev/null 2>&1'
             livekit_thread = threading.Thread(
-                target=run_command, args=(f'livekit-server --dev --bind "{server_host}" --port {server_port} > /dev/null 2>&1',)
+                target=run_command, args=(command,)
             )
             time.sleep(7)
             livekit_thread.start()
@@ -251,7 +255,16 @@ def run(
             meet_url = f'https://meet.livekit.io/custom?liveKitUrl={url.replace("http", "ws")}&token={token}\n\n'
             print(meet_url)
 
-            worker_main(local_livekit_url)
+            for attempt in range(30):
+                try:
+                    worker_main(local_livekit_url)
+                except KeyboardInterrupt:
+                    print("Exiting.")
+                    raise
+                except Exception as e:
+                    print(f"Error occurred: {e}")
+                print("Retrying...")
+                time.sleep(1)
 
         # Wait for all threads to complete
         for thread in threads:
