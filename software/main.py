@@ -233,9 +233,15 @@ def run(
 
         ### DISPLAY QR CODE
         if qr:
-            content = json.dumps({"livekit_server": url})
-            qr_code = segno.make(content)
-            qr_code.terminal(compact=True)
+            def display_qr_code():
+                time.sleep(10)
+                content = json.dumps({"livekit_server": url})
+                qr_code = segno.make(content)
+                qr_code.terminal(compact=True)
+
+            qr_thread = threading.Thread(target=display_qr_code)
+            qr_thread.start()
+            threads.append(qr_thread)
 
         ### START LIVEKIT WORKER
         if server == "livekit":
