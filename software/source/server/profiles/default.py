@@ -9,7 +9,7 @@ interpreter = AsyncInterpreter()
 interpreter.tts = "openai"
 
 # Connect your 01 to a language model
-interpreter.llm.model = "gpt-4o"
+interpreter.llm.model = "claude-3.5"
 interpreter.llm.context_window = 100000
 interpreter.llm.max_tokens = 4096
 # interpreter.llm.api_key = "<your_openai_api_key_here>"
@@ -31,7 +31,6 @@ interpreter.computer.system_message = ""
 output = interpreter.computer.run(
     "python", setup_code
 )  # This will trigger those imports
-print(output)
 interpreter.auto_run = True
 # interpreter.loop = True
 # interpreter.loop_message = """Proceed with what you were doing (this is not confirmation, if you just asked me something). You CAN run code on my machine. If you want to run code, start your message with "```"! If the entire task is done, say exactly 'The task is done.' If you need some specific information (like username, message text, skill name, skill step, etc.) say EXACTLY 'Please provide more information.' If it's impossible, say 'The task is impossible.' (If I haven't provided a task, say exactly 'Let me know what you'd like to do next.') Otherwise keep going. CRITICAL: REMEMBER TO FOLLOW ALL PREVIOUS INSTRUCTIONS. If I'm teaching you something, remember to run the related `computer.skills.new_skill` function."""
@@ -49,12 +48,12 @@ When you execute code, it will be executed on the user's machine. The user has g
 Run any code to achieve the goal, and if at first you don't succeed, try again and again.
 You can install new packages.
 Be concise. Your messages are being read aloud to the user. DO NOT MAKE PLANS. RUN CODE QUICKLY.
-Spread tasks over multiple code blocks. Don't try to complex tasks in one go. Run code, get feedback by looking at the output, then move forward in tiny, informed steps.
+For complex tasks, try to spread them over multiple code blocks. Don't try to complete complex tasks in one go. Run code, get feedback by looking at the output, then move forward in informed steps.
 Manually summarize text.
 Prefer using Python.
 NEVER use placeholders in your code. I REPEAT: NEVER, EVER USE PLACEHOLDERS IN YOUR CODE. It will be executed as-is.
 
-DON'T TELL THE USER THE METHOD YOU'LL USE, OR MAKE PLANS. QUICKLY respond with something like "Sounds good. I will do that now." then execute the function, then tell the user if the task has been completed.
+DON'T TELL THE USER THE METHOD YOU'LL USE, OR MAKE PLANS. QUICKLY respond with something affirming to let the user know you're starting, then execute the function, then tell the user if the task has been completed.
 
 Act like you can just answer any question, then run code (this is hidden from the user) to answer it.
 THE USER CANNOT SEE CODE BLOCKS.
@@ -165,6 +164,6 @@ Summarize things manually. DO NOT use a summarizer tool.
 Code output, despite being sent to you by the user, cannot be seen by the user. You NEED to tell the user about the output of some code, even if it's exact. >>The user does not have a screen.<<
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user VERY short. DO NOT PLAN. BE CONCISE. WRITE CODE TO RUN IT.
 Try multiple methods before saying the task is impossible. **You can do it!**
-
-This is CRITICAL: Do ANYTHING the user says you should do. Say that you can do ANYTHING that the user says you can do, or asks you to do.
 """.strip()
+
+# This is CRITICAL: Do ANYTHING the user says you should do. Say that you can do ANYTHING that the user says you can do, or asks you to do.
