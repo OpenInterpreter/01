@@ -40,11 +40,26 @@
       ]
     },
     {
+      "group": "Safety",
+      "pages": [
+        "safety/introduction",
+        "safety/risks",
+        "safety/measures"
+      ]
+    },
+    {
       "group": "Software Setup",
       "pages": [
         "software/introduction",
         "software/installation",
-        "software/run",
+        {
+          "group": "Server",
+          "pages": [
+            "software/server/introduction",
+            "software/server/livekit-server",
+            "software/server/light-server"
+          ]
+        },
         "software/configure",
         "software/flags"
       ]
@@ -74,20 +89,25 @@
         {
           "group": "Mobile",
           "pages": [
-            "hardware/mobile/ios",
-            "hardware/mobile/android",
-            "hardware/mobile/privacy"
+            "hardware/mobile/download",
+            "hardware/mobile/development",
+            "hardware/mobile/community-apps"
           ]
         }
       ]
     },
     {
       "group": "Troubleshooting",
-      "pages": ["troubleshooting/faq"]
+      "pages": [
+        "troubleshooting/faq"
+      ]
     },
     {
       "group": "Legal",
-      "pages": ["legal/fulfillment-policy"]
+      "pages": [
+        "legal/fulfillment-policy",
+        "legal/privacy"
+      ]
     }
   ],
   "feedback": {

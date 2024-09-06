@@ -1,16 +1,3 @@
-"""
-01 # Runs light server and light simulator
-
-01 --server livekit # Runs livekit server only
-01 --server light # Runs light server only
-
-01 --client light-python
-
-... --expose # Exposes the server with ngrok
-... --expose --domain <domain> # Exposes the server on a specific ngrok domain
-... --qr # Displays a qr code
-"""
-
 from yaspin import yaspin
 spinner = yaspin()
 spinner.start()
@@ -23,12 +10,17 @@ import os
 import importlib
 from source.server.server import start_server
 import subprocess
+import webview
 import socket
 import json
 import segno
+from livekit import api
 import time
 from dotenv import load_dotenv
 import signal
+from source.server.livekit.worker import main as worker_main
+import warnings
+import requests
 
 load_dotenv()
 
@@ -127,19 +119,21 @@ def run(
 
         if server == "light":
             light_server_port = server_port
+            light_server_host = server_host
             voice = True # The light server will support voice
         elif server == "livekit":
             # The light server should run at a different port if we want to run a livekit server
             spinner.stop()
-            print(f"Starting light server (required for livekit server) on the port before `--server-port` (port {server_port-1}), unless the `AN_OPEN_PORT` env var is set.")
+            print(f"Starting light server (required for livekit server) on localhost, on the port before `--server-port` (port {server_port-1}), unless the `AN_OPEN_PORT` env var is set.")
             print(f"The livekit server will be started on port {server_port}.")
             light_server_port = os.getenv('AN_OPEN_PORT', server_port-1)
+            light_server_host = "localhost"
             voice = False # The light server will NOT support voice. It will just run Open Interpreter. The Livekit server will handle voice
 
         server_thread = threading.Thread(
             target=start_server,
             args=(
-                server_host,
+                light_server_host,
                 light_server_port,
                 profile,
                 voice,
@@ -159,25 +153,18 @@ def run(
                 subprocess.run(command, shell=True, check=True)
 
             # Start the livekit server
+            if debug:
+                command = f'livekit-server --dev --bind "{server_host}" --port {server_port}'
+            else:
+                command = f'livekit-server --dev --bind "{server_host}" --port {server_port} > /dev/null 2>&1'
             livekit_thread = threading.Thread(
-                target=run_command, args=(f'livekit-server --dev --bind "{server_host}" --port {server_port}',)
+                target=run_command, args=(command,)
             )
             time.sleep(7)
             livekit_thread.start()
             threads.append(livekit_thread)
 
-            # We communicate with the livekit worker via environment variables:
-            os.environ["INTERPRETER_SERVER_HOST"] = server_host
-            os.environ["INTERPRETER_LIGHT_SERVER_PORT"] = str(light_server_port)
-            os.environ["LIVEKIT_URL"] = f"ws://{server_host}:{server_port}"
-
-            # Start the livekit worker
-            worker_thread = threading.Thread(
-                target=run_command, args=("python source/server/livekit/worker.py dev",) # TODO: This should not be a CLI, it should just run the python file
-            )
-            time.sleep(7)
-            worker_thread.start()
-            threads.append(worker_thread)
+            local_livekit_url = f"ws://{server_host}:{server_port}"
 
         if expose:
 
@@ -197,15 +184,6 @@ def run(
 
         if server == "livekit":
             print("Livekit server will run at:", url)
-
-
-        ### DISPLAY QR CODE
-
-        if qr:
-            time.sleep(7)
-            content = json.dumps({"livekit_server": url})
-            qr_code = segno.make(content)
-            qr_code.terminal(compact=True)
 
 
     ### CLIENT
@@ -239,6 +217,61 @@ def run(
     signal.signal(signal.SIGTERM, signal_handler)
 
     try:
+
+        # Verify the server is running
+        for attempt in range(10):
+            try:
+                response = requests.get(url)
+                status = "OK" if response.status_code == 200 else "Not OK"
+                if status == "OK":
+                    break
+            except requests.RequestException:
+                pass
+            time.sleep(1)
+        else:
+            raise Exception(f"Server at {url} failed to respond after 10 attempts")
+
+        ### DISPLAY QR CODE
+        if qr:
+            def display_qr_code():
+                time.sleep(10)
+                content = json.dumps({"livekit_server": url})
+                qr_code = segno.make(content)
+                qr_code.terminal(compact=True)
+
+            qr_thread = threading.Thread(target=display_qr_code)
+            qr_thread.start()
+            threads.append(qr_thread)
+
+        ### START LIVEKIT WORKER
+        if server == "livekit":
+            time.sleep(7)
+            # These are needed to communicate with the worker's entrypoint
+            os.environ['INTERPRETER_SERVER_HOST'] = light_server_host
+            os.environ['INTERPRETER_SERVER_PORT'] = str(light_server_port)
+
+            token = str(api.AccessToken('devkey', 'secret') \
+                .with_identity("identity") \
+                .with_name("my name") \
+                .with_grants(api.VideoGrants(
+                    room_join=True,
+                    room="my-room",
+            )).to_jwt())
+
+            meet_url = f'https://meet.livekit.io/custom?liveKitUrl={url.replace("http", "ws")}&token={token}\n\n'
+            print(meet_url)
+
+            for attempt in range(30):
+                try:
+                    worker_main(local_livekit_url)
+                except KeyboardInterrupt:
+                    print("Exiting.")
+                    raise
+                except Exception as e:
+                    print(f"Error occurred: {e}")
+                print("Retrying...")
+                time.sleep(1)
+
         # Wait for all threads to complete
         for thread in threads:
             thread.join()

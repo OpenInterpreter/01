@@ -2,12 +2,12 @@ from fastapi.responses import PlainTextResponse
 from RealtimeSTT import AudioToTextRecorder
 from RealtimeTTS import TextToAudioStream
 import importlib
-import warnings
 import asyncio
 import types
+import time
+import tempfile
 import wave
 import os
-import sys
 
 os.environ["INTERPRETER_REQUIRE_ACKNOWLEDGE"] = "False"
 os.environ["INTERPRETER_REQUIRE_AUTH"] = "False"
@@ -90,19 +90,22 @@ def start_server(server_host, server_port, profile, voice, debug):
                 self.stt.stop()
                 content = self.stt.text()
 
+                if False:
+                    audio_bytes = bytearray(b"".join(self.audio_chunks))
+                    with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+                        with wave.open(temp_file.name, 'wb') as wav_file:
+                            wav_file.setnchannels(1)
+                            wav_file.setsampwidth(2)  # Assuming 16-bit audio
+                            wav_file.setframerate(16000)  # Assuming 16kHz sample rate
+                            wav_file.writeframes(audio_bytes)
+                        print(f"Audio for debugging: {temp_file.name}")
+                        time.sleep(10)
+                        
+
                 if content.strip() == "":
                     return
 
                 print(">", content.strip())
-
-                if False:
-                    audio_bytes = bytearray(b"".join(self.audio_chunks))
-                    with wave.open('audio.wav', 'wb') as wav_file:
-                        wav_file.setnchannels(1)
-                        wav_file.setsampwidth(2)  # Assuming 16-bit audio
-                        wav_file.setframerate(16000)  # Assuming 16kHz sample rate
-                        wav_file.writeframes(audio_bytes)
-                    print(os.path.abspath('audio.wav'))
 
                 await old_input({"role": "user", "type": "message", "content": content})
                 await old_input({"role": "user", "type": "message", "end": True})

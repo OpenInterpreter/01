@@ -19,12 +19,13 @@ livekit-plugins-openai = "^0.8.1"
 livekit-plugins-silero = "^0.6.4"
 livekit-plugins-elevenlabs = "^0.7.3"
 segno = "^1.6.1"
-open-interpreter = {extras = ["os", "server"], version = "^0.3.9"}
+open-interpreter = {extras = ["os", "server"], version = "^0.3.12"} # You should add a "browser" extra, so selenium isn't in the main package
 ngrok = "^1.4.0"
 realtimetts = {extras = ["all"], version = "^0.4.5"}
 realtimestt = "^0.2.41"
 pynput = "^1.7.7"
 yaspin = "^3.0.2"
+pywebview = "^5.2"
 
 [build-system]
 requires = ["poetry-core"]
