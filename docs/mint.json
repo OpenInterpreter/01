@@ -74,8 +74,14 @@
             "hardware/01-light/materials",
             "hardware/01-light/case",
             "hardware/01-light/assembly",
-            "hardware/01-light/esp32",
+            "hardware/01-light/chip",
             "hardware/01-light/connect"
+          ]
+        },
+        {
+          "group": "ESP32",
+          "pages": [
+            "hardware/esp32/esp32-setup"
           ]
         },
         "hardware/custom_hardware",
