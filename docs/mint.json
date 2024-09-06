@@ -83,9 +83,9 @@
         {
           "group": "Mobile",
           "pages": [
-            "hardware/mobile/ios",
-            "hardware/mobile/android",
-            "hardware/mobile/privacy"
+            "hardware/mobile/download",
+            "hardware/mobile/development",
+            "hardware/mobile/community-apps"
           ]
         }
       ]
@@ -99,7 +99,8 @@
     {
       "group": "Legal",
       "pages": [
-        "legal/fulfillment-policy"
+        "legal/fulfillment-policy",
+        "legal/privacy"
       ]
     }
   ],

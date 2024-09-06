@@ -1,0 +1,34 @@
+---
+title: "Community Apps"
+description: "Apps built by the community"
+---
+
+## Native iOS app by [eladekkal](https://github.com/eladdekel).
+
+To run it on your device, you can either install the app directly through the current TestFlight [here](https://testflight.apple.com/join/v8SyuzMT), or build from the source code files in Xcode on your Mac.
+
+### Instructions
+
+- [Install 01 software](/software/installation) on your machine
+
+- In Xcode, open the 'zerooone-app' project file in the project folder, change the Signing Team and Bundle Identifier, and build.
+
+### Using the App
+
+To use the app there are four features:
+
+1. The speak "Button"
+
+Made to emulate the button on the hardware models of 01, the big, yellow circle in the middle of the screen is what you hold when you want to speak to the model, and let go when you're finished speaking.
+
+2. The settings button
+
+Tapping the settings button will allow you to input your websocket address so that the app can properly connect to your computer.
+
+3. The reconnect button
+
+The arrow will be RED when the websocket connection is not live, and GREEN when it is. If you're making some changes you can easily reconnect by simply tapping the arrow button (or you can just start holding the speak button, too!).
+
+4. The terminal button
+
+The terminal button allows you to see all response text coming in from the server side of the 01. You can toggle it by tapping on the button, and each toggle clears the on-device cache of text.

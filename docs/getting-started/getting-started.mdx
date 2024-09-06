@@ -3,9 +3,40 @@ title: "Getting Started"
 description: "Preparing your machine"
 ---
 
-## Prerequisites
+## Overview
+
+The 01 project is an open-source ecosystem for artificially intelligent devices. By combining code-interpreting language models ("interpreters") with speech recognition and voice synthesis, the 01's flagship operating system ("01") can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
+
+Our goal is to become the "Linux" of this new space—open, modular, and free for personal or commercial use.
+
+<Note>The current version of 01 is a developer preview.</Note>
+
+## Components
+
+The 01 consists of two main components:
+
+### Server
+
+The server runs on your computer and acts as the brain of the 01 system. It:
+
+- Passes input to the interpreter
+- Executes commands on your computer
+- Returns responses
+
+### Client
+
+The client is responsible for capturing audio for controlling computers running the 01 server. It:
+
+- Transmits audio to the server
+- Plays back responses
+
+# Prerequisites
 
 To run the 01 on your computer, you will need to install a few essential packages.
+
+#### What is Poetry?
+
+Poetry is a tool for dependency management and packaging in Python. It allows you to declare the libraries your project depends on and it will manage (install/update) them for you. We use Poetry to ensure that everyone running 01 has the same environment and dependencies.
 
 <Card
   title="Install Poetry"
@@ -15,11 +46,9 @@ To run the 01 on your computer, you will need to install a few essential package
   To install poetry, follow the official guide here.
 </Card>
 
-## What is Poetry?
+### Operating Systems
 
-Poetry is a tool for dependency management and packaging in Python. It allows you to declare the libraries your project depends on and it will manage (install/update) them for you. We use Poetry to ensure that everyone running 01 has the same environment and dependencies.
-
-### MacOS
+#### MacOS
 
 On MacOS, we use Homebrew (a package manager) to install the required dependencies. Run the following command in your terminal:
 
@@ -29,11 +58,11 @@ brew install portaudio ffmpeg cmake
 
 This command installs:
 
-- PortAudio: A cross-platform audio I/O library
-- FFmpeg: A complete, cross-platform solution for recording, converting, and streaming audio and video
-- CMake: An open-source, cross-platform family of tools designed to build, test and package software
+- [PortAudio](https://www.portaudio.com/): A cross-platform audio I/O library
+- [FFmpeg](https://www.ffmpeg.org/): A complete, cross-platform solution for recording, converting, and streaming audio and video
+- [CMake](https://cmake.org/): An open-source, cross-platform family of tools designed to build, test and package software
 
-### Ubuntu
+#### Ubuntu
 
 <Note>Wayland not supported, only Ubuntu 20.04 and below</Note>
 
@@ -43,11 +72,11 @@ sudo apt-get install portaudio19-dev ffmpeg cmake
 
 This command installs:
 
-- PortAudio: A cross-platform audio I/O library
-- FFmpeg: A complete solution for recording, converting, and streaming audio and video
-- CMake: An open-source, cross-platform family of tools designed to build, test and package software
+- [PortAudio](https://www.portaudio.com/): A cross-platform audio I/O library
+- [FFmpeg](https://www.ffmpeg.org/): A complete solution for recording, converting, and streaming audio and video
+- [CMake](https://cmake.org/): An open-source, cross-platform family of tools designed to build, test and package software
 
-### Windows
+#### Windows
 
 - [Git for Windows](https://git-scm.com/download/win).
 - [Chocolatey](https://chocolatey.org/install#individual) to install the required packages.
