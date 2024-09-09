@@ -3,91 +3,113 @@ title: "Getting Started"
 description: "Preparing your machine"
 ---
 
-## Overview
+## Prerequisites
 
-The 01 project is an open-source ecosystem for artificially intelligent devices. By combining code-interpreting language models ("interpreters") with speech recognition and voice synthesis, the 01's flagship operating system ("01") can power conversational, computer-operating AI devices similar to the Rabbit R1 or the Humane Pin.
+To run the 01 on your computer, you will need to install the following essential packages:
 
-Our goal is to become the "Linux" of this new space—open, modular, and free for personal or commercial use.
+- Git
+- Python (version 3.11.x recommended)
+- Poetry
+- FFmpeg
 
-<Note>The current version of 01 is a developer preview.</Note>
+## Installation Guide
 
-## Components
+### For All Platforms
 
-The 01 consists of two main components:
+1. **Git**: Download and install Git from the [official website](https://git-scm.com/downloads).
 
-### Server
+2. **Python**: 
+   - Download Python 3.11.x from the [official Python website](https://www.python.org/downloads/).
+   - During installation, make sure to check "Add Python to PATH".
 
-The server runs on your computer and acts as the brain of the 01 system. It:
+3. **Poetry**: 
+   - Follow the [official Poetry installation guide](https://python-poetry.org/docs/#installing-with-the-official-installer).
+   - If you encounter SSL certificate issues on Windows, see the Windows-specific instructions below.
 
-- Passes input to the interpreter
-- Executes commands on your computer
-- Returns responses
+4. **FFmpeg**: Installation instructions vary by platform (see below).
 
-### Client
-
-The client is responsible for capturing audio for controlling computers running the 01 server. It:
-
-- Transmits audio to the server
-- Plays back responses
-
-# Prerequisites
-
-To run the 01 on your computer, you will need to install a few essential packages.
-
-#### What is Poetry?
-
-Poetry is a tool for dependency management and packaging in Python. It allows you to declare the libraries your project depends on and it will manage (install/update) them for you. We use Poetry to ensure that everyone running 01 has the same environment and dependencies.
-
-<Card
-  title="Install Poetry"
-  icon="link"
-  href="https://python-poetry.org/docs/#installing-with-the-official-installer"
->
-  To install poetry, follow the official guide here.
-</Card>
-
-### Operating Systems
+### Platform-Specific Instructions
 
 #### MacOS
 
-On MacOS, we use Homebrew (a package manager) to install the required dependencies. Run the following command in your terminal:
+We recommend using Homebrew to install the required dependencies:
 
 ```bash
 brew install portaudio ffmpeg cmake
 ```
 
-This command installs:
-
-- [PortAudio](https://www.portaudio.com/): A cross-platform audio I/O library
-- [FFmpeg](https://www.ffmpeg.org/): A complete, cross-platform solution for recording, converting, and streaming audio and video
-- [CMake](https://cmake.org/): An open-source, cross-platform family of tools designed to build, test and package software
-
 #### Ubuntu
 
-<Note>Wayland not supported, only Ubuntu 20.04 and below</Note>
+**Note**: Wayland is not supported. These instructions are for Ubuntu 20.04 and below.
+
+Install the required packages:
 
 ```bash
+sudo apt-get update
 sudo apt-get install portaudio19-dev ffmpeg cmake
 ```
 
-This command installs:
-
-- [PortAudio](https://www.portaudio.com/): A cross-platform audio I/O library
-- [FFmpeg](https://www.ffmpeg.org/): A complete solution for recording, converting, and streaming audio and video
-- [CMake](https://cmake.org/): An open-source, cross-platform family of tools designed to build, test and package software
-
 #### Windows
 
-- [Git for Windows](https://git-scm.com/download/win).
-- [Chocolatey](https://chocolatey.org/install#individual) to install the required packages.
-- [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools):
-  - Choose [**Download Build Tools**](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
-  - Run the downloaded file **vs_BuildTools.exe**.
-  - In the installer, select **Workloads** > **Desktop & Mobile** > **Desktop Development with C++**.
+1. **Git**: Download and install [Git for Windows](https://git-scm.com/download/win).
 
-With these installed, you can run the following commands in a **PowerShell terminal as an administrator**:
+2. **Python**: 
+   - Download Python 3.11.x from the [official Python website](https://www.python.org/downloads/windows/).
+   - During installation, ensure you check "Add Python to PATH".
 
-```powershell
-# Install the required packages
-choco install -y ffmpeg
-```
+3. **Microsoft C++ Build Tools**:
+   - Download from [Microsoft's website](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+   - Run the installer and select "Desktop development with C++" from the Workloads tab.
+   - This step is crucial for Poetry to work correctly.
+
+4. **Poetry**:
+   - If the standard installation method fails due to SSL issues, try this workaround:
+     1. Download the installation script from [https://install.python-poetry.org/](https://install.python-poetry.org/) and save it as `install-poetry.py`.
+     2. Open the file and replace the `get(self, url):` method with:
+        ```python
+        def get(self, url):
+            import ssl
+            import certifi
+            request = Request(url, headers={"User-Agent": "Python Poetry"})
+            context = ssl.create_default_context(cafile=certifi.where())
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            with closing(urlopen(request, context=context)) as r:
+                return r.read()
+        ```
+     3. Run the modified script to install Poetry.
+   - Add Poetry to your PATH:
+     1. Press Win + R, type "sysdm.cpl", and press Enter.
+     2. Go to the "Advanced" tab and click "Environment Variables".
+     3. Under "User variables", find "Path" and click "Edit".
+     4. Click "New" and add: `C:\Users\<USERNAME>\AppData\Roaming\Python\Scripts`
+     5. Click "OK" to close all windows.
+
+5. **FFmpeg**:
+   - Download the latest FFmpeg build from the [BtbN GitHub releases page](https://github.com/BtbN/FFmpeg-Builds/releases).
+   - Choose the `ffmpeg-master-latest-win64-gpl.zip` (non-shared suffix) file.
+   - Extract the compressed zip file.
+   - Add the FFmpeg `bin` folder to your PATH:
+     1. Press Win + R, type "sysdm.cpl", and press Enter.
+     2. Go to the "Advanced" tab and click "Environment Variables".
+     3. Under "System variables", find "Path" and click "Edit".
+     4. Click "New" and add the full path to the FFmpeg `bin` folder (e.g., `C:\path\to\ffmpeg\bin`).
+     5. Click "OK" to close all windows.
+
+## What is Poetry?
+
+Poetry is a dependency management and packaging tool for Python. It simplifies the process of managing project dependencies, ensuring consistent environments across different setups. We use Poetry to guarantee that everyone running 01 has the same environment and dependencies.
+
+## Troubleshooting
+
+### Windows-Specific Issues
+
+1. **Poetry Install Error**: If you encounter an error stating "Microsoft Visual C++ 14.0 or greater is required" when running `poetry install`, make sure you have properly installed the Microsoft C++ Build Tools as described in step 3 of the Windows installation guide.
+
+2. **FFmpeg Not Found**: If you receive an error saying FFmpeg is not found after installation, ensure that you've correctly added the FFmpeg `bin` folder to your system PATH as described in step 5 of the Windows installation guide.
+
+3. **Server Connection Issues**: If the server connects but you encounter errors when sending messages, double-check that all dependencies are correctly installed and that FFmpeg is properly set up in your PATH.
+
+## Next Steps
+
+Once you have successfully installed all the prerequisites, you're ready to clone the repository and set up the project.

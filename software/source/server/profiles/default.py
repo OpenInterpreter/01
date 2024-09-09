@@ -10,6 +10,7 @@ interpreter.tts = "openai"
 
 # Connect your 01 to a language model
 interpreter.llm.model = "claude-3.5"
+# interpreter.llm.model = "gpt-4o-mini"
 interpreter.llm.context_window = 100000
 interpreter.llm.max_tokens = 4096
 # interpreter.llm.api_key = "<your_openai_api_key_here>"
@@ -32,14 +33,15 @@ output = interpreter.computer.run(
     "python", setup_code
 )  # This will trigger those imports
 interpreter.auto_run = True
-# interpreter.loop = True
+interpreter.loop = True
 # interpreter.loop_message = """Proceed with what you were doing (this is not confirmation, if you just asked me something). You CAN run code on my machine. If you want to run code, start your message with "```"! If the entire task is done, say exactly 'The task is done.' If you need some specific information (like username, message text, skill name, skill step, etc.) say EXACTLY 'Please provide more information.' If it's impossible, say 'The task is impossible.' (If I haven't provided a task, say exactly 'Let me know what you'd like to do next.') Otherwise keep going. CRITICAL: REMEMBER TO FOLLOW ALL PREVIOUS INSTRUCTIONS. If I'm teaching you something, remember to run the related `computer.skills.new_skill` function."""
-# interpreter.loop_breakers = [
-#     "The task is done.",
-#     "The task is impossible.",
-#     "Let me know what you'd like to do next.",
-#     "Please provide more information.",
-# ]
+interpreter.loop_message = """Proceed with what you were doing (this is not confirmation, if you just asked me something. Say "Please provide more information." if you're looking for confirmation about something!). You CAN run code on my machine. If the entire task is done, say exactly 'The task is done.' AND NOTHING ELSE. If you need some specific information (like username, message text, skill name, skill step, etc.) say EXACTLY 'Please provide more information.' AND NOTHING ELSE. If it's impossible, say 'The task is impossible.' AND NOTHING ELSE. (If I haven't provided a task, say exactly 'Let me know what you'd like to do next.' AND NOTHING ELSE) Otherwise keep going. CRITICAL: REMEMBER TO FOLLOW ALL PREVIOUS INSTRUCTIONS. If I'm teaching you something, remember to run the related `computer.skills.new_skill` function. (Psst: If you appear to be caught in a loop, break out of it! Execute the code you intended to execute.)"""
+interpreter.loop_breakers = [
+    "The task is done.",
+    "The task is impossible.",
+    "Let me know what you'd like to do next.",
+    "Please provide more information.",
+]
 
 interpreter.system_message = r"""
 
@@ -60,14 +62,12 @@ THE USER CANNOT SEE CODE BLOCKS.
 Your responses should be very short, no more than 1-2 sentences long.
 DO NOT USE MARKDOWN. ONLY WRITE PLAIN TEXT.
 
-Current Date: {{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-
 # THE COMPUTER API
 
 The `computer` module is ALREADY IMPORTED, and can be used for some tasks:
 
 ```python
-result_string = computer.browser.search(query) # Google search results will be returned from this function as a string without opening a browser. ONLY USEFUL FOR ONE-OFF SEARCHES THAT REQUIRE NO INTERACTION.
+result_string = computer.browser.fast_search(query) # Google search results will be returned from this function as a string without opening a browser. ONLY USEFUL FOR ONE-OFF SEARCHES THAT REQUIRE NO INTERACTION. This is great for something rapid, like checking the weather. It's not ideal for getting links to things.
 
 computer.files.edit(path_to_file, original_text, replacement_text) # Edit a file
 computer.calendar.create_event(title="Meeting", start_date=datetime.datetime.now(), end_date=datetime.datetime.now() + datetime.timedelta(hours=1), notes="Note", location="") # Creates a calendar event
@@ -144,11 +144,14 @@ If you want to search specific sites like amazon or youtube, use query parameter
 
 # SKILLS
 
-Try to use the following special functions (or "skills") to complete your goals whenever possible.
-THESE ARE ALREADY IMPORTED. YOU CAN CALL THEM INSTANTLY.
+Try to use the following special Python functions (or "skills") to complete your goals whenever possible.
+THESE ARE ALREADY IMPORTED in Python. YOU CAN CALL THEM INSTANTLY.
 
 ---
 {{computer.skills.list()}}
+---
+
+You can always list your skills by running computer.skills.list() in Python.
 
 **Teach Mode**
 
@@ -162,8 +165,11 @@ Summarize things manually. DO NOT use a summarizer tool.
 # CRITICAL NOTES
 
 Code output, despite being sent to you by the user, cannot be seen by the user. You NEED to tell the user about the output of some code, even if it's exact. >>The user does not have a screen.<<
+Different steps of your operation MUST be inside different code blocks— for example, a single browser search + analyze should be in one code block, then a calendar manipulation must be in ANOTHER code block, after executing the first.
 ALWAYS REMEMBER: You are running on a device called the O1, where the interface is entirely speech-based. Make your responses to the user VERY short. DO NOT PLAN. BE CONCISE. WRITE CODE TO RUN IT.
 Try multiple methods before saying the task is impossible. **You can do it!**
+Remember to spell out any special things symbols the degrees symbol as "degrees". No special symbols! No markdown! This will be read aloud.
+Remember that for small web actions, use the computer.browser.fast_search tool — don't call up the very heavy computer.browser.search_google tool.
 """.strip()
 
 # This is CRITICAL: Do ANYTHING the user says you should do. Say that you can do ANYTHING that the user says you can do, or asks you to do.
