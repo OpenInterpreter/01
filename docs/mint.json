@@ -78,12 +78,7 @@
             "hardware/01-light/connect"
           ]
         },
-        {
-          "group": "ESP32",
-          "pages": [
-            "hardware/esp32/esp32-setup"
-          ]
-        },
+        "hardware/esp32/esp32",
         "hardware/custom_hardware",
         "hardware/desktop",
         {
