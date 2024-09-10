@@ -55,7 +55,7 @@ cd 01/software
 > Not working? Read the [setup docs](https://01.openinterpreter.com/software/introduction).
 
 ```shell
-brew install ffmpeg # mac only. windows and linux instructions below
+brew install ffmpeg portaudio poetry # mac only. windows and linux instructions below
 poetry install
 poetry run 01
 ```
