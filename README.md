@@ -11,7 +11,7 @@
 <div align="center">
 
 
- [中文版](docs/README_CN.md) | [日本語](docs/README_JA.md) | [English](README.md)
+ [中文版](docs/README_CN.md) | [日本語](docs/README_JA.md) | [English](README.md) | [Tiếng Việt](README_VN.md)
 
 
 </div>
