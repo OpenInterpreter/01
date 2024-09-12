@@ -8,14 +8,22 @@
     <br><a href="https://changes.openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">Documentation</a><br>
 </p>
 
+<br></br>
+
 ![01 Project Banner](https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/banner.png)
 
-The **01** is an open-source platform for intelligent devices, inspired by the *Rabbit R1* and *Star Trek* computer. Powered by [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter), it enables natural language control over your digital environment.
+<br></br>
+
+The **01** is an open-source platform for intelligent devices, inspired by the *Rabbit R1* and *Star Trek* computer. Powered by [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter), it provides a natural language voice interface for computers.
+
+<br>
 
 > [!IMPORTANT]
 > This experimental project is under rapid development and lacks basic safeguards. Until a stable `1.0` release, only run this on devices without sensitive information or access to paid services.
 
-## Key Capabilities
+<br>
+
+## Capabilities
 
 - Execute code
 - Browse the web
@@ -24,7 +32,7 @@ The **01** is an open-source platform for intelligent devices, inspired by the *
 
 ## Getting Started
 
-For detailed setup instructions for your specific platform, visit our [installation guide](https://01.openinterpreter.com/setup/installation).
+For detailed setup instructions, visit our [installation guide](https://01.openinterpreter.com/setup/installation).
 
 ## Server Options
 
@@ -57,7 +65,7 @@ We welcome contributions! Check out our [contributing guidelines](CONTRIBUTING.m
 
 For comprehensive guides, API references, and troubleshooting, visit our [official documentation](https://01.openinterpreter.com/).
 
----
+<br></br>
 
 <p align="center">
   <a href="https://github.com/OpenInterpreter/01/blob/main/CONTEXT.md">Context</a> •
