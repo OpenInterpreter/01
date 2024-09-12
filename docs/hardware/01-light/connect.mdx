@@ -1,14 +1,34 @@
 ---
 title: "Connect"
-description: "Connect your 01 device"
+description: "Connect your 01 device to your 01 server"
 ---
 
-### Captive portal
+### Connecting your 01 device to the server
 
-To connect your 01, you will use the captive portal.
+1. Start the 01 server on your computer:
+   ```
+   poetry run 01 --server light
+   ```
+   This command starts the server and generates a URL.
 
-1. Turn on your computer or laptop and connect to the '01 light' Wi-Fi network.
-2. Enter your Wi-Fi/hotspot name and password in the captive portal page.
-3. Enter the server URL generated on their computer and hit 'Connect'.
+   For remote connections, use:
+   ```
+   poetry run 01 --server light --expose
+   ```
+   This generates a public URL accessible from anywhere.
 
-Now you're connected and ready to go!
+2. Connect your 01 device to the server using one of these methods:
+
+   a) Hardcode credentials:
+   - Modify the Wi-Fi and server credentials at the top of the `client.ino` file.
+   - Flash the modified file to the ESP32.
+   - This method is quick but less flexible for changing details later.
+
+   b) Use the captive portal:
+   - Power on your 01 device.
+   - Connect to the '01-light' Wi-Fi network from your computer or smartphone.
+   - A captive portal page should open automatically. If not, open a web browser.
+   - Enter your Wi-Fi details and the server URL from step 1.
+   - Click 'Connect' to save settings and connect your device.
+
+After successful connection, your 01 device will be ready to communicate with the server.

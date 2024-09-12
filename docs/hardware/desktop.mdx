@@ -1,12 +1,26 @@
 ---
 title: "Desktop"
-description: "Control 01 from your computer"
+description: "Control the 01 from your computer"
 ---
 
-<Info> Make sure that you have navigated to the `software` directory. </Info>
+<Info> Make sure that you have navigated to the `/software` directory. </Info>
 
-To run 01 with your computer's microphone and speaker, run:
+To run 01 with your computer's microphone and speaker, you need to start a server and a client.
+
+We abstract this away with a simple command:
 
 ```bash
 poetry run 01
+```
+
+*Tip:* While in the `/software` directory, you can run the following command to install the `01` command system-wide:
+
+```bash
+pip install .
+```
+
+Then, simply run `01` in your terminal to start the server + client and begin speaking to your assistant.
+
+```bash
+01
 ```

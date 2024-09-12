@@ -1,0 +1,61 @@
+---
+title: "Android & iOS"
+description: "A react-native client for the 01"
+---
+
+<CardGroup cols={3}>
+  <Card title="Source Code" icon="github" href="https://github.com/OpenInterpreter/01-app">
+    View on GitHub
+  </Card>
+  <Card title="Android" icon="android" href="https://play.google.com/store/apps/details?id=com.interpreter.app">
+    Get it on Google Play
+  </Card>
+  <Card title="iOS" icon="apple" href="https://apps.apple.com/ca/app/01-light/id6601937732">
+    Download on the App Store
+  </Card>
+</CardGroup>
+
+![A mini Android phone running the 01 App](/assets/app.png)
+
+The 01 App connects to the 01 server on your home machine, enabling remote access to your files, apps, and IoT devices.
+
+# Setup
+
+<Steps>
+  <Step title="Install 01">
+    Install the 01 software on your computer. For detailed instructions, visit the [installation guide](/setup/installation).
+  </Step>
+  <Step title="Install Livekit">
+    Setup Livekit on your computer. For instructions, visit the [installation guide](/server/livekit).
+  </Step>
+  <Step title="Start the server">
+    Open a terminal and run the following command:
+
+    ```bash
+    poetry run 01 --server livekit --expose --qr
+    ```
+
+    This will start the 01 server with LiveKit support, expose it to the internet, and generate a QR code. You may need to wait up to 30 seconds before the code is displayed.
+    
+    If the server fails, you may need to restart the server a few times before it works again. We're working on resolving this as soon as possible.
+  </Step>
+  <Step title="Connect the app">
+    Open the 01 App on your mobile device and use it to scan the QR code displayed in your terminal. This will establish a connection between your mobile device and the 01 server running on your computer.
+  </Step>
+</Steps>
+
+# Settings
+
+The 01 App offers several customizable settings to enhance your experience. These can be changed by connecting to the server, then hitting the gear icon in the upper right, and adjusting the following settings:
+
+## <Icon icon="microphone" /> Push-to-talk
+
+Hold the on-screen button to activate listening, or use voice activity detection for hands-free operation.
+
+## <Icon icon="watch" /> Wearable Mode
+
+Optimizes the interface for small screens, displaying a minimal full-screen button without the chat interface.
+
+## <Icon icon="ear-listen" /> Always Listen for Context
+
+Continuously gathers environmental context, even when not actively prompted. Only available when Push-to-talk is enabled.

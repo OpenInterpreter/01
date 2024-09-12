@@ -1,0 +1,135 @@
+---
+title: "ESP32"
+description: "How to setup the ESP32"
+---
+
+<Info>This client uses the [light](/server/light) server.</Info>
+
+### Video Guide
+
+<iframe
+  width="560"
+  height="315"
+  src="https://www.youtube.com/embed/Y76zed8nEE8"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
+
+---
+
+To set up the ESP32 for use with 01, follow this guide to install the firmware:
+
+<Steps>
+  <Step title="Download Arduino IDE">
+    <Card title="Download Arduino IDE" icon="download" href="https://www.arduino.cc/en/software">
+      Get the Arduino IDE
+    </Card>
+  </Step>
+
+  <Step title="Get the firmware">
+    Get the firmware by copying the contents of [client.ino](https://github.com/OpenInterpreter/01/blob/main/software/source/clients/esp32/src/client/client.ino) from the 01 repository.
+
+    <Card title="View client.ino" icon="code" href="https://github.com/OpenInterpreter/01/blob/main/software/source/clients/esp32/src/client/client.ino">
+      View the ESP32 firmware source code
+    </Card>
+
+    <img src="assets/copy-client.png" alt="Copy client.ino contents" width="60%" />
+  </Step>
+
+  <Step title="Paste firmware into Arduino IDE">
+    Open Arduino IDE and paste the client.ino contents.
+
+    <img src="assets/paste-client.png" alt="Paste client.ino contents" width="60%" />
+
+    <img src="assets/pasted-client.png" alt="Pasted client.ino contents" width="60%" />
+  </Step>
+
+  <Step title="(Optional) Hardcode credentials">
+    Hardcode your WiFi SSID, WiFi password, and server URL into the top of the `client.ino` file.
+
+    <img src="assets/hardcode-wifi-pass-server.png" alt="Hardcode WiFi SSID and password" width="60%" />
+
+    Hardcoding is recommended for a more streamlined setup and development environment. However, if you don't hardcode these values or if the ESP32 can't connect using the provided information, it will automatically default to a captive portal for configuration. 
+  </Step>
+
+  <Step title="Install ESP32 boards">
+    Go to Tools -> Board -> Boards Manager, search "esp32", then install the boards by Arduino and Espressif.
+
+    <img src="assets/boards-manager.png" alt="Install ESP32 boards" width="60%" />
+  </Step>
+
+  <Step title="Install required libraries">
+    Go to Tools -> Manage Libraries, then install the following:
+
+    - M5Atom by M5Stack ([Reference](https://www.arduino.cc/reference/en/libraries/m5atom/))
+
+    <img src="assets/M5-atom-library.png" alt="Install M5Atom library" width="60%" />
+
+    <img src="assets/m5-atom-install-all.png" alt="Install all M5Atom dependencies" width="60%" />
+
+    - WebSockets by Markus Sattler ([Reference](https://www.arduino.cc/reference/en/libraries/websockets/))
+
+    <img src="assets/WebSockets by Markus Sattler.png" alt="Install WebSockets library" width="60%" />
+
+    - AsyncTCP by dvarrel ([Reference](https://github.com/dvarrel/AsyncTCP))
+
+    <img src="assets/AsyncTCP by dvarrel.png" alt="Install AsyncTCP library" width="60%" />
+
+    - ESPAsyncWebServer by lacamera ([Reference](https://github.com/lacamera/ESPAsyncWebServer))
+
+    <img src="assets/ESPAsyncWebServer by lacamera.png" alt="Install ESPAsyncWebServer library" width="60%" />
+
+    <img src="assets/ESPAsyncWebServer-install-all.png" alt="Install all ESPAsyncWebServer dependencies" width="60%" />
+  </Step>
+
+  <Step title="Connect the board">
+    To flash the .ino to the board, connect the board to the USB port.
+
+    <img src="assets/connect_usb.jpeg" alt="Connect USB" width="60%" />
+  </Step>
+
+  <Step title="Select board and port">
+    Select the port from the dropdown on the IDE, then select the M5Atom board (or M5Stack-ATOM if you have that).
+
+    <img src="assets/Select Board and Port.png" alt="Select Board and Port" width="60%" />
+  </Step>
+
+  <Step title="Upload firmware">
+    Click on upload to flash the board.
+
+    <img src="assets/Upload.png" alt="Upload firmware" width="60%" />
+  </Step>
+
+  <Step title="Start the 01 server">
+    Start the 01 server on your computer:
+    ```
+    poetry run 01 --server light
+    ```
+    This command starts the server and generates a URL.
+
+    For remote connections, use:
+    ```
+    poetry run 01 --server light --expose
+    ```
+    This generates a public URL accessible from anywhere.
+  </Step>
+
+  <Step title="Connect ESP32 to the server">
+    Connect your 01 device to the server using one of these methods:
+
+    a) Hardcode credentials:
+    - Modify the Wi-Fi and server credentials at the top of the `client.ino` file.
+    - Flash the modified file to the ESP32.
+    - This method is quick but less flexible for changing details later.
+
+    b) Use the captive portal:
+    - Power on your 01 device.
+    - Connect to the '01-light' Wi-Fi network from your computer or smartphone.
+    - A captive portal page should open automatically. If not, open a web browser.
+    - Enter your Wi-Fi details and the server URL from step 1.
+    - Click 'Connect' to save settings and connect your device.
+
+    After successful connection, your ESP32 will be ready to communicate with the server.
+  </Step>
+</Steps>

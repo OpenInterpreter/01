@@ -33,10 +33,10 @@
   },
   "navigation": [
     {
-      "group": "Getting Started",
+      "group": "Setup",
       "pages": [
-        "getting-started/introduction",
-        "getting-started/getting-started"
+        "setup/introduction",
+        "setup/installation"
       ]
     },
     {
@@ -48,24 +48,27 @@
       ]
     },
     {
-      "group": "Software Setup",
+      "group": "Server",
       "pages": [
-        "software/introduction",
-        "software/installation",
-        {
-          "group": "Server",
-          "pages": [
-            "software/server/introduction",
-            "software/server/livekit-server",
-            "software/server/light-server"
-          ]
-        },
-        "software/configure",
-        "software/flags"
+        "server/introduction",
+        "server/livekit",
+        "server/light",
+        "server/configure",
+        "server/flags"
       ]
     },
     {
-      "group": "Hardware Setup",
+      "group": "Client",
+      "pages": [
+        "client/introduction",
+        "client/android-ios",
+        "client/desktop",
+        "client/esp32",
+        "client/native-ios"
+      ]
+    },
+    {
+      "group": "Hardware",
       "pages": [
         {
           "group": "01 Light",
@@ -78,17 +81,10 @@
             "hardware/01-light/connect"
           ]
         },
-        "hardware/esp32/esp32",
-        "hardware/custom_hardware",
         "hardware/desktop",
-        {
-          "group": "Mobile",
-          "pages": [
-            "hardware/mobile/download",
-            "hardware/mobile/development",
-            "hardware/mobile/community-apps"
-          ]
-        }
+        "hardware/mini-phone",
+        "hardware/grimes-build",
+        "hardware/custom"
       ]
     },
     {
@@ -100,8 +96,8 @@
     {
       "group": "Legal",
       "pages": [
-        "legal/fulfillment-policy",
-        "legal/privacy"
+        "legal/privacy-policy",
+        "legal/terms-of-service"
       ]
     }
   ],
