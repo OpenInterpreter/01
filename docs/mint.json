@@ -70,6 +70,7 @@
     {
       "group": "Hardware",
       "pages": [
+        "hardware/introduction",
         {
           "group": "01 Light",
           "pages": [
@@ -83,7 +84,7 @@
         },
         "hardware/desktop",
         "hardware/mini-phone",
-        "hardware/grimes-build",
+        "hardware/grimes",
         "hardware/custom"
       ]
     },

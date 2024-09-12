@@ -34,21 +34,21 @@ To set up the ESP32 for use with 01, follow this guide to install the firmware:
       View the ESP32 firmware source code
     </Card>
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/copy-client.png" alt="Copy client.ino contents" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/copy-client.png" alt="Copy client.ino contents" width="80%" />
   </Step>
 
   <Step title="Paste firmware into Arduino IDE">
     Open Arduino IDE and paste the client.ino contents.
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/paste-client.png" alt="Paste client.ino contents" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/paste-client.png" alt="Paste client.ino contents" width="80%" />
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/pasted-client.png" alt="Pasted client.ino contents" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/pasted-client.png" alt="Pasted client.ino contents" width="80%" />
   </Step>
 
   <Step title="(Optional) Hardcode credentials">
     Hardcode your WiFi SSID, WiFi password, and server URL into the top of the `client.ino` file.
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/hardcode-wifi-pass-server.png" alt="Hardcode WiFi SSID and password" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/hardcode-wifi-pass-server.png" alt="Hardcode WiFi SSID and password" width="80%" />
 
     Hardcoding is recommended for a more streamlined setup and development environment. However, if you don't hardcode these values or if the ESP32 can't connect using the provided information, it will automatically default to a captive portal for configuration. 
   </Step>
@@ -56,7 +56,7 @@ To set up the ESP32 for use with 01, follow this guide to install the firmware:
   <Step title="Install ESP32 boards">
     Go to Tools -> Board -> Boards Manager, search "esp32", then install the boards by Arduino and Espressif.
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/boards-manager.png" alt="Install ESP32 boards" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/boards-manager.png" alt="Install ESP32 boards" width="80%" />
   </Step>
 
   <Step title="Install required libraries">
@@ -64,41 +64,41 @@ To set up the ESP32 for use with 01, follow this guide to install the firmware:
 
     - M5Atom by M5Stack ([Reference](https://www.arduino.cc/reference/en/libraries/m5atom/))
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/M5-atom-library.png" alt="Install M5Atom library" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/M5-atom-library.png" alt="Install M5Atom library" width="80%" />
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/m5-atom-install-all.png" alt="Install all M5Atom dependencies" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/m5-atom-install-all.png" alt="Install all M5Atom dependencies" width="80%" />
 
     - WebSockets by Markus Sattler ([Reference](https://www.arduino.cc/reference/en/libraries/websockets/))
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/WebSockets by Markus Sattler.png" alt="Install WebSockets library" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/WebSockets by Markus Sattler.png" alt="Install WebSockets library" width="80%" />
 
     - AsyncTCP by dvarrel ([Reference](https://github.com/dvarrel/AsyncTCP))
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/AsyncTCP by dvarrel.png" alt="Install AsyncTCP library" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/AsyncTCP by dvarrel.png" alt="Install AsyncTCP library" width="80%" />
 
     - ESPAsyncWebServer by lacamera ([Reference](https://github.com/lacamera/ESPAsyncWebServer))
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/ESPAsyncWebServer by lacamera.png" alt="Install ESPAsyncWebServer library" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/ESPAsyncWebServer by lacamera.png" alt="Install ESPAsyncWebServer library" width="80%" />
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/ESPAsyncWebServer-install-all.png" alt="Install all ESPAsyncWebServer dependencies" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/ESPAsyncWebServer-install-all.png" alt="Install all ESPAsyncWebServer dependencies" width="80%" />
   </Step>
 
   <Step title="Connect the board">
     To flash the .ino to the board, connect the board to the USB port.
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/connect_usb.jpeg" alt="Connect USB" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/connect_usb.jpeg" alt="Connect USB" width="80%" />
   </Step>
 
   <Step title="Select board and port">
     Select the port from the dropdown on the IDE, then select the M5Atom board (or M5Stack-ATOM if you have that).
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/Select Board and Port.png" alt="Select Board and Port" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/Select Board and Port.png" alt="Select Board and Port" width="80%" />
   </Step>
 
   <Step title="Upload firmware">
     Click on upload to flash the board.
 
-    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/Upload.png" alt="Upload firmware" width="60%" />
+    <img src="https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/Upload.png" alt="Upload firmware" width="80%" />
   </Step>
 
   <Step title="Start the 01 server">
