@@ -66,7 +66,7 @@ async def entrypoint(ctx: JobContext):
     base_url = f"http://{interpreter_server_host}:{interpreter_server_port}/openai"
 
     # For debugging
-    base_url = "http://127.0.0.1:8000/openai"
+    # base_url = "http://127.0.0.1:8000/openai"
 
     open_interpreter = openai.LLM(
         model="open-interpreter", base_url=base_url, api_key="x"
