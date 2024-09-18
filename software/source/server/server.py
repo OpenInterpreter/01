@@ -12,20 +12,14 @@ import os
 os.environ["INTERPRETER_REQUIRE_ACKNOWLEDGE"] = "False"
 os.environ["INTERPRETER_REQUIRE_AUTH"] = "False"
 
-def start_server(server_host, server_port, profile, voice, debug):
-
-    # Load the profile module from the provided path
-    spec = importlib.util.spec_from_file_location("profile", profile)
-    profile_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(profile_module)
-
-    # Get the interpreter from the profile
-    interpreter = profile_module.interpreter
+def start_server(server_host, server_port, interpreter, voice, debug):
 
     # Apply our settings to it
     interpreter.verbose = debug
     interpreter.server.host = server_host
     interpreter.server.port = server_port
+    interpreter.context_mode = False # Require a {START} message to respond
+    interpreter.context_mode = True # Require a {START} message to respond
 
     if voice == False:
         # If voice is False, just start the standard OI server

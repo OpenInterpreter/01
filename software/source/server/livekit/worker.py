@@ -72,12 +72,29 @@ async def entrypoint(ctx: JobContext):
         model="open-interpreter", base_url=base_url, api_key="x"
     )
 
+    tts_provider = os.getenv('01_TTS', '').lower()
+    stt_provider = os.getenv('01_STT', '').lower()
+
+    # Add plugins here
+    if tts_provider == 'openai':
+        tts = openai.TTS()
+    elif tts_provider == 'elevenlabs':
+        tts = elevenlabs.TTS()
+    elif tts_provider == 'cartesia':
+        pass # import plugin, TODO support this
+    else:
+        raise ValueError(f"Unsupported TTS provider: {tts_provider}. Please set 01_TTS environment variable to 'openai' or 'elevenlabs'.")
+
+    if stt_provider == 'deepgram':
+        stt = deepgram.STT()
+    else:
+        raise ValueError(f"Unsupported STT provider: {stt_provider}. Please set 01_STT environment variable to 'deepgram'.")
+
     assistant = VoiceAssistant(
         vad=silero.VAD.load(),  # Voice Activity Detection
-        stt=deepgram.STT(),  # Speech-to-Text
+        stt=stt,  # Speech-to-Text
         llm=open_interpreter,  # Language Model
-        tts=elevenlabs.TTS(),  # Text-to-Speech
-        #tts=openai.TTS(),  # Text-to-Speech
+        tts=tts,  # Text-to-Speech
         chat_ctx=initial_ctx,  # Chat history context
     )
 

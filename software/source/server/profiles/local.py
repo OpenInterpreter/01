@@ -1,9 +1,10 @@
 from interpreter import AsyncInterpreter
 interpreter = AsyncInterpreter()
 
-# 01 supports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
-# {OpenAI: "openai", ElevenLabs: "elevenlabs", Coqui: "coqui"}
+print("Warning: Local doesn't work with --server livekit. It only works with --server light. We will support local livekit usage soon!")
+
 interpreter.tts = "coqui"
+interpreter.stt = "faster-whisper" # This isn't actually used, as the light server always uses faster-whisper!
 
 interpreter.system_message = """You are an AI assistant that writes markdown code snippets to answer the user's request. You speak very concisely and quickly, you say nothing irrelevant to the user's request. For example:
 

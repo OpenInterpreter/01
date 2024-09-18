@@ -1,12 +1,8 @@
 from interpreter import AsyncInterpreter
 interpreter = AsyncInterpreter()
 
-# This is an Open Interpreter compatible profile.
-# Visit https://01.openinterpreter.com/profile for all options.
-
-# 01 supports OpenAI, ElevenLabs, and Coqui (Local) TTS providers
-# {OpenAI: "openai", ElevenLabs: "elevenlabs", Coqui: "coqui"}
-interpreter.tts = "elevenlabs"
+interpreter.tts = "elevenlabs" # This should be cartesia once we support it
+interpreter.stt = "deepgram" # This is only used for the livekit server. The light server runs faster-whisper locally
 
 interpreter.llm.model = "gpt-4o-mini"
 interpreter.llm.supports_vision = True

@@ -104,6 +104,13 @@ def run(
                     print(f"Invalid profile path: {profile}")
                     exit(1)
 
+    # Load the profile module from the provided path
+    spec = importlib.util.spec_from_file_location("profile", profile)
+    profile_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(profile_module)
+
+    # Get the interpreter from the profile
+    interpreter = profile_module.interpreter
 
     ### SERVER
 
@@ -135,7 +142,7 @@ def run(
             args=(
                 light_server_host,
                 light_server_port,
-                profile,
+                interpreter,
                 voice,
                 debug
             ),
@@ -249,6 +256,8 @@ def run(
             # These are needed to communicate with the worker's entrypoint
             os.environ['INTERPRETER_SERVER_HOST'] = light_server_host
             os.environ['INTERPRETER_SERVER_PORT'] = str(light_server_port)
+            os.environ['01_TTS'] = interpreter.tts
+            os.environ['01_STT'] = interpreter.stt
 
             token = str(api.AccessToken('devkey', 'secret') \
                 .with_identity("identity") \
@@ -259,6 +268,8 @@ def run(
             )).to_jwt())
 
             meet_url = f'https://meet.livekit.io/custom?liveKitUrl={url.replace("http", "ws")}&token={token}\n\n'
+            print("\n")
+            print("For debugging, you can join a video call with your assistant. Click the link below, then send a chat message that says {CONTEXT_MODE_OFF}, then begin speaking:")
             print(meet_url)
 
             for attempt in range(30):
