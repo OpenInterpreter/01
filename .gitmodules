@@ -1,0 +1,4 @@
+[submodule "software/source/clients/mobile/01-app"]
+	path = software/source/clients/mobile/01-app
+	url = https://github.com/OpenInterpreter/01-app.git
+	branch = main
