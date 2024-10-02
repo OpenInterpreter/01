@@ -12,12 +12,12 @@ readme = "../README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-livekit = "^0.12.1"
-livekit-agents = "^0.8.6"
-livekit-plugins-deepgram = "^0.6.5"
-livekit-plugins-openai = "^0.8.1"
-livekit-plugins-silero = "^0.6.4"
-livekit-plugins-elevenlabs = "^0.7.3"
+livekit = "^0.17.2"
+livekit-agents = "^0.10.0"
+livekit-plugins-deepgram = "^0.6.7"
+livekit-plugins-openai = "^0.10.1"
+livekit-plugins-silero = "^0.7.1"
+livekit-plugins-elevenlabs = "^0.7.5"
 segno = "^1.6.1"
 open-interpreter = {git = "https://github.com/openinterpreter/open-interpreter.git", rev = "development", extras = ["os", "server"]}
 ngrok = "^1.4.0"
