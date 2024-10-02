@@ -2,49 +2,19 @@ import asyncio
 import copy
 import os
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli
-from livekit.agents.transcription import STTSegmentsForwarder
 from livekit.agents.llm import ChatContext, ChatMessage
 from livekit import rtc
-from livekit.agents import stt, transcription
 from livekit.agents.voice_assistant import VoiceAssistant
 from livekit.plugins import deepgram, openai, silero, elevenlabs
 from dotenv import load_dotenv
 import sys
 import numpy as np
-from .text_processor import _01_synthesize_assistant_reply
-from .video_processor import RemoteVideoProcessor
-import logging
-from datetime import datetime
-
 
 load_dotenv()
-
-# Define the path to the log file
-LOG_FILE_PATH = 'worker.txt'
-
-def log_message(message: str):
-    """Append a message to the log file with a timestamp."""
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    with open(LOG_FILE_PATH, 'a') as log_file:
-        log_file.write(f"{timestamp} - {message}\n")
 
 start_message = """Hi! You can hold the white circle below to speak to me.
 
 Try asking what I can do."""
-
-
-async def _forward_transcription(
-    stt_stream: stt.SpeechStream,
-    stt_forwarder: transcription.STTSegmentsForwarder,
-):
-    """Forward the transcription to the client and log the transcript in the console"""
-    async for ev in stt_stream:
-        stt_forwarder.update(ev)
-        if ev.type == stt.SpeechEventType.INTERIM_TRANSCRIPT:
-            print(ev.alternatives[0].text, end="")
-        elif ev.type == stt.SpeechEventType.FINAL_TRANSCRIPT:
-            print("\n")
-            print(" -> ", ev.alternatives[0].text)
 
 # This function is the entrypoint for the agent.
 async def entrypoint(ctx: JobContext):
@@ -57,7 +27,7 @@ async def entrypoint(ctx: JobContext):
     )
 
     # Connect to the LiveKit room
-    await ctx.connect()
+    await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
 
     # Create a black background with a white circle
     width, height = 640, 480
@@ -126,7 +96,6 @@ async def entrypoint(ctx: JobContext):
         llm=open_interpreter,  # Language Model
         tts=tts,  # Text-to-Speech
         chat_ctx=initial_ctx,  # Chat history context
-        will_synthesize_assistant_reply=_01_synthesize_assistant_reply(ctx.room.local_participant),
     )
 
     chat = rtc.ChatManager(ctx.room)
@@ -153,41 +122,9 @@ async def entrypoint(ctx: JobContext):
     await assistant.say(start_message,
     allow_interruptions=True)
 
-    tasks = []
-
-    async def transcribe_track(participant: rtc.RemoteParticipant, track: rtc.Track):
-        audio_stream = rtc.AudioStream(track)
-        stt_forwarder = STTSegmentsForwarder(
-            room=ctx.room, participant=participant, track=track
-        )
-        stt_stream = stt.stream()
-        stt_task = asyncio.create_task(
-            _forward_transcription(stt_stream, stt_forwarder)
-        )
-        tasks.append(stt_task)
-
-        async for ev in audio_stream:
-            stt_stream.push_frame(ev.frame)
-
-    @ctx.room.on("track_subscribed")
-    def on_track_subscribed(
-        track: rtc.Track,
-        publication: rtc.TrackPublication,
-        participant: rtc.RemoteParticipant,
-    ):
-        log_message(f"Track subscribed: {track.kind}")
-
-        if track.kind == rtc.TrackKind.KIND_AUDIO:
-            tasks.append(asyncio.create_task(transcribe_track(participant, track)))
-
-        if track.kind == rtc.TrackKind.KIND_VIDEO:
-            remote_video_stream = rtc.VideoStream(track=track)
-            processor = RemoteVideoProcessor(video_stream=remote_video_stream, job_ctx=ctx)
-
-            asyncio.create_task(processor.process_frames())
-
 
 def main(livekit_url):
+    
     # Workers have to be run as CLIs right now.
     # So we need to simualte running "[this file] dev"
 
