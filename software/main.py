@@ -19,6 +19,7 @@ import time
 from dotenv import load_dotenv
 import signal
 from source.server.livekit.worker import main as worker_main
+from source.server.livekit.multimodal import main as multimodal_main
 import warnings
 import requests
 
@@ -70,6 +71,11 @@ def run(
         False,
         "--debug",
         help="Print latency measurements and save microphone recordings locally for manual playback",
+    ),
+    multimodal: bool = typer.Option(
+        False,
+        "--multimodal",
+        help="Run the multimodal agent",
     ),
 ):
 
@@ -274,7 +280,10 @@ def run(
 
             for attempt in range(30):
                 try:
-                    worker_main(local_livekit_url)
+                    if multimodal:
+                        multimodal_main(local_livekit_url)
+                    else:
+                        worker_main(local_livekit_url)
                 except KeyboardInterrupt:
                     print("Exiting.")
                     raise
