@@ -21,7 +21,7 @@ async def entrypoint(ctx: JobContext):
 
     openai_api_key = os.getenv("OPENAI_API_KEY")
     model = openai.realtime.RealtimeModel(
-        instructions="You are a helpful assistant and you love kittens",
+        instructions="You are a helpful assistant and you love open-source software",
         voice="shimmer",
         temperature=0.8,
         modalities=["audio", "text"],
