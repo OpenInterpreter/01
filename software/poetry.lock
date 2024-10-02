@@ -4090,68 +4090,66 @@ sympy = "*"
 
 [[package]]
 name = "open-interpreter"
-version = "0.3.13"
+version = "0.3.12"
 description = "Let language models run code"
 optional = false
-python-versions = ">=3.9,<4"
-files = []
-develop = false
+python-versions = "<4,>=3.9"
+files = [
+    {file = "open_interpreter-0.3.12-py3-none-any.whl", hash = "sha256:0e155568685ea927c2b4b8139e4ce9bdf03ee0f8f5a71030f07988f72b305721"},
+    {file = "open_interpreter-0.3.12.tar.gz", hash = "sha256:ab3ebde071ab19812513880be3dedcccd7c545dbea1b8a31bd054ef6332acbf6"},
+]
 
 [package.dependencies]
-astor = "^0.8.1"
-fastapi = {version = "^0.111.0", optional = true}
-git-python = "^1.0.3"
-google-generativeai = "^0.7.1"
-html2image = "^2.0.4.3"
-html2text = "^2024.2.26"
-inquirer = "^3.1.3"
-ipykernel = "^6.26.0"
-ipywidgets = {version = "^8.1.2", optional = true}
-janus = {version = "^1.0.0", optional = true}
-jupyter-client = "^8.6.0"
-litellm = "^1.41.26"
-matplotlib = "^3.8.2"
-opencv-python = {version = "^4.8.1.78", optional = true}
-platformdirs = "^4.2.0"
-plyer = {version = "^2.1.0", optional = true}
-psutil = "^5.9.6"
-pyautogui = {version = "^0.9.54", optional = true}
-pydantic = "^2.6.4"
-pyperclip = "^1.9.0"
-pyreadline3 = {version = "^3.4.1", markers = "sys_platform == \"win32\""}
-pytesseract = {version = "^0.3.10", optional = true}
-pywinctl = {version = "^0.3", optional = true}
-pyyaml = "^6.0.1"
-rich = "^13.4.2"
-screeninfo = {version = "^0.8.1", optional = true}
-selenium = "^4.24.0"
-send2trash = "^1.8.2"
-sentence-transformers = {version = "^2.5.1", optional = true}
+astor = ">=0.8.1,<0.9.0"
+fastapi = {version = ">=0.111.0,<0.112.0", optional = true, markers = "extra == \"server\""}
+git-python = ">=1.0.3,<2.0.0"
+google-generativeai = ">=0.7.1,<0.8.0"
+html2image = ">=2.0.4.3,<3.0.0.0"
+html2text = ">=2024.2.26,<2025.0.0"
+inquirer = ">=3.1.3,<4.0.0"
+ipykernel = ">=6.26.0,<7.0.0"
+ipywidgets = {version = ">=8.1.2,<9.0.0", optional = true, markers = "extra == \"os\""}
+janus = {version = ">=1.0.0,<2.0.0", optional = true, markers = "extra == \"server\""}
+jupyter-client = ">=8.6.0,<9.0.0"
+litellm = ">=1.41.26,<2.0.0"
+matplotlib = ">=3.8.2,<4.0.0"
+nltk = ">=3.8.1,<4.0.0"
+opencv-python = {version = ">=4.8.1.78,<5.0.0.0", optional = true, markers = "extra == \"os\" or extra == \"local\""}
+platformdirs = ">=4.2.0,<5.0.0"
+plyer = {version = ">=2.1.0,<3.0.0", optional = true, markers = "extra == \"os\""}
+psutil = ">=5.9.6,<6.0.0"
+pyautogui = {version = ">=0.9.54,<0.10.0", optional = true, markers = "extra == \"os\""}
+pydantic = ">=2.6.4,<3.0.0"
+pyperclip = ">=1.9.0,<2.0.0"
+pyreadline3 = {version = ">=3.4.1,<4.0.0", markers = "sys_platform == \"win32\""}
+pytesseract = {version = ">=0.3.10,<0.4.0", optional = true, markers = "extra == \"os\" or extra == \"local\""}
+pywinctl = {version = ">=0.3,<0.4", optional = true, markers = "extra == \"os\""}
+pyyaml = ">=6.0.1,<7.0.0"
+rich = ">=13.4.2,<14.0.0"
+screeninfo = {version = ">=0.8.1,<0.9.0", optional = true, markers = "extra == \"os\""}
+selenium = ">=4.24.0,<5.0.0"
+send2trash = ">=1.8.2,<2.0.0"
+sentence-transformers = {version = ">=2.5.1,<3.0.0", optional = true, markers = "extra == \"os\""}
 setuptools = "*"
-shortuuid = "^1.0.13"
-six = "^1.16.0"
-starlette = "^0.37.2"
-tiktoken = "^0.7.0"
-timm = {version = "^0.9.16", optional = true}
-tokentrim = "^0.1.13"
-toml = "^0.10.2"
-typer = "^0.12.4"
-uvicorn = {version = "^0.30.1", optional = true}
-webdriver-manager = "^4.0.2"
-wget = "^3.2"
-yaspin = "^3.0.2"
+shortuuid = ">=1.0.13,<2.0.0"
+six = ">=1.16.0,<2.0.0"
+starlette = ">=0.37.2,<0.38.0"
+tiktoken = ">=0.7.0,<0.8.0"
+timm = {version = ">=0.9.16,<0.10.0", optional = true, markers = "extra == \"os\""}
+tokentrim = ">=0.1.13,<0.2.0"
+toml = ">=0.10.2,<0.11.0"
+torch = {version = ">=2.2.1,<3.0.0", optional = true, markers = "extra == \"os\" or extra == \"local\""}
+typer = ">=0.12.4,<0.13.0"
+uvicorn = {version = ">=0.30.1,<0.31.0", optional = true, markers = "extra == \"server\""}
+webdriver-manager = ">=4.0.2,<5.0.0"
+wget = ">=3.2,<4.0"
+yaspin = ">=3.0.2,<4.0.0"
 
 [package.extras]
 local = ["easyocr (>=1.7.1,<2.0.0)", "einops (>=0.8.0,<0.9.0)", "opencv-python (>=4.8.1.78,<5.0.0.0)", "pytesseract (>=0.3.10,<0.4.0)", "torch (>=2.2.1,<3.0.0)", "torchvision (>=0.18.0,<0.19.0)", "transformers (==4.41.2)"]
-os = ["ipywidgets (>=8.1.2,<9.0.0)", "opencv-python (>=4.8.1.78,<5.0.0.0)", "plyer (>=2.1.0,<3.0.0)", "pyautogui (>=0.9.54,<0.10.0)", "pytesseract (>=0.3.10,<0.4.0)", "pywinctl (>=0.3,<0.4)", "screeninfo (>=0.8.1,<0.9.0)", "sentence-transformers (>=2.5.1,<3.0.0)", "timm (>=0.9.16,<0.10.0)"]
+os = ["ipywidgets (>=8.1.2,<9.0.0)", "opencv-python (>=4.8.1.78,<5.0.0.0)", "plyer (>=2.1.0,<3.0.0)", "pyautogui (>=0.9.54,<0.10.0)", "pytesseract (>=0.3.10,<0.4.0)", "pywinctl (>=0.3,<0.4)", "screeninfo (>=0.8.1,<0.9.0)", "sentence-transformers (>=2.5.1,<3.0.0)", "timm (>=0.9.16,<0.10.0)", "torch (>=2.2.1,<3.0.0)"]
 safe = ["semgrep (>=1.52.0,<2.0.0)"]
 server = ["fastapi (>=0.111.0,<0.112.0)", "janus (>=1.0.0,<2.0.0)", "uvicorn (>=0.30.1,<0.31.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/openinterpreter/open-interpreter.git"
-reference = "development"
-resolved_reference = "bd24acd89d3caf113a14109106952de2c793432f"
 
 [[package]]
 name = "openai"
@@ -11080,4 +11078,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "7c40eca9d5b84b65894ddef258e1d7237d1698a62db1a68ee42871fe20d18f6f"
+content-hash = "5532f1b0732f4c73e30db78b717afb0fd5cf327f1bf093f073cec113428cc4b9"
