@@ -8,6 +8,14 @@
     <br><a href="https://changes.openinterpreter.com">Get Updates</a>‎ ‎ |‎ ‎ <a href="https://01.openinterpreter.com/">Documentation</a><br>
 </p>
 
+<br>
+
+> [!NOTE]
+> You can talk to your 01 using OpenAI's [Realtime API](https://platform.openai.com/docs/guides/realtime) (Advanced Voice Mode) via the `--multimodel` flag, e.g:
+> ```shell
+> poetry run 01 --server livekit --qr --expose --multimodal
+> ```
+
 <br></br>
 
 ![01 Project Banner](https://raw.githubusercontent.com/OpenInterpreter/01/main/docs/assets/banner.png)
