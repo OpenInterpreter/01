@@ -258,7 +258,7 @@ def run(
 
         ### START LIVEKIT WORKER
         if server == "livekit":
-            time.sleep(7)
+            time.sleep(5)
             # These are needed to communicate with the worker's entrypoint
             os.environ['INTERPRETER_SERVER_HOST'] = light_server_host
             os.environ['INTERPRETER_SERVER_PORT'] = str(light_server_port)
@@ -273,7 +273,7 @@ def run(
                     room="my-room",
             )).to_jwt())
 
-            meet_url = f'https://meet.livekit.io/custom?liveKitUrl={url.replace("http", "ws")}&token={token}\n\n'
+            # meet_url = f'http://localhost:3000/custom?liveKitUrl={url.replace("http", "ws")}&token={token}\n\n'
             print("\n")
             print("For debugging, you can join a video call with your assistant. Click the link below, then send a chat message that says {CONTEXT_MODE_OFF}, then begin speaking:")
             print(meet_url)
