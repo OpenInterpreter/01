@@ -23,8 +23,6 @@ poetry install
 
 # Set up environment variables for the voice feature
 echo "export OPENAI_API_KEY='your_openai_api_key'" >> ~/.bashrc
-echo "export ELEVENLABS_API_KEY='your_elevenlabs_api_key'" >> ~/.bashrc
-echo "export DEEPGRAM_API_KEY='your_deepgram_api_key'" >> ~/.bashrc
 source ~/.bashrc
 
 # Start the server with the voice feature enabled
