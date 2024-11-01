@@ -26,6 +26,7 @@ realtimestt = "^0.2.41"
 pynput = "^1.7.7"
 yaspin = "^3.0.2"
 pywebview = "^5.2"
+livekit-plugins-cartesia = "^0.4.2"
 
 [build-system]
 requires = ["poetry-core"]

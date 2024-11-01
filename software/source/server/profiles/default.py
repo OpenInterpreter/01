@@ -1,7 +1,7 @@
 from interpreter import AsyncInterpreter
 interpreter = AsyncInterpreter()
 
-interpreter.tts = "elevenlabs" # This should be cartesia once we support it
+interpreter.tts = "cartesia"
 interpreter.stt = "deepgram" # This is only used for the livekit server. The light server runs faster-whisper locally
 
 # Connect your 01 to a language model

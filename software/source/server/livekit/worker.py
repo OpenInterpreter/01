@@ -5,7 +5,7 @@ from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli
 from livekit.agents.llm import ChatContext, ChatMessage
 from livekit import rtc
 from livekit.agents.voice_assistant import VoiceAssistant
-from livekit.plugins import deepgram, openai, silero, elevenlabs
+from livekit.plugins import deepgram, openai, silero, elevenlabs, cartesia
 from dotenv import load_dotenv
 import sys
 import numpy as np
@@ -81,7 +81,7 @@ async def entrypoint(ctx: JobContext):
     elif tts_provider == 'elevenlabs':
         tts = elevenlabs.TTS()
     elif tts_provider == 'cartesia':
-        pass # import plugin, TODO support this
+        tts = cartesia.TTS()
     else:
         raise ValueError(f"Unsupported TTS provider: {tts_provider}. Please set 01_TTS environment variable to 'openai' or 'elevenlabs'.")
 
