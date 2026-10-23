@@ -126,7 +126,7 @@ async def entrypoint(ctx: JobContext):
 def main(livekit_url):
     
     # Workers have to be run as CLIs right now.
-    # So we need to simualte running "[this file] dev"
+    # So we need to simulate running "[this file] dev"
 
     # Modify sys.argv to set the path to this file as the first argument
     # and 'dev' as the second argument
